@@ -1,0 +1,9 @@
+server:
+  port: 9000
+security:
+  sessions: IF_REQUIRED
+logging:
+  level:
+    org.springframework:
+      security: DEBUG
+      session: TRACE

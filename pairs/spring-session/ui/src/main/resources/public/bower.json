@@ -1,0 +1,23 @@
+{
+  "name": "microservice-security",
+  "version": "0.0.0",
+  "homepage": "https://github.com/SpringOne2GX-2014/microservice-security",
+  "authors": [
+    "Dave Syer"
+  ],
+  "main": "js/hello.js",
+  "moduleType": [
+    "node"
+  ],
+  "license": "ASF",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "rave-angular": "~0.2.0"
+  }
+}

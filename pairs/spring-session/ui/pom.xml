@@ -11,6 +11,13 @@
 	<name>Spring Session UI</name>
 	<description>Demo project for Spring Boot</description>
 
+	<repositories>
+		<repository>
+			<id>spring-session</id>
+			<url>http://repo.spring.io/libs-milestone-local</url>
+		</repository>
+	</repositories>
+
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
@@ -35,10 +42,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-redis</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-freemarker</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

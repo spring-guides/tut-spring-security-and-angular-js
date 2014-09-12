@@ -86,4 +86,11 @@
 		</plugins>
 	</build>
 
+	<repositories>
+		<repository>
+			<id>spring-milestones</id>
+			<url>http://repo.spring.io/libs-milestone-local</url>
+		</repository>
+	</repositories>
+
 </project>

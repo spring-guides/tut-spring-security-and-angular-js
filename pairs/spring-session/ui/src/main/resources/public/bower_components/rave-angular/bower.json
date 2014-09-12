@@ -1,0 +1,35 @@
+{
+	"name": "rave-angular",
+	"version": "0.2.0",
+	"description": "Integrates AngularJS into RaveJS.",
+	"main": "rave.js",
+	"dependencies": {
+		"rave": "~0.2",
+		"angular": "~v1.2",
+		"angular-route": "~v1.2"
+	},
+	"rave": "rave",
+	"moduleType": [
+		"node"
+	],
+	"keywords": [
+		"rave",
+		"rave-extension",
+		"angular",
+		"ng",
+		"angularjs"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/unscriptable/rave-angular",
+	"authors": [
+		"John Hann (http://unscriptable.com)",
+		"Brian Cavalier (http://hovercraftstudios.com)"
+	],
+	"ignore": [
+		"**/.*",
+		"node_modules",
+		"bower_components",
+		"test",
+		"tests"
+	]
+}

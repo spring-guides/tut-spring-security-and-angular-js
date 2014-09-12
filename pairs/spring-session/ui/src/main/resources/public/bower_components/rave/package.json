@@ -1,0 +1,46 @@
+{
+  "name": "rave",
+  "version": "0.2.1",
+  "description": "Zero-configuration application bootstrap and development.",
+  "main": "rave",
+  "keywords": [
+    "module",
+    "package",
+    "bower",
+    "npm",
+    "amd",
+    "node",
+    "commonjs",
+    "es6"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/RaveJS/rave.git"
+  },
+  "authors": [
+    "John Hann (http://unscriptable.com)",
+    "Brian Cavalier (http://hovercraftstudios.com)"
+  ],
+  "contributors": [
+    {
+      "name": "John Hann",
+      "web": "http://unscriptable.com"
+    },
+    {
+      "name": "Brian Cavalier",
+      "web": "http://hovercraftstudios.com"
+    }
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "buster": "~0.6",
+    "cram": "0.8.0",
+    "es6-module-loader": "git://github.com/ModuleLoader/es6-module-loader#v0.4.3"
+  },
+  "scripts": {
+    "test": "buster test",
+    "cram": "node node_modules/cram/cram.js --config ./build/cram.json --output ./build/temp/hooks.js",
+    "concat": "node build/concat.js",
+    "build": "npm run cram && npm run concat"
+  }
+}

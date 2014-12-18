@@ -16,12 +16,24 @@
 
 package sample.tomcat;
 
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,7 +47,7 @@ import org.springframework.web.bind.annotation.RestController;
 @EnableAutoConfiguration
 @ComponentScan
 @RestController
-public class SslApplication {
+public class X509Application {
 
 	@Autowired
 	private ServerProperties server;
@@ -45,8 +57,25 @@ public class SslApplication {
 		return "hello";
 	}
 
+	@Configuration
+	@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
+	protected static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			UserDetailsService userDetails = new InMemoryUserDetailsManager(
+					Arrays.<UserDetails> asList(new User("rod", "N/A", AuthorityUtils
+							.commaSeparatedStringToAuthorityList("ROLE_USER"))));
+			http.authorizeRequests().anyRequest().authenticated().and().x509()
+					.userDetailsService(userDetails).and().sessionManagement()
+					.sessionCreationPolicy(SessionCreationPolicy.NEVER).and().csrf()
+					.disable();
+		}
+
+	}
+
 	public static void main(String[] args) throws Exception {
-		SpringApplication.run(SslApplication.class, args);
+		SpringApplication.run(X509Application.class, args);
 	}
 
 }

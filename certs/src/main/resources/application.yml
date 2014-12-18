@@ -6,3 +6,6 @@ server:
     trustStorePassword: password
     keyAlias: servercert
     clientAuth: NEED
+logging:
+  level:
+    org.springframework.security: DEBUG

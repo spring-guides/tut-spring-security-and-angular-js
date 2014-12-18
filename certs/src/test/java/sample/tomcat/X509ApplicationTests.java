@@ -35,6 +35,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,10 +48,10 @@ import org.springframework.web.client.RestTemplate;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = SslApplication.class)
+@SpringApplicationConfiguration(classes = X509Application.class)
 @WebAppConfiguration
 @IntegrationTest("server.port=0")
-public class SslApplicationTests {
+public class X509ApplicationTests {
 
 	@Value("${local.server.port}")
 	private String port;
@@ -69,7 +70,7 @@ public class SslApplicationTests {
 
 	@Test(expected = ResourceAccessException.class)
 	public void testUnauthenticatedHello() throws Exception {
-		RestTemplate template = new RestTemplate();
+		RestTemplate template = new TestRestTemplate();
 		ResponseEntity<String> httpsEntity = template.getForEntity("https://localhost:"
 				+ this.port + "/hello", String.class);
 		assertEquals(HttpStatus.OK, httpsEntity.getStatusCode());
@@ -78,7 +79,7 @@ public class SslApplicationTests {
 
 	@Test
 	public void testAuthenticatedHello() throws Exception {
-		RestTemplate template = new RestTemplate();
+		RestTemplate template = new TestRestTemplate();
 		final LocalhostClientHttpRequestFactory factory = new LocalhostClientHttpRequestFactory(
 				secureSocketFactory());
 		template.setRequestFactory(factory);

@@ -39,7 +39,7 @@ public class Application {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Bean
-	Filter sessionFilter(
+	public Filter sessionFilter(
 			@Qualifier("redisTemplate") RedisOperations redisOperations) {
 		SessionRepository sessionRepository = new RedisOperationsSessionRepository(
 				redisOperations);

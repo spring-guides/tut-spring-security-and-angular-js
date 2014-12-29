@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 @ComponentScan
 @EnableAutoConfiguration
 @RestController
-class Application {
+class ResourceApplication {
 	
 	@RequestMapping('/')
 	def home() {
@@ -19,7 +19,7 @@ class Application {
 	}
 
     static void main(String[] args) {
-        SpringApplication.run Application, args
+        SpringApplication.run ResourceApplication, args
     }
 
-	}
+}

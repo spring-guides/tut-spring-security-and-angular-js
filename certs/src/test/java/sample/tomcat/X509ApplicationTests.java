@@ -18,16 +18,17 @@ package sample.tomcat;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.security.KeyStore;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
 
-import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.client.HttpClient;
+import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContextBuilder;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +40,7 @@ import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.client.ResourceAccessException;
@@ -80,8 +81,8 @@ public class X509ApplicationTests {
 	@Test
 	public void testAuthenticatedHello() throws Exception {
 		RestTemplate template = new TestRestTemplate();
-		final LocalhostClientHttpRequestFactory factory = new LocalhostClientHttpRequestFactory(
-				secureSocketFactory());
+		final HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(
+				httpClient());
 		template.setRequestFactory(factory);
 
 		ResponseEntity<String> httpsEntity = template.getForEntity("https://localhost:"
@@ -90,44 +91,25 @@ public class X509ApplicationTests {
 		assertEquals("hello", httpsEntity.getBody());
 	}
 
-	private SSLSocketFactory secureSocketFactory() throws Exception {
-		KeyStore truststore = KeyStore.getInstance(KeyStore.getDefaultType());
-		truststore.load(getKeyStoreFile(), "password".toCharArray());
-		// setup ssl context
-		SSLContext ctx = SSLContexts.custom().loadTrustMaterial(truststore)
-				.loadKeyMaterial(truststore, "password".toCharArray()).build();
-		return ctx.getSocketFactory();
+	private HttpClient httpClient() throws Exception {
+		CloseableHttpClient httpclient = HttpClients.custom()
+				.setSSLSocketFactory(socketFactory()).build();
+		return httpclient;
 	}
 
-	private static class LocalhostClientHttpRequestFactory extends
-			SimpleClientHttpRequestFactory {
-
-		private final SSLSocketFactory socketFactory;
-
-		public LocalhostClientHttpRequestFactory(final SSLSocketFactory socketFactory) {
-			this.socketFactory = socketFactory;
-		}
-
-		@Override
-		protected void prepareConnection(final HttpURLConnection connection,
-				final String httpMethod) throws IOException {
-			if (connection instanceof HttpsURLConnection) {
-				HttpsURLConnection https = (HttpsURLConnection) connection;
-				https.setHostnameVerifier(new HostnameVerifier() {
-					@Override
-					public boolean verify(final String hostname, final SSLSession session) {
-						// Trust localhost even if the certificate chain is invalid
-						return "localhost".equals(hostname);
-					}
-				});
-				https.setSSLSocketFactory(this.socketFactory);
-			}
-			super.prepareConnection(connection, httpMethod);
-		}
+	private SSLConnectionSocketFactory socketFactory() throws Exception {
+		char[] password = "password".toCharArray();
+		KeyStore truststore = KeyStore.getInstance("PKCS12");
+		truststore.load(getKeyStoreFile(), password);
+		SSLContextBuilder builder = new SSLContextBuilder();
+		builder.loadKeyMaterial(truststore, password);
+		builder.loadTrustMaterial(truststore, new TrustSelfSignedStrategy());
+		return new SSLConnectionSocketFactory(builder.build(),
+				new AllowAllHostnameVerifier());
 	}
 
 	private static InputStream getKeyStoreFile() throws IOException {
-		ClassPathResource resource = new ClassPathResource("server.jks");
+		ClassPathResource resource = new ClassPathResource("rod.p12");
 		return resource.getInputStream();
 	}
 

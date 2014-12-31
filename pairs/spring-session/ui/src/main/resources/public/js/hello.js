@@ -1,21 +1,84 @@
-var angular = require('angular');
+angular.module('hello', [ 'ngRoute' ]).config(function($routeProvider) {
 
-angular.module('hello', []).controller('Hello', function($scope, $http) {
+	$routeProvider.when('/', {
+		templateUrl : 'home.html',
+		controller : 'home'
+	}).when('/login', {
+		templateUrl : 'login.html',
+		controller : 'navigation'
+	}).otherwise('/');
 
-	$http.get('http://localhost:8080/token').then(function(token) {
-		
-		return $http({
-			method : 'GET',
-			url : 'http://localhost:9000',
-			headers : {'X-Token' : token.data}
+}).controller('navigation',
+
+function($rootScope, $scope, $http, $location, $route) {
+
+	$scope.tab = function(route) {
+		return $route.current && route === $route.current.controller;
+	};
+
+	var authenticate = function(callback) {
+
+		$http.get('user').success(function(data) {
+			if (data.name) {
+				$rootScope.authenticated = true;
+			} else {
+				$rootScope.authenticated = false;
+			}
+			callback && callback();
+		}).error(function() {
+			$rootScope.authenticated = false;
+			callback && callback();
 		});
 
-	}).then(function(result) {
-		$scope.greeting = result.data;
-	}).catch(function(e) {
-		console.log(JSON.stringify(e));
-	});
+	}
 
+	authenticate();
+
+	$scope.credentials = {};
+	$scope.login = function() {
+		$http.post('login', $.param($scope.credentials), {
+			headers : {
+				"content-type" : "application/x-www-form-urlencoded"
+			}
+		}).success(function(data) {
+			authenticate(function() {
+				if ($rootScope.authenticated) {
+					console.log("Login succeeded")
+					$location.path("/");
+					$rootScope.authenticated = true;
+				} else {
+					console.log("Login failed with redirect")
+					$location.path("/login");
+					$rootScope.authenticated = false;
+				}
+			});
+		}).error(function(data) {
+			console.log("Login failed")
+			$location.path("/login");
+			$rootScope.authenticated = false;
+		})
+	};
+
+	$scope.logout = function() {
+		$http.post('logout', {}).success(function() {
+			$rootScope.authenticated = false;
+			$location.path("/");
+		}).error(function(data) {
+			console.log("Logout failed")
+			$rootScope.authenticated = false;
+		});
+	}
+
+}).controller('home', function($scope, $http) {
+	$http.get('token').success(function(token) {
+		$http({
+			url : 'http://localhost:9000',
+			method : 'GET',
+			headers : {
+				'X-Session' : token.token
+			}
+		}).success(function(data) {
+			$scope.greeting = data;
+		});
+	})
 });
-
-angular.bootstrap(document, ['hello']);

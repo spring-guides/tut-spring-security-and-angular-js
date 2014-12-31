@@ -31,16 +31,15 @@ import org.springframework.web.util.WebUtils;
 @ComponentScan
 @EnableAutoConfiguration
 @RestController
-public class Application {
+public class UiApplication {
 	
 	@RequestMapping("/user")
 	public Principal user(Principal user) {
 		return user;
 	}
-	
 
 	public static void main(String[] args) {
-		SpringApplication.run(Application.class, args);
+		SpringApplication.run(UiApplication.class, args);
 	}
 
 	@Configuration

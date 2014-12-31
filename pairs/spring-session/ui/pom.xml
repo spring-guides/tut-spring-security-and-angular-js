@@ -22,7 +22,7 @@
 		<dependency>
 			<groupId>org.springframework.session</groupId>
 			<artifactId>spring-session</artifactId>
-			<version>1.0.0.M1</version>
+			<version>1.0.0.RC1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -45,15 +45,84 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<start-class>demo.Application</start-class>
+		<wro4j.version>1.7.6</wro4j.version>
 		<java.version>1.7</java.version>
 	</properties>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>${project.basedir}/src/main/resources</directory>
+			</resource>
+			<resource>
+				<directory>${project.build.directory}/generated-resources</directory>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<!-- Serves *only* to filter the wro.xml so it can get an absolute 
+							path for the project -->
+						<id>copy-resources</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/target/wro</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/main/wro</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>ro.isdc.wro4j</groupId>
+				<artifactId>wro4j-maven-plugin</artifactId>
+				<version>${wro4j.version}</version>
+				<executions>
+					<execution>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<wroManagerFactory>ro.isdc.wro.maven.plugin.manager.factory.ConfigurableWroManagerFactory</wroManagerFactory>
+					<cssDestinationFolder>${project.build.directory}/generated-resources/static/css</cssDestinationFolder>
+					<jsDestinationFolder>${project.build.directory}/generated-resources/static/js</jsDestinationFolder>
+					<wroFile>${project.build.directory}/wro/wro.xml</wroFile>
+					<extraConfigFile>${basedir}/src/main/wro/wro.properties</extraConfigFile>
+					<contextFolder>${basedir}/src/main/wro</contextFolder>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.webjars</groupId>
+						<artifactId>jquery</artifactId>
+						<version>2.1.1</version>
+					</dependency>
+					<dependency>
+						<groupId>org.webjars</groupId>
+						<artifactId>angularjs</artifactId>
+						<version>1.3.8</version>
+					</dependency>
+					<dependency>
+						<groupId>org.webjars</groupId>
+						<artifactId>bootstrap</artifactId>
+						<version>3.2.0</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 		</plugins>
 	</build>

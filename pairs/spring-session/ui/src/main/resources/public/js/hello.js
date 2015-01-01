@@ -45,16 +45,19 @@ function($rootScope, $scope, $http, $location, $route) {
 				if ($rootScope.authenticated) {
 					console.log("Login succeeded")
 					$location.path("/");
+					$scope.error = true;
 					$rootScope.authenticated = true;
 				} else {
 					console.log("Login failed with redirect")
 					$location.path("/login");
+					$scope.error = true;
 					$rootScope.authenticated = false;
 				}
 			});
 		}).error(function(data) {
 			console.log("Login failed")
 			$location.path("/login");
+			$scope.error = true;
 			$rootScope.authenticated = false;
 		})
 	};

@@ -3,14 +3,15 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.demo</groupId>
-	<artifactId>pairs</artifactId>
+	<artifactId>pairs-oauth2</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>Spring Pairs samples</name>
+	<name>Spring Pairs Samples OAuth2</name>
 
 	<modules>
-		<module>vanilla</module>
-		<module>spring-session</module>
+		<module>authserver</module>
+		<module>ui</module>
+		<module>resource</module>
 	</modules>
 	
 </project>

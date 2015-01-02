@@ -1,11 +1,14 @@
-Demo samples from Microservice Security talk by Dave Syer at
-[SpringOne2GX 2014](https://2014.event.springone2gx.com/schedule/sessions/spring_boot_for_the_web_tier.html). Slides
-here: http://presos.dsyer.com/decks/microservice-security.html.
+Demo samples for Single Page Security blogs. Slides
+here: http://presos.dsyer.com/decks/security-micro-clients.html.
 
 Contents: 
 
-* `./demo/app.groovy`: the HTTP Basic auth sample app. Start it with [Spring Boot CLI](http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#getting-started-installing-the-cli)
+* `single`: basic sample with form authentication, static HTML and an API resource all in the same server.
 
-* `./certs`: the X.509 authentication example. Start the `Application` class as a Spring Boot app (main method), and look at the tests and slides for how to log into it with the certificates in `src/main/resources`
+* `vanilla`: form authentication and static HTML in one server ("ui") and an unprotected backend API resource in another ("resource").
 
-* `/pairs/spring-session`: the [Spring Session](https://github.com/spring-projects/spring-session) demo, using a shared cookie as an authentication token between a front end UI and a back end service
+* `spring-session`: the same as "vanilla", but using [Spring Session](https://github.com/spring-projects/spring-session) as an authentication token between the UI and the back end service.
+
+* `proxy`: same as "vanilla", but with the UI acting as a reverse proxy for the backend (API Gateway pattern). CORS responses are not needed because all client requests go to the same server. Authentication for the backend could be overlaid using the "spring-session" approach (above) or using "oauth2" (below).
+
+* `oauth2`: same as "proxy" but with OAuth2 SSO to the UI and OAuth2 resource server protection for the backend. The OAuth2 tokens are JWTs (signed, encoded JSON, carrying information about the user and the token grant), but the same approach would work with a centralized `TokenStore` as well.

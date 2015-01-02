@@ -3,15 +3,17 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.demo</groupId>
-	<artifactId>pairs-proxy</artifactId>
+	<artifactId>single-page-security</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>Spring Pairs Samples Proxy</name>
+	<name>Spring Pairs samples</name>
 
 	<modules>
-		<module>authserver</module>
-		<module>ui</module>
-		<module>resource</module>
+		<module>single</module>
+		<module>vanilla</module>
+		<module>spring-session</module>
+		<module>proxy</module>
+		<module>oauth2</module>
 	</modules>
 	
 </project>

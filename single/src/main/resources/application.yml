@@ -1,0 +1,7 @@
+security:
+  user:
+    password: password
+  ignored: /**/favicon.ico,/js/**,/css/**
+logging:
+  level:
+    org.springframework.security: DEBUG

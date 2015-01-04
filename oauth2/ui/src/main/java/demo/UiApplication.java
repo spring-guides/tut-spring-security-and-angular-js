@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
+import org.springframework.cloud.security.Http401AuthenticationEntryPoint;
 import org.springframework.cloud.security.oauth2.sso.EnableOAuth2Sso;
 import org.springframework.cloud.security.oauth2.sso.OAuth2SsoConfigurerAdapter;
 import org.springframework.context.annotation.ComponentScan;
@@ -49,7 +50,13 @@ public class UiApplication {
 
 		@Override
 		public void configure(HttpSecurity http) throws Exception {
-			http.logout().and().antMatcher("/**").authorizeRequests()
+			http.logout()
+					.and()
+					.exceptionHandling()
+					.authenticationEntryPoint(
+							new Http401AuthenticationEntryPoint(
+									"Session realm=\"JSESSIONID\"")).and()
+					.antMatcher("/**").authorizeRequests()
 					.antMatchers("/**/*.html", "/", "/login").permitAll().anyRequest()
 					.authenticated().and().csrf()
 					.csrfTokenRepository(csrfTokenRepository()).and()

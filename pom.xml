@@ -6,9 +6,10 @@
 	<artifactId>single-page-security</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>Spring Pairs samples</name>
+	<name>Spring Security Angular Samples</name>
 
 	<modules>
+		<module>basic</module>
 		<module>single</module>
 		<module>vanilla</module>
 		<module>spring-session</module>

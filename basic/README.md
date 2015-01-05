@@ -1,12 +1,16 @@
 # Spring and Angular JS: A Secure Single Page Application
 
-In this article we show some nice features of Spring Security, Spring Boot and Angular JS working together to provide a pleasant and secure user experience. It should be accessible to beginners with Spring and Angular JS, but there also is plenty of detail that will be of use to experts in either. HTML5, rich browser-based features, and the "single page application" are extremely valuable tools for modern developers, but any meaningful interactions will involve a backend server, so as well as static content (HTML, CSS and JavaScript) we are going to need a backend server. The backend server can play any or all of a number of roles: serving static content, sometimes (but not so often these days) rendering dynamic HTML, authenticating users, securing access to protected resources, and (last but not least) interacting with JavaScript in the browser through HTTP and JSON (sometimes referred to as a REST API).
+In this article we show some nice features of Spring Security, Spring Boot and Angular JS working together to provide a pleasant and secure user experience. It should be accessible to beginners with Spring and Angular JS, but there also is plenty of detail that will be of use to experts in either. This is actually the first in a series of articles on Spring Security and Angular JS, with new features exposed in each one successively. The punchline for this one is that there are some issues with the application we build at the end, but we'll fix those in the second installment, and subsequent implementations are all fine, since the main changes are architectural.
+
+## Spring and the Single Page Application
+
+HTML5, rich browser-based features, and the "single page application" are extremely valuable tools for modern developers, but any meaningful interactions will involve a backend server, so as well as static content (HTML, CSS and JavaScript) we are going to need a backend server. The backend server can play any or all of a number of roles: serving static content, sometimes (but not so often these days) rendering dynamic HTML, authenticating users, securing access to protected resources, and (last but not least) interacting with JavaScript in the browser through HTTP and JSON (sometimes referred to as a REST API).
 
 Spring has always been a popular technology for building the backend features (especially in the enterprise), and with the advent of [Spring Boot](http://projects.spring.io/spring-boot) things have never been easier. Let's have a look at how to build a new single page application from nothing using Spring Boot, Angular JS and Twitter Bootstrap. There's no particular reason to choose that specific stack, but it is quite popular, especially with the core Spring constituency in enterprise Java shops, so it's a worthwhile starting point.
 
 ## Create a New Project
 
-We are going to step through creating this application in some detail, so that anyone who isn't completely au fait with Spring and Angular can follow what is happening. If you prefer to cut to this chase, you can [skip to the end](#how-does-it-work) where the application is working, and see how it all fits together. The source code for the complete project we are going to build is in [Github here](https://github.com/dsyer/security-micro-clients/tree/master/basic), so you can just clone the project and work directly from there if you want.
+We are going to step through creating this application in some detail, so that anyone who isn't completely au fait with Spring and Angular can follow what is happening. If you prefer to cut to this chase, you can [skip to the end](#how-does-it-work) where the application is working, and see how it all fits together. The source code for the complete project we are going to build is in [Github here](https://github.com/dsyer/spring-security-angular/tree/master/basic), so you can just clone the project and work directly from there if you want.
 
 ### Using Curl
 
@@ -201,7 +205,7 @@ To create static resources at build time we add some magic to the Maven `pom.xml
 </build>
 ```
 
-You can copy that verbatim into your POM, or just scan it if you are following along from the [source in Github](https://github.com/dsyer/security-micro-clients/tree/master/basic/pom.xml#L43). The main points are:
+You can copy that verbatim into your POM, or just scan it if you are following along from the [source in Github](https://github.com/dsyer/spring-security-angular/tree/master/basic/pom.xml#L43). The main points are:
 
 * We are including some webjars libraries as dependencies (jquery and bootstrap for CSS and styling, and Angular JS for business logic). Some of the static resources in those jar files will be included in our generated "angular-bootstrap.*" files, but the jars themselves don't need to be packaged with the application.
 
@@ -215,7 +219,7 @@ That's all of the changes we are going to need to the POM. It remains to add the
 
 ### Wro4j Source Files
 
-If you look in the [source code in Github](https://github.com/dsyer/security-micro-clients/tree/master/basic/src/main/wro) you will see there are only 3 files (and one of those is empty, ready for later customization):
+If you look in the [source code in Github](https://github.com/dsyer/spring-security-angular/tree/master/basic/src/main/wro) you will see there are only 3 files (and one of those is empty, ready for later customization):
 
 * `wro.properties` is a configuration file for the preprocessing and rendering engine in wro4j. You can use it to switch on and off various parts of the toolchain. In this case we use it to compile CSS from [Less](http://lesscss.org/) and to minify JavaScript, ultimately combining the sources from all the libraries we need in two files.
   
@@ -291,7 +295,7 @@ $ curl localhost:8080/resource
 
 ### Loading a Dynamic Resource from Angular
 
-So let's grab that message in the browser. Modify the "home" controller to load it using XHR:
+So let's grab that message in the browser. Modify the "home" controller to load the protected resource using XHR:
 
 ```javascript
 angular.module('hello', [])
@@ -302,7 +306,7 @@ angular.module('hello', [])
 });
 ```
 
-We injected an [`$http` service](https://docs.angularjs.org/api/ng/service/$http), which is provided by Angular as a core feature, and used it to HTTP GET our resource. Angular passes us the JSON from the response body back to a callback function that we asked it to call on "success" (a 200 in this case).
+We injected an [`$http` service](https://docs.angularjs.org/api/ng/service/$http), which is provided by Angular as a core feature, and used it to GET our resource. Angular passes us the JSON from the response body back to a callback function on success.
 
 Run the application again (or just reload the home page in the browser), and you will see the dynamic message with its unique ID. So, even though the resource is protected and you can't curl it directly, the browser was able to access the content. We have a secure single page application in less than a hundred lines of code!
 
@@ -328,11 +332,11 @@ Look more closely at the requests and you will see that all of them have an "Aut
 Authorization: Basic dXNlcjpwYXNzd29yZA==
 ```
 
-The browser is sending the username and password with every request (so remember to use HTTPS exclusively in production).
+The browser is sending the username and password with every request (so remember to use HTTPS exclusively in production). There's nothing "Angular" about that, so it works with your JavaScript framework or non-framework of choice.
 
 ### What's Wrong with That?
 
-On the face of it it seems like we did a pretty good job, it's concise, easy to implement and all our data are secured by a secret password, but there are some issues.
+On the face of it it seems like we did a pretty good job, it's concise, easy to implement, all our data are secured by a secret password, and it would still work if we changed the front end or backend technologies. But there are some issues.
 
 * Basic authentication is restricted to username and password authentication.
 
@@ -340,6 +344,6 @@ On the face of it it seems like we did a pretty good job, it's concise, easy to 
 
 * There is no protection from [Cross Site Request Forgery](http://en.wikipedia.org/wiki/Cross-site_request_forgery) (CSRF).
 
-CSRF isn't really an issue with our application as it stands since it only needs read access to the backend resources. As soon as you have a POST, PUT or DELETE in your application it simply isn't secure any more by any reasonable modern measure.
+CSRF isn't really an issue with our application as it stands since it only needs to GET the backend resources (i.e. no state is changed in the server). As soon as you have a POST, PUT or DELETE in your application it simply isn't secure any more by any reasonable modern measure.
 
 In the next article in this series we will extend the application to use form-based authentication, which is a lot more flexible than HTTP Basic. Once we have a form we will need CSRF protection, and both Spring Security and Angular have some nice out-of-the box features to help with this. Spoiler: we are going to need to use the `HttpSession`.

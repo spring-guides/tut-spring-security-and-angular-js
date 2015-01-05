@@ -1,9 +1,10 @@
-Demo samples for Single Page Security blogs. Slides
-here: http://presos.dsyer.com/decks/security-micro-clients.html.
+Demo samples for [Angular JS](http://angularjs.org) with [Spring Security](http://projects.spring.io/spring-security) blogs. All samples have the same basic functionality: a secure static, single-page application, which renders content from a secure backend JSON resource. Also some slides here: http://presos.dsyer.com/decks/security-micro-clients.html.
 
 Contents: 
 
-* `single`: basic sample with form authentication, static HTML and an API resource all in the same server.
+* `basic`: sample with HTTP Basic authentication, static HTML and an API resource all in the same server ([blog](http://spring.io/blog/1903)).
+
+* `single`: adds form authentication, but static HTML and an API resource still in the same server ([blog](http://spring.io/blog/1904)).
 
 * `vanilla`: form authentication and static HTML in one server ("ui") and an unprotected backend API resource in another ("resource").
 

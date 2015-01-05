@@ -2,7 +2,6 @@ debug:
 security:
   user:
     password: password
-  ignored: /**/favicon.ico,/js/**,/css/**
 zuul:
   routes:
     resource:

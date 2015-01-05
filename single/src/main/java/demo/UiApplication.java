@@ -14,9 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -30,20 +29,18 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.WebUtils;
 
-@Configuration
-@ComponentScan
-@EnableAutoConfiguration
+@SpringBootApplication
 @RestController
 public class UiApplication {
-	
+
 	@RequestMapping("/user")
 	public Principal user(Principal user) {
 		return user;
 	}
 
 	@RequestMapping("/resource")
-	public Map<String,Object> home() {
-		Map<String,Object> model = new HashMap<String,Object>();
+	public Map<String, Object> home() {
+		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("id", UUID.randomUUID().toString());
 		model.put("content", "Hello World");
 		return model;
@@ -76,7 +73,8 @@ public class UiApplication {
 					if (csrf != null) {
 						Cookie cookie = WebUtils.getCookie(request, "XSRF-TOKEN");
 						String token = csrf.getToken();
-						if (cookie==null || token!=null && !token.equals(cookie.getValue())) {
+						if (cookie == null || token != null
+								&& !token.equals(cookie.getValue())) {
 							cookie = new Cookie("XSRF-TOKEN", token);
 							cookie.setPath("/");
 							response.addCookie(cookie);

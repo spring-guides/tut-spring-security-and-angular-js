@@ -1,6 +1,6 @@
 # Spring and Angular JS: A Secure Single Page Application
 
-In this article we show some nice features of Spring Security, Spring Boot and Angular JS working together to provide a pleasant and secure user experience. It should be accessible to beginners with Spring and Angular JS, but there also is plenty of detail that will be of use to experts in either. This is actually the first in a series of articles on Spring Security and Angular JS, with new features exposed in each one successively. The punchline for this one is that there are some issues with the application we build at the end, but we'll fix those in the second installment, and subsequent implementations are all fine, since the main changes are architectural.
+In this article we show some nice features of Spring Security, Spring Boot and Angular JS working together to provide a pleasant and secure user experience. It should be accessible to beginners with Spring and Angular JS, but there also is plenty of detail that will be of use to experts in either. This is actually the first in a series of articles on Spring Security and Angular JS, with new features exposed in each one successively. We'll improve on the application in the [second](https://spring.io/admin/blog/1904) and subsequent installments, but the main changes after this are architectural rather than functional.
 
 ## Spring and the Single Page Application
 

@@ -1,5 +1,7 @@
 Demo samples for [Angular JS](http://angularjs.org) with [Spring Security](http://projects.spring.io/spring-security) blogs. All samples have the same basic functionality: a secure static, single-page application, which renders content from a secure backend JSON resource. Also some slides here: http://presos.dsyer.com/decks/security-micro-clients.html.
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/dsyer/spring-security-angular?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Contents: 
 
 * `basic`: sample with HTTP Basic authentication, static HTML and an API resource all in the same server ([blog](http://spring.io/blog/1903)).

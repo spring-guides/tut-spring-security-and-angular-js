@@ -117,11 +117,7 @@ $ java -jar target/*.jar
 
 We need to generate the "angular-bootstrap.css" and "angular-bootstrap.js" assets. There are many different ways of doing this but for the purposes of this article we are going to use [wro4j](http://alexo.github.io/wro4j/), which is a Java-based toolchain for preprocessing and packaging front end assets. It can be used as a JIT (Just in Time) `Filter` in any Servlet application, but it also has good support for build tools like Maven and Eclipse, and that is how we are going to use it. So we are going to build static resource files and bundle them in our application JAR.
 
-> Aside: Wro4j is probably not the tool of choice for hard-core front end developers - they would probably be using a
-> node-based toolchain, with [bower](http://bower.io/) and/or [grunt](http://gruntjs.com/). These are definitely
-> excellent tools, and covered in great detail all over the internet, so please feel free to use them if you prefer. If
-> you just put the outputs from those toolchains in "src/main/resources/static" then it will all work. I find wro4j
-> comfortable because I am not a hard-core front end developer and I know how to use Java-based tooling.
+> Aside: Wro4j is probably not the tool of choice for hard-core front end developers - they would probably be using a node-based toolchain, with [bower](http://bower.io/) and/or [grunt](http://gruntjs.com/). These are definitely excellent tools, and covered in great detail all over the internet, so please feel free to use them if you prefer. If you just put the outputs from those toolchains in "src/main/resources/static" then it will all work. I find wro4j comfortable because I am not a hard-core front end developer and I know how to use Java-based tooling.
 
 To create static resources at build time we add some magic to the Maven `pom.xml` (it's quite verbose, but boilerplate, so it could be extracted into a parent pom in Maven, or a shared task or plugin for Gradle):
 
@@ -257,7 +253,7 @@ angular.module('hello', [])
 
 The name of the application is "hello" and it has an empty (and redundant) "config" and an empty "controller" called "home". The "home" controller will be called when we load the "index.html" because we have decorated the content `<div>` with `ng-controller="home"`.
 
-Notice that we injected a magic `$scope` into the controller function (Angular does dependency injection by naming convention, and recognises the names of your function parameters). The `$scope` is then used inside the function to set up content and behaviour for the UI elements that this controller is responsible for.
+Notice that we injected a magic `$scope` into the controller function (Angular does [dependency injection by naming convention](https://docs.angularjs.org/tutorial), and recognises the names of your function parameters). The `$scope` is then used inside the function to set up content and behaviour for the UI elements that this controller is responsible for.
 
 If you added that file under "src/main/resources/static/js" your app should now be secure and functional, and it will say "Hello World!". The `greeting` is rendered by Angular in the HTML using the handlebar placeholders, `{{greeting.id}}` and `{{greeting.content}}`.
 

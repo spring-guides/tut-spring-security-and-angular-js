@@ -185,11 +185,11 @@ angular.module('hello', [ 'ngRoute' ]) // ... ommitted code
 });
 ```
 
-All of the code in the "navigation" controller will be executed when the page loads because the `<div>` containing the menu bar is visible and is decorated with `ng-controller="navigation"`. In addition to initializing the `credentials` object, it defines 2 functions, the `login()` that we need in the form, and a helper function `authenticate()` which tries to load a "user" resource from the backend. The `authenticate()` function is called when the controller is loaded to see if the user is actually already authenticated (e.g. if he had refreshed the browser in the middle of a session). We need the `authenticate()` function because authentication is done by the server, and we can't trust the browser to keep track of it.
+All of the code in the "navigation" controller will be executed when the page loads because the `<div>` containing the menu bar is visible and is decorated with `ng-controller="navigation"`. In addition to initializing the `credentials` object, it defines 2 functions, the `login()` that we need in the form, and a local helper function `authenticate()` which tries to load a "user" resource from the backend. The `authenticate()` function is called when the controller is loaded to see if the user is actually already authenticated (e.g. if he had refreshed the browser in the middle of a session). We need the `authenticate()` function to make a remote call because the actual authentication is done by the server, and we don't want to trust the browser to keep track of it.
 
 The `authenticate()` function sets an application-wide flag called `authenticated` which we have already used in our "home.html" to control which parts of the page are rendered. We do this using [`$rootScope`](https://docs.angularjs.org/api/ng/service/$rootScope) because it's convenient and easy to follow, and we need to share the `authenticated` flag between the "navigation" and the "home" controllers. Angular experts might prefer to share data through a shared user-defined service (but it ends up being the same mechanism).
 
-The `login()` function also sets a local `$scope.error` flag accordingly when we get the result of the authentication. This is used to control the display of the error message above the login form.
+The `login()` makes a POST to a relative resource (relative to the "index.html") "/login" with the form-encoded credentials in the body (Angular does everything in JSON by default so we had to be explicit about that). Instead of relying on being able to derive the authentication state from the result of the POST, the `login()` function uses the `authenticate()` helper. Using the result of the POST is tricky if we don't know for sure what the server is going to do on success or failure, so it's worth the extra network hop to verify the authentication in the general case (e.g. the Spring Security default behaviour is to send a 302 on success and failure, and Angular will follow the redirect, so we would have to actually parse the response from that). The `login()` function also sets a local `$scope.error` flag accordingly when we get the result of the authentication, which is used to control the display of the error message above the login form.
 
 ### The Currently Authenticated User
 
@@ -369,7 +369,7 @@ protected static class SecurityConfiguration extends WebSecurityConfigurerAdapte
 
 (we just added `.logout()` to the `HttpSecurity` configuration builder).
 
-## How Does it Work
+## How Does it Work?
 
 The interactions between the browser and the backend can be seen in your browser if you use some developer tools (usually F12 opens this up, works in Chrome by default, requires a plugin in Firefox). Here's a summary:
 
@@ -388,7 +388,7 @@ POST | /login                    | 302 | Redirect to home page (ignored)
 GET  | /user                     | 200 | JSON authenticated user
 GET  | /resource                 | 200 | JSON greeting
 
-The responses that are marked "ignored" above are HTML responses received by Angular in an XHR call, and since we aren't processing that data the HTML is dropped on the floor. We do look for an authenticated user in the case of the "/user" resource, but since it isn't there in the first call, the response is dropped.
+The responses that are marked "ignored" above are HTML responses received by Angular in an XHR call, and since we aren't processing that data the HTML is dropped on the floor. We do look for an authenticated user in the case of the "/user" resource, but since it isn't there in the first call, that response is dropped.
 
 Look more closely at the requests and you will see that they all have cookies. If you start with a clean browser (e.g. incognito in Chrome), the very first request has no cookies going off to the server, but the server sends back "Set-Cookie" for "JSESSIONID" (the regular `HttpSession`) and "X-XSRF-TOKEN" (the CRSF cookie that we set up above). Subsequent requests all have those cookies, and they are important: the application doesn't work without them, and they are providing some really basic security features (authentication and CSRF protection). The values of the cookies change when the user authenticates (after the POST) and this is another important security feature (preventing [session fixation attacks](http://en.wikipedia.org/wiki/Session_fixation)).
 

@@ -146,7 +146,23 @@ Remember from [Part II][second] of this series that Spring Security uses the `Ht
 
 ### Spring Session
 
-That part of the solution is pretty easy with [Spring Session](https://github.com/spring-projects/spring-session/). All we need is a shared data store (Redis is supported out of the box), and a few lines of configuration in the servers to set up a `Filter`. In the UI application it looks like this:
+That part of the solution is pretty easy with [Spring Session](https://github.com/spring-projects/spring-session/). All we need is a shared data store (Redis is supported out of the box), and a few lines of configuration in the servers to set up a `Filter`.
+
+In the UI application we need to add some dependencies to our [POM](https://github.com/dsyer/spring-security-angular/blob/master/spring-session/ui/pom.xml):
+
+```xml
+<dependency>
+  <groupId>org.springframework.session</groupId>
+  <artifactId>spring-session</artifactId>
+  <version>1.0.0.RC1</version>
+</dependency>
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-redis</artifactId>
+</dependency>
+```
+
+and then add the `Filter`:
 
 ```java
 @SpringBootApplication
@@ -241,7 +257,7 @@ public class CorsFilter implements Filter {
 }
 ```
 
-All that remains is to pick up the custom token in the resource server and use it to authenticate our user. This turns out to be pretty straightforward because all we need to do is tell Spring Security where the session repository is, and where to look for the token (session ID) in an incoming request:
+All that remains is to pick up the custom token in the resource server and use it to authenticate our user. This turns out to be pretty straightforward because all we need to do is tell Spring Security where the session repository is, and where to look for the token (session ID) in an incoming request. First we need to add the Spring Session and Redis dependencies, and then we can set up the `Filter`:
 
 ```java
 @SpringBootApplication
@@ -262,7 +278,7 @@ class ResourceApplication {
 
 ```
 
-That `Filter` is the mirror image of the one in the UI server, so it establishes Redis as the session store. The only difference is that it uses the custom header name "X-Session") instead of the default ("JSESSIONID"), and with that we are ready to try the application out. Re-launch the resource server and open the UI up in a new browser window.
+This `Filter` is the mirror image of the one in the UI server, so it establishes Redis as the session store. The only difference is that it uses the custom header name "X-Session") instead of the default ("JSESSIONID"), and with that we are ready to try the application out. Re-launch the resource server and open the UI up in a new browser window.
 
 ## Why Doesn't it All Work With Cookies?
 

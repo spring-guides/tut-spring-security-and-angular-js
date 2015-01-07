@@ -1,12 +1,12 @@
 debug:
 security:
   user:
-    password: none
+    password: password
 zuul:
   routes:
     resource:
       path: /resource/**
-      url: http://localhost:9000/resource
+      url: http://localhost:9000
     user:
       path: /user/**
       url: http://localhost:9999/uaa/user
@@ -21,8 +21,8 @@ oauth2:
     clientId: acme
     clientSecret: acmesecret
   resource:
-    jwt:
-      keyUri: http://localhost:9999/uaa/oauth/token_key
+    userInfoUri: http://localhost:9999/uaa/user
+ 
 logging:
   level:
     org.springframework.security: DEBUG

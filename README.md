@@ -12,4 +12,6 @@ Contents:
 
 * `proxy`: same as "vanilla", but with the UI acting as a reverse proxy for the backend (API Gateway pattern). CORS responses are not needed because all client requests go to the same server. Authentication for the backend could be overlaid using the "spring-session" approach (above) or using "oauth2" (below).
 
-* `oauth2`: same as "proxy" but with OAuth2 SSO to the UI and OAuth2 resource server protection for the backend. The OAuth2 tokens are JWTs (signed, encoded JSON, carrying information about the user and the token grant), but the same approach would work with a centralized `TokenStore` as well.
+* `oauth2-vanilla`: same as "proxy" but with OAuth2 SSO to the UI and OAuth2 resource server protection for the backend. The OAuth2 authorization server is no-frills.
+
+* `oauth2`: same as "oauth2-vanilla" but JWT tokens (signed, encoded JSON, carrying information about the user and the token grant) and a nice UI with a login screen in the authorization server.

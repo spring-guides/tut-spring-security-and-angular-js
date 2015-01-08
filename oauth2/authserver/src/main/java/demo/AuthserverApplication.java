@@ -3,6 +3,7 @@ package demo;
 import java.security.KeyPair;
 import java.security.Principal;
 
+import org.apache.tools.ant.launch.AntMain;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties;
@@ -19,10 +20,14 @@ import org.springframework.security.oauth2.config.annotation.configurers.ClientD
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
+import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
+import org.springframework.security.web.util.matcher.AndRequestMatcher;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -31,7 +36,6 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @SpringBootApplication
-@EnableResourceServer
 @Controller
 @SessionAttributes("authorizationRequest")
 public class AuthserverApplication extends WebMvcConfigurerAdapter {
@@ -72,8 +76,24 @@ public class AuthserverApplication extends WebMvcConfigurerAdapter {
 	}
 
 	@Configuration
+	@EnableResourceServer
+	protected static class OAuth2ResourceConfig extends ResourceServerConfigurerAdapter {
+		@Override
+		public void configure(HttpSecurity http) throws Exception {
+			http.requestMatchers()
+					.requestMatchers(
+							new AndRequestMatcher(new NegatedRequestMatcher(
+									new AntPathRequestMatcher("/oauth/**")),
+									new NegatedRequestMatcher(new AntPathRequestMatcher(
+											"/login")))).and().authorizeRequests()
+					.anyRequest().authenticated();
+		}
+	}
+
+	@Configuration
 	@EnableAuthorizationServer
-	protected static class OAuth2Config extends AuthorizationServerConfigurerAdapter {
+	protected static class OAuth2AuthorizationConfig extends
+			AuthorizationServerConfigurerAdapter {
 
 		@Autowired
 		private AuthenticationManager authenticationManager;

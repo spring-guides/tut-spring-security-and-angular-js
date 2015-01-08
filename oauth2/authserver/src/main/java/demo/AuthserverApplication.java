@@ -3,7 +3,6 @@ package demo;
 import java.security.KeyPair;
 import java.security.Principal;
 
-import org.apache.tools.ant.launch.AntMain;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties;

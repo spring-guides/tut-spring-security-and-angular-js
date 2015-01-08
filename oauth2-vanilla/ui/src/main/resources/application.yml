@@ -16,8 +16,8 @@ oauth2:
       secure: false
       path: /,/**/*.html
   client:
-    tokenUri: http://localhost:9999/uaa/oauth/token
-    authorizationUri: http://localhost:9999/uaa/oauth/authorize
+    accessTokenUri: http://localhost:9999/uaa/oauth/token
+    userAuthorizationUri: http://localhost:9999/uaa/oauth/authorize
     clientId: acme
     clientSecret: acmesecret
   resource:
@@ -26,3 +26,4 @@ oauth2:
 logging:
   level:
     org.springframework.security: DEBUG
+    org.springframework.web: DEBUG

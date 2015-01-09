@@ -273,7 +273,7 @@ If you added that file under "src/main/resources/static/js" your app should now 
 <span id="dynamic-content"/>
 ## Adding Dynamic Content
 
-So far we have an application with a greeting that is hard coded. That's useful for learning how things fit together, but really we expect content to come from a backend server, so let's create an HTTP endpoint that we can use to grab a greeting. In your application class, define a new `@RequestMapping`:
+So far we have an application with a greeting that is hard coded. That's useful for learning how things fit together, but really we expect content to come from a backend server, so let's create an HTTP endpoint that we can use to grab a greeting. In your [application class](https://github.com/dsyer/spring-security-angular/blob/master/basic/src/main/java/demo/UiApplication.java) (in "src/main/java/demo"), add the `@RestController` annotation and define a new `@RequestMapping`:
 
 ```java
 @SpringBootApplication
@@ -294,6 +294,8 @@ public class UiApplication {
 
 }
 ```
+
+> Note: Depending on the way you created your new project it might not be called `UiApplication`, and it might have `@EnableAutoConfiguration @ComponentScan @Configuration` instead of `@SpringBootApplication`.
 
 Run that application and try to curl the "/resource" endpoint and you will find that it is secure by default:
 

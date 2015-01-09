@@ -321,6 +321,8 @@ We injected an [`$http` service](https://docs.angularjs.org/api/ng/service/$http
 
 Run the application again (or just reload the home page in the browser), and you will see the dynamic message with its unique ID. So, even though the resource is protected and you can't curl it directly, the browser was able to access the content. We have a secure single page application in less than a hundred lines of code!
 
+> Note: You might need to force your browser to reload the static resources after you change them. In Chrome (and Firefox with a plugin) you can use "developer tools" (F12), and that might be enough. Or you might have to use CTRL+F5.
+
 <span id="how-does-it-work"/>
 ## How Does it Work?
 

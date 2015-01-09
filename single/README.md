@@ -271,25 +271,24 @@ That's good because it means that Spring Security's built-in CSRF protection has
 So all we need on the server is a custom filter that will send the cookie. Angular wants the cookie name to be "XSRF-TOKEN" and Spring Security provides it as a request attribute, so we just need to transfer the value from a request attribute to a cookie:
 
 ```java
-public class CsrfHeaderFilter() extends OncePerRequestFilter() {
-    @Override
-    protected void doFilterInternal(HttpServletRequest request,
-        HttpServletResponse response, FilterChain filterChain)
-        throws ServletException, IOException {
-      CsrfToken csrf = (CsrfToken) request.getAttribute(CsrfToken.class
-          .getName());
-      if (csrf != null) {
-        Cookie cookie = WebUtils.getCookie(request, "XSRF-TOKEN");
-        String token = csrf.getToken();
-        if (cookie==null || token!=null && !token.equals(cookie.getValue())) {
-          cookie = new Cookie("XSRF-TOKEN", token);
-          cookie.setPath("/");
-          response.addCookie(cookie);
-        }
+public class CsrfHeaderFilter extends OncePerRequestFilter {
+  @Override
+  protected void doFilterInternal(HttpServletRequest request,
+      HttpServletResponse response, FilterChain filterChain)
+      throws ServletException, IOException {
+    CsrfToken csrf = (CsrfToken) request.getAttribute(CsrfToken.class
+        .getName());
+    if (csrf != null) {
+      Cookie cookie = WebUtils.getCookie(request, "XSRF-TOKEN");
+      String token = csrf.getToken();
+      if (cookie==null || token!=null && !token.equals(cookie.getValue())) {
+        cookie = new Cookie("XSRF-TOKEN", token);
+        cookie.setPath("/");
+        response.addCookie(cookie);
       }
-      filterChain.doFilter(request, response);
     }
-  };
+    filterChain.doFilter(request, response);
+  }
 }
 ```
 
@@ -308,7 +307,7 @@ protected static class SecurityConfiguration extends WebSecurityConfigurerAdapte
       .authorizeRequests()
         .antMatchers("/**/*.html", "/").permitAll().anyRequest()
         .authenticated().and()
-      .csrf().addFilterAfter(csrfHeaderFilter(), CsrfFilter.class);
+      .addFilterAfter(new CsrfHeaderFilter(), CsrfFilter.class);
   }
 }
 ```
@@ -320,10 +319,8 @@ The other thing we have to do on the server is tell Spring Security to expect th
 protected void configure(HttpSecurity http) throws Exception {
   http
     .formLogin().and()
-      ...
-      .csrf().csrfTokenRepository(csrfTokenRepository())
-      ...
-      ;
+    ...
+    .csrf().csrfTokenRepository(csrfTokenRepository());
 }
 
 private CsrfTokenRepository csrfTokenRepository() {
@@ -370,7 +367,7 @@ protected void configure(HttpSecurity http) throws Exception {
   http
     .formLogin().and()
     .logout()
-      ...
+    ...
   ;
 }
 ```

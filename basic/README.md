@@ -10,35 +10,50 @@ Spring has always been a popular technology for building the backend features (e
 
 ## Create a New Project
 
-We are going to step through creating this application in some detail, so that anyone who isn't completely au fait with Spring and Angular can follow what is happening. If you prefer to cut to this chase, you can [skip to the end](#how-does-it-work) where the application is working, and see how it all fits together. The source code for the complete project we are going to build is in [Github here](https://github.com/dsyer/spring-security-angular/tree/master/basic), so you can just clone the project and work directly from there if you want.
+We are going to step through creating this application in some detail, so that anyone who isn't completely au fait with Spring and Angular can follow what is happening. If you prefer to cut to this chase, you can [skip to the end](#how-does-it-work) where the application is working, and see how it all fits together. There are various options for creating a new project:
 
+* [Using curl on the command line](#using-curl)
+* [Using Spring Boot CLI](#using-spring-boot-cli)
+* [Using the Spring Initializr website](#using-the-initializr-website)
+* [Using Spring Tool Suite](#using-spring-tool-suite)
+
+The source code for the complete project we are going to build is in [Github here](https://github.com/dsyer/spring-security-angular/tree/master/basic), so you can just clone the project and work directly from there if you want. Then jump to the [next section](#add-a-home-page).
+
+<span id="using-curl"></span>
 ### Using Curl
 
 The easiest way to create a new project to get started is via the [Spring Boot Initializr](http://start.spring.io). E.g. using curl on a UN*X like system:
 
 ```
+$ mkdir ui && cd ui
 $ curl start.spring.io/starter.tgz -d style=web -d style=security \
 -d name=ui | tar -xzvf - 
 ```
 
-You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line.
+You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line. Then jump to the [next section](#add-a-home-page).
 
+<span id="using-spring-boot-cli"></span>
 ### Using Spring Boot CLI
 
 You can create the same project using the [Spring Boot CLI](http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#getting-started-installing-the-cli), like this:
 
 ```
-$ spring init --dependencies web,security --extract
+$ spring init --dependencies web,security ui/ && cd ui
 ```
 
+Then jump to the [next section](#add-a-home-page).
+
+<span id="using-the-initializr-website"></span>
 ### Using the Initializr Website
 
-If you prefer you can also get the same code directly as a .zip file from the [Spring Boot Initializr](http://start.spring.io). Just open it up in your browser and select dependencies "Web" and "Security", then click on "Generate Project".
+If you prefer you can also get the same code directly as a .zip file from the [Spring Boot Initializr](http://start.spring.io). Just open it up in your browser and select dependencies "Web" and "Security", then click on "Generate Project". The .zip file contains a standard Maven or Gradle project in the root directory, so you might want to create an empty directory before you unpack it. Then jump to the [next section](#add-a-home-page).
 
+<span id="using-spring-tool-suite"></span>
 ### Using Spring Tool Suite
 
-In [Spring Tool Suite](http://spring.io/tools/sts) (a set of Eclipse plugins) you can also create and import a project using a wizard at `File->New->Spring Starter Project`.
+In [Spring Tool Suite](http://spring.io/tools/sts) (a set of Eclipse plugins) you can also create and import a project using a wizard at `File->New->Spring Starter Project`. Then jump to the [next section](#add-a-home-page).
 
+<span id="add-a-home-page"></span>
 ## Add a Home Page
 
 The core of a single page application is a static "index.html", so let's go ahead and create one (in "src/main/resources/static" or "src/main/resources/public"):
@@ -98,11 +113,9 @@ Once the home page file is added your application will be loadable in a browser 
 $ mvn spring-boot:run
 ```
 
-and go to a browser at http://localhost:8080. When you load the home page you should get a browser dialog asking for username and password (the username is "user" and the password is printed in the console logs on startup). There's actually no content yet, so you should get a blank page with a "Greeting" header once you successfully authenticate.
+and go to a browser at [http://localhost:8080](http://localhost:8080). When you load the home page you should get a browser dialog asking for username and password (the username is "user" and the password is printed in the console logs on startup). There's actually no content yet, so you should get a blank page with a "Greeting" header once you successfully authenticate.
 
-> Tip: if you don't like scraping the console log for the password just add this to the "application.properties" (in
-> "src/main/resources"): `security.user.password=password` (and choose your own password). We did this in the sample
-> code using "application.yml".
+> Tip: if you don't like scraping the console log for the password just add this to the "application.properties" (in "src/main/resources"): `security.user.password=password` (and choose your own password). We did this in the sample code using "application.yml".
 
 In an IDE, just run the `main()` method in the application class (there is only one class, and it is called `UiApplication` if you used the "curl" command above).
 
@@ -231,8 +244,8 @@ If you look in the [source code in Github](https://github.com/dsyer/spring-secur
             <js>webjar:jquery/2.1.1/jquery.min.js</js>
             <js>webjar:bootstrap/3.2.0/bootstrap.js</js>
             <js>webjar:angularjs/1.3.8/angular.min.js</js>
-         </group>
-       </groups>
+          </group>
+        </groups>
 
 * `main.less` is empty, but could be used to customise the look and feel, changing the default settings in Twitter Bootstrap. E.g. to change the colours from default blue to light pink you could add a single line: `@brand-primary: #de8579;`.
 

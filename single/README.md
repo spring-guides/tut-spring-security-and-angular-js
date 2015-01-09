@@ -219,26 +219,36 @@ An alternative implementation of this `authenticate()` (client side) and "/user"
 
 ### Handling the Login Request on the Server
 
-Spring Security makes it easy to handle the login request. We just need to add some configuration to our application (e.g. as an inner class):
+Spring Security makes it easy to handle the login request. We just need to add some configuration to our [main application class](https://github.com/dsyer/spring-security-angular/blob/master/single/src/main/java/demo/UiApplication.java) (e.g. as an inner class):
 
 ```java
-@Configuration
-@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
-protected static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http.formLogin().and().authorizeRequests()
-        .antMatchers("/**/*.html", "/").permitAll().anyRequest()
-        .authenticated();
+@SpringBootApplication
+@RestController
+public class UiApplication {
+
+  ...
+
+  @Configuration
+  @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
+  protected static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+      http
+        .formLogin().and()
+        .authorizeRequests()
+          .antMatchers("/**/*.html", "/").permitAll()
+          .anyRequest().authenticated();
+    }
   }
+  
 }
 ```
 
-This is a standard Spring Boot with Spring Security customization, just adding a login form, and allowing anonymous access to the static (HTML) resources (the CSS and JS resources are already accessible by default). The HTML resources need to be available to anonymous users, not just ignored by Spring Security, for reasons that will become clear.
+This is a standard Spring Boot application with Spring Security customization, just adding a login form, and allowing anonymous access to the static (HTML) resources (the CSS and JS resources are already accessible by default). The HTML resources need to be available to anonymous users, not just ignored by Spring Security, for reasons that will become clear.
 
 ## CSRF Protection
 
-The application is almost ready to use, but if you try running it you will find that the login form doesn't work. Look at the responses in the browser you will see why:
+The application is almost ready to use, but if you try running it you will find that the login form doesn't work. Look at the responses in the browser and you will see why:
 
 ```
 POST /login HTTP/1.1
@@ -293,10 +303,12 @@ We need to install this filter in the application somewhere, and it needs to go 
 protected static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-    http.formLogin().and().authorizeRequests()
+    http
+      .formLogin().and()
+      .authorizeRequests()
         .antMatchers("/**/*.html", "/").permitAll().anyRequest()
-        .authenticated().and().csrf()
-        .addFilterAfter(csrfHeaderFilter(), CsrfFilter.class);
+        .authenticated().and()
+      .csrf().addFilterAfter(csrfHeaderFilter(), CsrfFilter.class);
   }
 }
 ```
@@ -304,26 +316,24 @@ protected static class SecurityConfiguration extends WebSecurityConfigurerAdapte
 The other thing we have to do on the server is tell Spring Security to expect the CSRF token in the format that Angular wants to send it back (a header called "X-XRSF-TOKEN" instead of the default "X-CSRF-TOKEN"). We do this by customizing the CSRF filter:
 
 ```java
-@Configuration
-@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
-protected static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http.formLogin()
-        ...
-        .csrf().csrfTokenRepository(csrfTokenRepository())
-        ...
-        ;
-  }
-  private CsrfTokenRepository csrfTokenRepository() {
-    HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
-    repository.setHeaderName("X-XSRF-TOKEN");
-    return repository;
-  }
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+  http
+    .formLogin().and()
+      ...
+      .csrf().csrfTokenRepository(csrfTokenRepository())
+      ...
+      ;
+}
+
+private CsrfTokenRepository csrfTokenRepository() {
+  HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
+  repository.setHeaderName("X-XSRF-TOKEN");
+  return repository;
 }
 ```
 
-With those changes in place we don't need to do anything on the client side and login is now working.
+With those changes in place we don't need to do anything on the client side and the login form is now working.
 
 ## Logout
 
@@ -355,15 +365,13 @@ $scope.logout = function() {
 It sends an HTTP POST to "/logout" which we now need to implement on the server. This is straightforward:
 
 ```java
-@Configuration
-@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
-protected static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http.formLogin().and().logout()
-        ...
-        ;
-  }
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+  http
+    .formLogin().and()
+    .logout()
+      ...
+  ;
 }
 ```
 

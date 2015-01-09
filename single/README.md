@@ -67,12 +67,12 @@ angular.module('hello', [ 'ngRoute' ])
 	}).otherwise('/');
 
   })
-  .controller('navigation', function() {})
   .controller('home', function($scope, $http) {
-  $http.get('/resource/').success(function(data) {
-    $scope.greeting = data;
+    $http.get('/resource/').success(function(data) {
+      $scope.greeting = data;
+    })
   })
-});
+  .controller('navigation', function() {});
 ```
 
 We added a dependency on an Angular module called ["ngRoute"](https://docs.angularjs.org/api/ngRoute) and this allowed us to inject a magic `$routeProvider` into the config function (Angular does dependency injection by naming convention, and recognizes the names of your function parameters). The `$routeProvider` is then used inside the function to set up links to "/" (the "home" controller) and "/login" (the "login" controller). The "templateUrls" are relative paths from the root of the routes (i.e. "/") to "partial" views that will be used to render the model created by each controller.

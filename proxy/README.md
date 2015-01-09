@@ -99,7 +99,15 @@ Even better: we don't need the CORS filter any more in the resource server. We t
 
 ## Securing the Resource Server
 
-You might remember in the intermediate state that we started from there is some physical network security in place, but no Spring Security layer. That's not going to be a problem, because all we need to do is add Spring Security as a dependency (in the [resource server POM](https://github.com/dsyer/spring-security-angular/blob/master/proxy/resource/pom.xml)):
+You might remember in the intermediate state that we started from there is no security in place for the resource server. 
+
+> Aside: Lack of software security might not even be a problem if your network architecture mirrors the application architecture (you can just make the resource server physically inaccessible to anyone but the UI server). As a simple demonstration of that we can make the resource server only accessible on localhost. Just add this to `application.properties` in the resource server:
+
+        server.address: 127.0.0.1
+
+> Wow, that was easy! Do that with a network address that's only visible in your data center and you have a security solution that works for all resource servers and all user desktops.
+
+Suppose that we decide we do need security at the software level as well (quite likely for a number of reasons). That's not going to be a problem, because all we need to do is add Spring Security as a dependency (in the [resource server POM](https://github.com/dsyer/spring-security-angular/blob/master/proxy/resource/pom.xml)):
 
 ```xml
 <dependency>
@@ -118,7 +126,7 @@ We can use the same mechanism to share authentication (and CSRF) state as we did
 <dependency>
   <groupId>org.springframework.session</groupId>
   <artifactId>spring-session</artifactId>
-  <version>1.0.0.RC1</version>
+  <version>1.0.0.RELEASE</version>
 </dependency>
 <dependency>
   <groupId>org.springframework.boot</groupId>

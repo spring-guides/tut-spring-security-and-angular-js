@@ -349,6 +349,12 @@ The application is almost finished functionally. The last thing we need to do is
 If the user is authenticated then we show a "logout" link and hook it to a `logout()` function in the "navigation" controller. The implementation of the function is relatively simple:
 
 ```javascript
+angular.module('hello', [ 'ngRoute' ]). 
+// ...
+.controller('navigation', function(...) {
+
+...
+
 $scope.logout = function() {
   $http.post('logout', {}).success(function() {
     $rootScope.authenticated = false;
@@ -357,6 +363,10 @@ $scope.logout = function() {
     $rootScope.authenticated = false;
   });
 }
+
+...
+
+});
 ```
 
 It sends an HTTP POST to "/logout" which we now need to implement on the server. This is straightforward:
@@ -397,7 +407,7 @@ The responses that are marked "ignored" above are HTML responses received by Ang
 
 Look more closely at the requests and you will see that they all have cookies. If you start with a clean browser (e.g. incognito in Chrome), the very first request has no cookies going off to the server, but the server sends back "Set-Cookie" for "JSESSIONID" (the regular `HttpSession`) and "X-XSRF-TOKEN" (the CRSF cookie that we set up above). Subsequent requests all have those cookies, and they are important: the application doesn't work without them, and they are providing some really basic security features (authentication and CSRF protection). The values of the cookies change when the user authenticates (after the POST) and this is another important security feature (preventing [session fixation attacks](http://en.wikipedia.org/wiki/Session_fixation)).
 
-> Note: it is not adequate for CSRF protection to rely on a cookie being sent back to the server because cookies can be tampered with. Since in our application the CSRF token is sent to the client as a cookie we will see it being sent back automatically by the browser, but it is the header that provides the protection.
+> Note: it is not adequate for CSRF protection to rely on a cookie being sent back to the server because the browser will automatically send it even if you are not in a page loaded from your application (a Cross Site Scripting attack, otherwise known as [XSS]()). The header is not automatically sent, so the origin is munder control. You might see that in our application the CSRF token is sent to the client as a cookie, so we will see it being sent back automatically by the browser, but it is the header that provides the protection.
 
 ## Help, How is My Application Going to Scale?
 

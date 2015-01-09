@@ -20,7 +20,8 @@ angular.module('hello', [ 'ngRoute' ])
 	$http.get('/resource/').success(function(data) {
 		$scope.greeting = data;
 	})
-});
+})
+...
 ```
 
 All we need to do to this is change the URL. For example, if we are going to run the new resource on localhost, it could look like this:
@@ -32,7 +33,8 @@ angular.module('hello', [ 'ngRoute' ])
 	$http.get('http://localhost:9000/').success(function(data) {
 		$scope.greeting = data;
 	})
-});
+})
+...
 ```
 
 ### Server Side Changes
@@ -40,6 +42,7 @@ angular.module('hello', [ 'ngRoute' ])
 The [UI server](https://github.com/dsyer/spring-security-angular/blob/master/vanilla/ui/src/main/java/demo/UiApplication.java) is trivial to change: we just need to remove the `@RequestMapping` for the greeting resource (it was "/resource"). Then we need to create a new resource server, which we can do like we did in the [first article][first] using the [Spring Boot Initializr](http://start.spring.io). E.g. using curl on a UN*X like system:
 
 ```
+$ mkdie resource && cd resource
 $ curl start.spring.io/starter.tgz -d style=web \
 -d name=resource -d language=groovy | tar -xzvf - 
 ```
@@ -68,10 +71,14 @@ class ResourceApplication {
 Once that is done your application will be loadable in a browser. On the command line you can do this
 
 ```
-$ mvn spring-boot:run
+$ mvn spring-boot:run --server.port=9000
 ```
 
-and go to a browser at http://localhost:9000 and you should see JSON with a greeting.
+and go to a browser at [http://localhost:9000](http://localhost:9000) and you should see JSON with a greeting. You can bake in the port change in `application.properties` (in"src/main/resources"):
+
+```properties
+server.port: 9000
+```
 
 If you try loading that resource from the UI (on port 8080) in a browser, you will find that it doesn't work because the browser won't allow the XHR request.
 
@@ -83,9 +90,9 @@ To fix that we need to support the CORS protocol which involves a "pre-flight" O
 
 ```java
 @Component
-public class CorsFilter implements Filter {
+class CorsFilter implements Filter {
 
-	void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+	void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) {
 		HttpServletResponse response = (HttpServletResponse) res
 		response.setHeader("Access-Control-Allow-Origin", "*")
 		response.setHeader("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE")
@@ -93,9 +100,9 @@ public class CorsFilter implements Filter {
 		chain.doFilter(req, res)
 	}
 
-	public void init(FilterConfig filterConfig) {}
+	void init(FilterConfig filterConfig) {}
 
-	public void destroy() {}
+	void destroy() {}
 
 }
 ```
@@ -104,13 +111,7 @@ With that change to the resource server, we should be able to re-launch it and g
 
 ## Securing the Resource Server
 
-Great! We have a working application with a new architecture. The only problem is that the resource server has no security. That might not even be a problem if your network architecture mirrors the application architecture (you can just make the resource server physically inaccessible to anyone but the UI server). As a simple demonstration of that we can make the resource server only accessible on localhost. Just add this to `application.properties` in the resource server:
-
-```properties
-server.address: 127.0.0.1
-```
-
-Wow, that was easy! Do that with a network address that's only visible in your data center and you have a security solution that works across hosts as well.
+Great! We have a working application with a new architecture. The only problem is that the resource server has no security.
 
 ### Adding Spring Security
 
@@ -154,7 +155,7 @@ In the UI application we need to add some dependencies to our [POM](https://gith
 <dependency>
   <groupId>org.springframework.session</groupId>
   <artifactId>spring-session</artifactId>
-  <version>1.0.0.RC1</version>
+  <version>1.0.0.RELEASE</version>
 </dependency>
 <dependency>
   <groupId>org.springframework.boot</groupId>

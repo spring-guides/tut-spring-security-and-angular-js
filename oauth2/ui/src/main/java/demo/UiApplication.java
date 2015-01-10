@@ -1,7 +1,6 @@
 package demo;
 
 import java.io.IOException;
-import java.security.Principal;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -23,7 +22,6 @@ import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.WebUtils;
@@ -35,11 +33,6 @@ import org.springframework.web.util.WebUtils;
 @EnableZuulProxy
 @EnableOAuth2Sso
 public class UiApplication {
-
-	@RequestMapping("/user")
-	public Principal user(Principal user) {
-		return user;
-	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(UiApplication.class, args);

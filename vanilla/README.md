@@ -97,7 +97,10 @@ class CorsFilter implements Filter {
 		response.setHeader("Access-Control-Allow-Origin", "*")
 		response.setHeader("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE")
 		response.setHeader("Access-Control-Max-Age", "3600")
-		chain.doFilter(req, res)
+		if (request.getMethod()!='OPTIONS') {
+			chain.doFilter(req, res)
+		} else {
+		}
 	}
 
 	void init(FilterConfig filterConfig) {}
@@ -168,6 +171,7 @@ and then add the `Filter`:
 ```java
 @SpringBootApplication
 @RestController
+@EnableRedisHttpSession
 public class UiApplication {
 
   public static void main(String[] args) {
@@ -175,21 +179,13 @@ public class UiApplication {
   }
 
   ...
-  
-  @Bean
-  public Filter sessionFilter(RedisConnectionFactory redisOperations) {
-    SessionRepository sessionRepository = new RedisOperationsSessionRepository(
-        redisOperations);
-    SessionRepositoryFilter filter = new SessionRepositoryFilter(sessionRepository);
-    return filter;
-  }
 
 }
 ```
 
-The `RedisConnectionFactory` is provided by Spring Boot (and a URL and credentials can be configured using environment variables or configuration files).
+The `@EnableRedisHttpSession` is provided by Spring Session, and Spring Boot supplies a redis connection (a URL and credentials can be configured using environment variables or configuration files).
 
-With those 6 lines of code in place and a Redis server running on localhost you can run the UI application, login with some valid user credentials, and the session data (the authentication and CSRF token) will be stored in redis.
+With that 1 line of code in place and a Redis server running on localhost you can run the UI application, login with some valid user credentials, and the session data (the authentication and CSRF token) will be stored in redis.
 
 > Tip: if you don't have a redis server running locally you can easily spin one up with [Docker](https://www.docker.com/) (on Windows or MacOS this requires a VM). There is a [`fig.yml`](http://www.fig.sh/) file in the [source code in Github](https://github.com/dsyer/spring-security-angular/tree/master/spring-session/fig.yml) which you can run really easily on the command line with `fig up`.
 
@@ -206,7 +202,7 @@ angular.module('hello', [ 'ngRoute' ])
 			url : 'http://localhost:9000',
 			method : 'GET',
 			headers : {
-				'X-Session' : token.token
+				'X-Auth-Token' : token.token
 			}
 		}).success(function(data) {
 			$scope.greeting = data;
@@ -220,6 +216,7 @@ Instead of going directly to "http://localhost:9000" we have wrapped that call i
 ```java
 @SpringBootApplication
 @RestController
+@EnableRedisHttpSession
 public class UiApplication {
 
   public static void main(String[] args) {
@@ -237,7 +234,7 @@ public class UiApplication {
 }
 ```
 
-So the UI application is ready and will include the session ID in a header called "X-Session" for all calls to the backend.
+So the UI application is ready and will include the session ID in a header called "X-Auth-Token" for all calls to the backend.
 
 ## Authentication in the Resource Server
 
@@ -250,7 +247,7 @@ public class CorsFilter implements Filter {
 
   void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
     ...
-    response.setHeader("Access-Control-Allow-Headers", "x-session")
+    response.setHeader("Access-Control-Allow-Headers", "x-auth-token")
     ...
   }
 
@@ -263,23 +260,20 @@ All that remains is to pick up the custom token in the resource server and use i
 ```java
 @SpringBootApplication
 @RestController
+@EnableRedisHttpSession
 class ResourceApplication {
 
   ...
   
-  @Bean
-  Filter sessionFilter(RedisConnectionFactory connectionFactory) {
-    SessionRepository sessionRepository = new RedisOperationsSessionRepository(connectionFactory)
-    SessionRepositoryFilter<Session> filter = new SessionRepositoryFilter<Session>(sessionRepository)
-    HeaderHttpSessionStrategy httpSessionStrategy = new HeaderHttpSessionStrategy();
-    httpSessionStrategy.setHeaderName("X-Session");
-    filter.setHttpSessionStrategy(httpSessionStrategy);
-    filter
-  }
+	@Bean
+	public HeaderHttpSessionStrategy sessionStrategy() {
+		return new HeaderHttpSessionStrategy();
+	}
 
+}
 ```
 
-This `Filter` is the mirror image of the one in the UI server, so it establishes Redis as the session store. The only difference is that it uses the custom header name "X-Session") instead of the default ("JSESSIONID"), and with that we are ready to try the application out. Re-launch the resource server and open the UI up in a new browser window.
+This `Filter` created is the mirror image of the one in the UI server, so it establishes Redis as the session store. The only difference is that it uses a custom `HttpSessionStrategy` that looks in the header ("X-Auth-Token" by default) instead of the default (cookie named "JSESSIONID"). Re-launch the resource server and open the UI up in a new browser window.
 
 ## Why Doesn't it All Work With Cookies?
 

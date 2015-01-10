@@ -78,7 +78,7 @@ function($rootScope, $scope, $http, $location, $route) {
 			url : 'http://localhost:9000',
 			method : 'GET',
 			headers : {
-				'X-Session' : token.token
+				'X-Auth-Token' : token.token
 			}
 		}).success(function(data) {
 			$scope.greeting = data;

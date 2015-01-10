@@ -1,7 +1,7 @@
 server:
   port: 9000
 security:
-  sessions: IF_REQUIRED
+  sessions: NEVER
 logging:
   level:
     org.springframework:

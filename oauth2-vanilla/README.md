@@ -178,7 +178,9 @@ and you will see a 401 with a "WWW-Authenticate" header indicating that it wants
 oauth2.resource.userInfoUri: http://localhost:9999/uaa/user
 ```
 
-This tells the server that it can use the token to access a "/user" endpoint and use that to derive authentication information (it's a bit like the ["/me" endpoint](https://developers.facebook.com/docs/graph-api/reference/v2.2/user/?locale=en_GB) in the Facebook API).
+This tells the server that it can use the token to access a "/user" endpoint and use that to derive authentication information (it's a bit like the ["/me" endpoint](https://developers.facebook.com/docs/graph-api/reference/v2.2/user/?locale=en_GB) in the Facebook API). Effectively it provides a way for the resource server to decode the token, as expressed by the `ResourceServerTokenServices` interface in Spring OAuth2.
+
+> Note: the `userInfoUri` is by far not the only way of hooking a resource server up with a way to decode tokens. In fact it's sort of a lowest common denominator (and not part of the spec), but quite often available from OAuth2 providers (like Facebook, Cloud Foundry, Github), and other choices are available. For instance you can encode the user authentication in the token itself (e.g. with [JWT][JWT]), or use a shared backend store. There is also a `/token_info` endpoint in CloudFoundry, which provides more detailed information than the user info endpoint, but which requires more thorough authentication. Different options (naturally) provide different benefits and trade-offs, but a full discussion of those is outside the scope of this article.
 
 ## Implementing the User Endpoint
 
@@ -350,5 +352,6 @@ This is almost the end of our shallow tour through the Spring Security and Angul
 
 ## Addendum: Bootstrap UI and JWT Tokens for the Authorization Server
 
-You will find another version of this application in the [source code in Github](https://github.com/dsyer/spring-security-angular/tree/master/oauth2) which has a pretty login page and user approval page implemented similarly to the way we did the login page in [Part II][second]. It also uses [JWT](http://en.wikipedia.org/wiki/JWT) to encode the tokens, so instead of using the "/user" endpoint, the resource server can pull enough information out of the token itself to do a simple authentication.
+You will find another version of this application in the [source code in Github](https://github.com/dsyer/spring-security-angular/tree/master/oauth2) which has a pretty login page and user approval page implemented similarly to the way we did the login page in [Part II][second]. It also uses [JWT][JWT] to encode the tokens, so instead of using the "/user" endpoint, the resource server can pull enough information out of the token itself to do a simple authentication.
 
+[JWT]: http://en.wikipedia.org/wiki/JWT (Jason Web Tokens)

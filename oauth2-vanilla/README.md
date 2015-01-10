@@ -352,6 +352,6 @@ This is almost the end of our shallow tour through the Spring Security and Angul
 
 ## Addendum: Bootstrap UI and JWT Tokens for the Authorization Server
 
-You will find another version of this application in the [source code in Github](https://github.com/dsyer/spring-security-angular/tree/master/oauth2) which has a pretty login page and user approval page implemented similarly to the way we did the login page in [Part II][second]. It also uses [JWT][JWT] to encode the tokens, so instead of using the "/user" endpoint, the resource server can pull enough information out of the token itself to do a simple authentication.
+You will find another version of this application in the [source code in Github](https://github.com/dsyer/spring-security-angular/tree/master/oauth2) which has a pretty login page and user approval page implemented similarly to the way we did the login page in [Part II][second]. It also uses [JWT][JWT] to encode the tokens, so instead of using the "/user" endpoint, the resource server can pull enough information out of the token itself to do a simple authentication. The browser client still uses it, proxied through the UI server, so that it can determine if a user is authenticated (it doesn't need to do that very often, compared to the likely number of calls to a resource server in a real application).
 
 [JWT]: http://en.wikipedia.org/wiki/JWT (Jason Web Tokens)

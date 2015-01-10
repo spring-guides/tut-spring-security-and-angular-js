@@ -90,6 +90,7 @@ To fix that we need to support the CORS protocol which involves a "pre-flight" O
 
 ```java
 @Component
+@Order(Ordered.HIGHEST_PRECEDENCE)
 class CorsFilter implements Filter {
 
 	void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) {
@@ -110,7 +111,7 @@ class CorsFilter implements Filter {
 }
 ```
 
-With that change to the resource server, we should be able to re-launch it and get our greeting in the UI.
+The `Filter` is defined with an `@Order` so that it is definitely applied *before* the main Spring Security filter. With that change to the resource server, we should be able to re-launch it and get our greeting in the UI.
 
 ## Securing the Resource Server
 

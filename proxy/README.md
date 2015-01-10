@@ -134,41 +134,39 @@ We can use the same mechanism to share authentication (and CSRF) state as we did
 </dependency>
 ```
 
-but this time the configuration is much simpler because we can just add the same `Filter` declaration to both. First the UI server:
+but this time the configuration is much simpler because we can just add the same `Filter` declaration to both. First the UI server (adding `@EnableRedisHttpSession`):
 
 ```java
 @SpringBootApplication
 @RestController
 @EnableZuulProxy
+@EnableRedisHttpSession
 public class UiApplication {
 
   ...
 
-  @Bean
-  public Filter sessionFilter(RedisConnectionFactory redisOperations) {
-    SessionRepository sessionRepository = new RedisOperationsSessionRepository(
-        redisOperations);
-    SessionRepositoryFilter filter = new SessionRepositoryFilter(sessionRepository);
-    return filter;
-  }
-
 }
 ```
 
-and then the resource server:
+and then the resource server.  There are two changes to make: one is adding `@EnableRedisHttpSession` and the `HeaderHttpSessionStrategy` bean to the `ResourceApplication`:
 
 ```java
 @SpringBootApplication
 @RestController
+@EnableRedisHttpSession
 class ResourceApplication {
   ...
   @Bean
-  Filter sessionFilter(RedisConnectionFactory redisOperations) {
-    SessionRepository sessionRepository = new RedisOperationsSessionRepository(
-        redisOperations)
-    new SessionRepositoryFilter(sessionRepository)
+  HeaderHttpSessionStrategy sessionStrategy() {
+    new HeaderHttpSessionStrategy();
   }
 }
+```
+
+and the other is to explicitly ask for a non-stateless session ceration policy in `application.properties`:
+
+```properties
+security.sessions: NEVER
 ```
 
 As long as redis is still running in the background (use the [`fig.yml`]((https://github.com/dsyer/spring-security-angular/tree/master/proxy/fig.yml) if you like to start it) then the system will work.

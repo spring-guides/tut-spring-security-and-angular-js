@@ -27,7 +27,8 @@ class ResourceApplication {
 	}
 	
 	@Bean
-	public HeaderHttpSessionStrategy sessionStrategy() {
-		return new HeaderHttpSessionStrategy();
+	HeaderHttpSessionStrategy sessionStrategy() {
+		new HeaderHttpSessionStrategy();
 	}
+
 }

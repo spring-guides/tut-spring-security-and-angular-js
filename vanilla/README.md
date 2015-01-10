@@ -265,15 +265,26 @@ class ResourceApplication {
 
   ...
   
-	@Bean
-	public HeaderHttpSessionStrategy sessionStrategy() {
-		return new HeaderHttpSessionStrategy();
-	}
+  @Bean
+  HeaderHttpSessionStrategy sessionStrategy() {
+    new HeaderHttpSessionStrategy();
+  }
 
 }
 ```
 
-This `Filter` created is the mirror image of the one in the UI server, so it establishes Redis as the session store. The only difference is that it uses a custom `HttpSessionStrategy` that looks in the header ("X-Auth-Token" by default) instead of the default (cookie named "JSESSIONID"). Re-launch the resource server and open the UI up in a new browser window.
+This `Filter` created is the mirror image of the one in the UI server, so it establishes Redis as the session store. The only difference is that it uses a custom `HttpSessionStrategy` that looks in the header ("X-Auth-Token" by default) instead of the default (cookie named "JSESSIONID"). 
+
+There is one final change to the resource server to make it work with our new authentication scheme. Spring Boot default security is stateless, and we want this to store authentication in the session, so we need to be explicit in `application.yml` (or `application.properties`):
+
+```yaml
+security:
+  sessions: NEVER
+```
+
+This says to Spring Security "never create a session, but use one if it is there" (it will be already be there because of the authentication in the UI).
+
+Re-launch the resource server and open the UI up in a new browser window.
 
 ## Why Doesn't it All Work With Cookies?
 

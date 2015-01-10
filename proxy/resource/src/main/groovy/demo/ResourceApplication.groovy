@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
+import org.springframework.session.web.http.HeaderHttpSessionStrategy;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 @ComponentScan
 @EnableAutoConfiguration
 @RestController
+@EnableRedisHttpSession
 class ResourceApplication {
 
 	@RequestMapping('/')
@@ -30,9 +33,8 @@ class ResourceApplication {
 	}
 
 	@Bean
-	Filter sessionFilter(RedisConnectionFactory redisOperations) {
-		SessionRepository sessionRepository = new RedisOperationsSessionRepository(
-				redisOperations)
-		new SessionRepositoryFilter(sessionRepository)
+	HeaderHttpSessionStrategy sessionStrategy() {
+		new HeaderHttpSessionStrategy();
 	}
+
 }

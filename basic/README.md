@@ -1,6 +1,6 @@
 # Spring and Angular JS: A Secure Single Page Application
 
-In this article we show some nice features of Spring Security, Spring Boot and Angular JS working together to provide a pleasant and secure user experience. It should be accessible to beginners with Spring and Angular JS, but there also is plenty of detail that will be of use to experts in either. This is actually the first in a series of articles on Spring Security and Angular JS, with new features exposed in each one successively. We'll improve on the application in the [second](https://spring.io/admin/blog/1904) and subsequent installments, but the main changes after this are architectural rather than functional.
+In this article we show some nice features of Spring Security, Spring Boot and Angular JS working together to provide a pleasant and secure user experience. It should be accessible to beginners with Spring and Angular JS, but there also is plenty of detail that will be of use to experts in either. This is actually the first in a series of articles on Spring Security and Angular JS, with new features exposed in each one successively. We'll improve on the application in the [second](https://spring.io/blog/2015/01/12/the-login-page-angular-js-and-spring-security-part-ii) and subsequent installments, but the main changes after this are architectural rather than functional.
 
 ## Spring and the Single Page Application
 
@@ -72,7 +72,7 @@ The core of a single page application is a static "index.html", so let's go ahea
 </head>
 
 <body ng-app="hello">
-  <div ng-controller="home" class="container">
+  <div class="container">
     <h1>Greeting</h1>
     <div ng-controller="home" ng-cloak class="ng-cloak">
       <p>The ID is {{greeting.id}}</p>
@@ -99,15 +99,17 @@ Salient features include:
   
 * All the CSS classes (apart from "ng-cloak") are from [Twitter Bootstrap](http://getbootstrap.com/). They will make things look pretty once we get the right stylesheets set up.
 
-* The content in the greeting is marked up using handlebars, e.g. `{{greeting.content}}` and this will be filled in later by Angular.
+* The content in the greeting is marked up using handlebars, e.g. `{{greeting.content}}` and this will be filled in later by Angular (using a "controller" called "home" according to the `ng-controller` directive on the surrounding `<div>`).
   
 * Angular JS (and Twitter Bootstrap) are included at the bottom of the `<body>` so that the browser can process all the HTML before it gets processed.
   
 * We also include a separate "hello.js" which is where we are going to define the application behaviour.
+
+We are going to create the "angular-bootstrap.css" and "angular-bootstrap.js" source files by concatenating several library files in a minute. These and the 
   
 ### Running the Application
 
-Once the home page file is added your application will be loadable in a browser (even though it doesn't do much yet). On the command line you can do this
+Once the home page file is added, your application will be loadable in a browser (even though it doesn't do much yet). On the command line you can do this
 
 ```
 $ mvn spring-boot:run
@@ -128,7 +130,9 @@ $ java -jar target/*.jar
 
 ## Front End Assets
 
-We need to generate the "angular-bootstrap.css" and "angular-bootstrap.js" assets. There are many different ways of doing this but for the purposes of this article we are going to use [wro4j](http://alexo.github.io/wro4j/), which is a Java-based toolchain for preprocessing and packaging front end assets. It can be used as a JIT (Just in Time) `Filter` in any Servlet application, but it also has good support for build tools like Maven and Eclipse, and that is how we are going to use it. So we are going to build static resource files and bundle them in our application JAR.
+Other entry-level tutorials on Angular and other front end technologies often just include the front end library assets from the internet (e.g. [the Angular JS website](https://docs.angularjs.org/misc/downloading) itself recommends downloading from [Google CDN](https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js)). Instead of doing that we are going to generate the "angular-bootstrap.js" asset by concatenating several files from such libraries. This is not strictly necessary to get the application working, but it *is* best practice for a production application to consolidate scripts to avoid chatter between the browser and the server (or content delivery network). Since we aren't modifying or customizing the CSS stylesheets it is also unecessary to generate the "angular-bootstrap.css", and we could just use static assets from Google CDN for that as well. However, in a real application we almost certainly would want to modify the stylesheets and we wouldn't want to edit the CSS sources by hand, so we would use a higher level tool (e.g. [Less](http://lesscss.org/) or [Sass](http://sass-lang.com/)), so we are going to use one too.
+
+There are many different ways of doing this but for the purposes of this article we are going to use [wro4j](http://alexo.github.io/wro4j/), which is a Java-based toolchain for preprocessing and packaging front end assets. It can be used as a JIT (Just in Time) `Filter` in any Servlet application, but it also has good support for build tools like Maven and Eclipse, and that is how we are going to use it. So we are going to build static resource files and bundle them in our application JAR.
 
 > Aside: Wro4j is probably not the tool of choice for hard-core front end developers - they would probably be using a node-based toolchain, with [bower](http://bower.io/) and/or [grunt](http://gruntjs.com/). These are definitely excellent tools, and covered in great detail all over the internet, so please feel free to use them if you prefer. If you just put the outputs from those toolchains in "src/main/resources/static" then it will all work. I find wro4j comfortable because I am not a hard-core front end developer and I know how to use Java-based tooling.
 
@@ -217,6 +221,8 @@ To create static resources at build time we add some magic to the Maven `pom.xml
 You can copy that verbatim into your POM, or just scan it if you are following along from the [source in Github](https://github.com/dsyer/spring-security-angular/tree/master/basic/pom.xml#L43). The main points are:
 
 * We are including some webjars libraries as dependencies (jquery and bootstrap for CSS and styling, and Angular JS for business logic). Some of the static resources in those jar files will be included in our generated "angular-bootstrap.*" files, but the jars themselves don't need to be packaged with the application.
+
+* Twitter Bootstrap has a dependency on jQuery, so we include that as well. An Angular JS application that didn't use Bootstrap wouldn't need that since Angular has its own version of the features it needs from jQuery.
 
 * The generated resources will go in "target/generated-resources", and because that is declared in the `<resources/>` section, they will be packaged in the output JAR from the project, and available on the classpath in the IDE (as long as we are using Maven tooling, e.g. m2e in Eclipse).
   
@@ -349,7 +355,7 @@ The browser is sending the username and password with every request (so remember
 
 ### What's Wrong with That?
 
-On the face of it it seems like we did a pretty good job, it's concise, easy to implement, all our data are secured by a secret password, and it would still work if we changed the front end or backend technologies. But there are some issues.
+On the face of it, it seems like we did a pretty good job, it's concise, easy to implement, all our data are secured by a secret password, and it would still work if we changed the front end or backend technologies. But there are some issues.
 
 * Basic authentication is restricted to username and password authentication.
 
@@ -359,4 +365,6 @@ On the face of it it seems like we did a pretty good job, it's concise, easy to 
 
 CSRF isn't really an issue with our application as it stands since it only needs to GET the backend resources (i.e. no state is changed in the server). As soon as you have a POST, PUT or DELETE in your application it simply isn't secure any more by any reasonable modern measure.
 
-In the [next article in this series](http://spring.io/blog/1904-the-login-page-angular-js-and-spring-security-part-ii) we will extend the application to use form-based authentication, which is a lot more flexible than HTTP Basic. Once we have a form we will need CSRF protection, and both Spring Security and Angular have some nice out-of-the box features to help with this. Spoiler: we are going to need to use the `HttpSession`.
+In the [next article in this series](https://spring.io/blog/2015/01/12/the-login-page-angular-js-and-spring-security-part-ii) we will extend the application to use form-based authentication, which is a lot more flexible than HTTP Basic. Once we have a form we will need CSRF protection, and both Spring Security and Angular have some nice out-of-the box features to help with this. Spoiler: we are going to need to use the `HttpSession`.
+
+> Thanks: I would like to thank everyone who helped me develop this series, and in particular [Rob Winch](http://spring.io/team/rwinch) and [Thorsten Spaeth](https://twitter.com/thspaeth) for their careful reviews of the articles and sources codes, and for teaching me a few tricks I didn't know even about the parts I thought I was most familar with.

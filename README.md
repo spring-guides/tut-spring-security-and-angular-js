@@ -4,9 +4,9 @@ Demo samples for [Angular JS](http://angularjs.org) with [Spring Security](http:
 
 Contents: 
 
-* `basic`: sample with HTTP Basic authentication, static HTML and an API resource all in the same server ([blog](http://spring.io/blog/1903)).
+* `basic`: sample with HTTP Basic authentication, static HTML and an API resource all in the same server ([blog](http://spring.io/blog/2015/01/12/spring-and-angular-js-a-secure-single-page-application)).
 
-* `single`: adds form authentication, but static HTML and an API resource still in the same server ([blog](http://spring.io/blog/1904)).
+* `single`: adds form authentication, but static HTML and an API resource still in the same server ([blog](https://spring.io/blog/2015/01/12/the-login-page-angular-js-and-spring-security-part-ii)).
 
 * `vanilla`: form authentication and static HTML in one server ("ui") and an unprotected backend API resource in another ("resource") ([blog](http://spring.io/blog/1905)).
 

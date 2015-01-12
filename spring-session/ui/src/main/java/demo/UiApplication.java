@@ -47,7 +47,7 @@ public class UiApplication {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http.formLogin().and().logout().and().authorizeRequests()
-					.antMatchers("/**/*.html", "/").permitAll().anyRequest()
+					.antMatchers("/index.html", "/home.html", "/login.html", "/").permitAll().anyRequest()
 					.authenticated().and().csrf()
 					.csrfTokenRepository(csrfTokenRepository()).and()
 					.addFilterAfter(csrfHeaderFilter(), CsrfFilter.class);

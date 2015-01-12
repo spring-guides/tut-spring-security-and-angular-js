@@ -279,10 +279,17 @@ to a plain HTML link
 
 The "/login" endpoint that this goes to is handled by Spring Security and if the user is not authenticated it will result in a redirect to the authorization server.
 
-We can also remove the definition of the `login()` function in the "navigation" controller, which simplifies the implementation a bit:
+We can also remove the definition of the `login()` function in the "navigation" controller, and the "/login" route from the Angular configuration, which simplifies the implementation a bit:
 
 ```javascript
-angular.module('hello', [ 'ngRoute' ]) // ...
+angular.module('hello', [ 'ngRoute' ]).config(function($routeProvider) {
+
+	$routeProvider.when('/', {
+		templateUrl : 'home.html',
+		controller : 'home'
+	}).otherwise('/');
+
+}). // ...
 .controller('navigation',
 
 function($rootScope, $scope, $http, $location, $route) {
@@ -313,7 +320,7 @@ function($rootScope, $scope, $http, $location, $route) {
 
 ## How Does it Work?
 
-Run all the servers together now, and visit the UI in a browser at http://localhost:8080. Click on the "login" link and you will be redirected to the authorization server to authenticate (HTTP Basic popup) and approve the token grant (whitelabel HTML), before being redirected to the home page in the UI with the greeting fetched from the OAuth2 resource server using the same token as we authenticated the UI with.
+Run all the servers together now, and visit the UI in a browser at [http://localhost:8080](http://localhost:8080). Click on the "login" link and you will be redirected to the authorization server to authenticate (HTTP Basic popup) and approve the token grant (whitelabel HTML), before being redirected to the home page in the UI with the greeting fetched from the OAuth2 resource server using the same token as we authenticated the UI with.
 
 The interactions between the browser and the backend can be seen in your browser if you use some developer tools (usually F12 opens this up, works in Chrome by default, requires a plugin in Firefox). Here's a summary:
 
@@ -334,13 +341,13 @@ GET  | /login                    | 302 | Redirect to auth server
 GET  | (uaa)/oauth/authorize     | 200 | HTTP Basic auth happens here
 POST | (uaa)/oauth/authorize     | 302 | User approves grant, redirect to /login
 GET  | /login                    | 302 | Redirect to home page
-GET  | /user                     | 200 | JSON authenticated user
+GET  | /user                     | 200 | (Proxied) JSON authenticated user
 GET  | /home.html                | 200 | HTML partial for home page
-GET  | /resource                 | 200 | JSON greeting
+GET  | /resource                 | 200 | (Proxied) JSON greeting
 
 The requests prefixed with (uaa) are to the authorization server. The responses that are marked "ignored" are responses received by Angular in an XHR call, and since we aren't processing that data they are dropped on the floor. We do look for an authenticated user in the case of the "/user" resource, but since it isn't there in the first call, that response is dropped.
 
-In the "/trace" endpoint of the UI (scroll down to the bottom) you will see the proxied backend requests to "/user" and "/resource", with `remote:true` and the bearer token instead of the cookie (as in [Part IV][fourth]) being used for authentication. Spring Cloud Security has taken care of this for us: by recognising that we has `@EnableOAuth2Sso` and `@EnableZuulProxy` it has figured out that (by default) we want to relay the token to the proxied backends.
+In the "/trace" endpoint of the UI (scroll down to the bottom) you will see the proxied backend requests to "/user" and "/resource", with `remote:true` and the bearer token instead of the cookie (as it would have been in [Part IV][fourth]) being used for authentication. Spring Cloud Security has taken care of this for us: by recognising that we has `@EnableOAuth2Sso` and `@EnableZuulProxy` it has figured out that (by default) we want to relay the token to the proxied backends.
 
 ## The Logout Experience
 

@@ -50,7 +50,7 @@ public class UiApplication {
 							new Http401AuthenticationEntryPoint(
 									"Session realm=\"JSESSIONID\"")).and()
 					.antMatcher("/**").authorizeRequests()
-					.antMatchers("/**/*.html", "/", "/login").permitAll().anyRequest()
+					.antMatchers("/index.html", "/home.html", "/", "/login").permitAll().anyRequest()
 					.authenticated().and().csrf()
 					.csrfTokenRepository(csrfTokenRepository()).and()
 					.addFilterAfter(csrfHeaderFilter(), CsrfFilter.class);

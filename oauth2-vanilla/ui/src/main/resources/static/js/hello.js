@@ -3,9 +3,6 @@ angular.module('hello', [ 'ngRoute' ]).config(function($routeProvider) {
 	$routeProvider.when('/', {
 		templateUrl : 'home.html',
 		controller : 'home'
-	}).when('/login', {
-		templateUrl : 'login.html',
-		controller : 'navigation'
 	}).otherwise('/');
 
 }).controller('navigation',
@@ -16,21 +13,15 @@ function($rootScope, $scope, $http, $location, $route) {
 		return $route.current && route === $route.current.controller;
 	};
 
-	var authenticate = function() {
-
-		$http.get('user').success(function(data) {
-			if (data.name) {
-				$rootScope.authenticated = true;
-			} else {
-				$rootScope.authenticated = false;
-			}
-		}).error(function() {
+	$http.get('user').success(function(data) {
+		if (data.name) {
+			$rootScope.authenticated = true;
+		} else {
 			$rootScope.authenticated = false;
-		});
-
-	}
-
-	authenticate();
+		}
+	}).error(function() {
+		$rootScope.authenticated = false;
+	});
 
 	$scope.credentials = {};
 

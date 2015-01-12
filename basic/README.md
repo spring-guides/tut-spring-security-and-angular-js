@@ -105,7 +105,7 @@ Salient features include:
   
 * We also include a separate "hello.js" which is where we are going to define the application behaviour.
 
-We are going to create the "angular-bootstrap.css" and "angular-bootstrap.js" source files by concatenating several library files in a minute. These and the 
+We are going to create the script and stylesheet assets in a minute, but for now we can ignore the fact that they don't exist.
   
 ### Running the Application
 

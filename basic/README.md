@@ -74,7 +74,7 @@ The core of a single page application is a static "index.html", so let's go ahea
 <body ng-app="hello">
   <div ng-controller="home" class="container">
     <h1>Greeting</h1>
-    <div ng-controller="home" ng-cloak class="ng-cloak">
+    <div ng-cloak class="ng-cloak">
       <p>The ID is {{greeting.id}}</p>
       <p>The content is {{greeting.content}}</p>
     </div>
@@ -107,7 +107,7 @@ Salient features include:
   
 ### Running the Application
 
-Once the home page file is added your application will be loadable in a browser (even though it doesn't do much yet). On the command line you can do this
+Once the home page file is added, your application will be loadable in a browser (even though it doesn't do much yet). On the command line you can do this
 
 ```
 $ mvn spring-boot:run
@@ -217,6 +217,8 @@ To create static resources at build time we add some magic to the Maven `pom.xml
 You can copy that verbatim into your POM, or just scan it if you are following along from the [source in Github](https://github.com/dsyer/spring-security-angular/tree/master/basic/pom.xml#L43). The main points are:
 
 * We are including some webjars libraries as dependencies (jquery and bootstrap for CSS and styling, and Angular JS for business logic). Some of the static resources in those jar files will be included in our generated "angular-bootstrap.*" files, but the jars themselves don't need to be packaged with the application.
+
+* For a normal AngularJS application, there is no need to include a separate jQuery file as AngularJS comes with its own adaption called jqLite
 
 * The generated resources will go in "target/generated-resources", and because that is declared in the `<resources/>` section, they will be packaged in the output JAR from the project, and available on the classpath in the IDE (as long as we are using Maven tooling, e.g. m2e in Eclipse).
   
@@ -349,7 +351,7 @@ The browser is sending the username and password with every request (so remember
 
 ### What's Wrong with That?
 
-On the face of it it seems like we did a pretty good job, it's concise, easy to implement, all our data are secured by a secret password, and it would still work if we changed the front end or backend technologies. But there are some issues.
+On the face of it, it seems like we did a pretty good job, it's concise, easy to implement, all our data are secured by a secret password, and it would still work if we changed the front end or backend technologies. But there are some issues.
 
 * Basic authentication is restricted to username and password authentication.
 

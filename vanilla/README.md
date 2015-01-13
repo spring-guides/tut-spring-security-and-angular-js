@@ -39,11 +39,11 @@ angular.module('hello', [ 'ngRoute' ])
 
 ### Server Side Changes
 
-The [UI server](https://github.com/dsyer/spring-security-angular/blob/master/vanilla/ui/src/main/java/demo/UiApplication.java) is trivial to change: we just need to remove the `@RequestMapping` for the greeting resource (it was "/resource"). Then we need to create a new resource server, which we can do like we did in the [first article][first] using the [Spring Boot Initializr](http://start.spring.io). E.g. using curl on a UN*X like system:
+The [UI server](https://github.com/dsyer/spring-security-angular/blob/master/vanilla/ui/src/main/java/demo/UiApplication.java) is trivial to change: we just need to remove the `@RequestMapping` for the greeting resource (it was "/resource"). Then we need to create a new resource server, which we can do like we did in the [first article][first] using the [Spring Boot Initializr](https://start.spring.io). E.g. using curl on a UN*X like system:
 
 ```
-$ mkdie resource && cd resource
-$ curl start.spring.io/starter.tgz -d style=web \
+$ mkdir resource && cd resource
+$ curl https://start.spring.io/starter.tgz -d style=web \
 -d name=resource -d language=groovy | tar -xzvf - 
 ```
 

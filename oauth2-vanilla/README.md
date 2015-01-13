@@ -4,18 +4,18 @@ In this article we continue [our discussion][fourth] of how to use [Spring Secur
 
 > Reminder: if you are working through this article with the sample application, be sure to clear your browser cache of cookies and HTTP Basic credentials. In Chrome the best way to do that for a single server is to open a new incognito window.
 
-[first]: http://spring.io/blog/1903-spring-and-angular-js-a-secure-single-page-application (First Article in the Series)
-[second]: http://spring.io/blog/1904-the-login-page-angular-js-and-spring-security-part-ii (Second Article in the Series)
+[first]: http://spring.io/blog/2015/01/12/spring-and-angular-js-a-secure-single-page-application (First Article in the Series)
+[second]: http://spring.io/blog/2015/01/12/the-login-page-angular-js-and-spring-security-part-ii (Second Article in the Series)
 [third]: http://spring.io/blog/1905-the-resource-server-angular-js-and-spring-security-part-iii (Third Article in the Series)
 [fourth]: http://spring.io/blog/1906-the-api-gateway-pattern-angular-js-and-spring-security-part-iv (Fourth Article in the Series)
 
 ## Creating an OAuth2 Authorization Server
 
-Our first step is to create a new server to handle authentication and token management. Following the steps in [Part I][first] we can begin with [Spring Boot Initializr](http://start.spring.io). E.g. using curl on a UN*X like system:
+Our first step is to create a new server to handle authentication and token management. Following the steps in [Part I][first] we can begin with [Spring Boot Initializr](https://start.spring.io). E.g. using curl on a UN*X like system:
 
 ```
-$ curl start.spring.io/starter.tgz -d style=web -d style=security \
--d name=authserver | tar -xzvf - 
+$ curl https://start.spring.io/starter.tgz -d style=web \
+-d style=security -d name=authserver | tar -xzvf - 
 ```
 
 You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line.

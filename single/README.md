@@ -28,9 +28,9 @@ The core of a single page application is a static "index.html". We already had a
 <body ng-app="hello" ng-cloak class="ng-cloak">
 	<div ng-controller="navigation" class="container">
 		<ul class="nav nav-pills" role="tablist">
-			<li class="active"><a href='#/'>home</a></li>
-			<li><a href='#/login'>login</a></li>
-			<li ng-show="authenticated"><a href='' ng-click="logout()">logout</a></li>
+			<li class="active"><a href="#/">home</a></li>
+			<li><a href="#/login">login</a></li>
+			<li ng-show="authenticated"><a href="" ng-click="logout()">logout</a></li>
 		</ul>
 	</div>
 	<div ng-view class="container"></div>
@@ -126,7 +126,7 @@ The login form goes in "login.html":
 </form>
 ```
 
-This is a very standard login form, with 2 inputs for username and password and a button for submitting the form via [`ng-submit`](https://docs.angularjs.org/api/ng/directive/ngSubmit). There is also an error message, shown only if the angular `$scope` contains an `error`. The form controls use [`ng-model`](https://docs.angularjs.org/api/ng/directive/ngModel) to pass data between the HTML and the Angular controller, and in this case we are using a `credentials` object to hold the username and pasword. According to the routes we defined the login form is linked with the "navigation" controller, which is so far empty, so let's head over to that to fill in some gaps.
+This is a very standard login form, with 2 inputs for username and password and a button for submitting the form via [`ng-submit`](https://docs.angularjs.org/api/ng/directive/ngSubmit). You don't need an action on the form tag, so it's probably better not to put one in at all. There is also an error message, shown only if the angular `$scope` contains an `error`. The form controls use [`ng-model`](https://docs.angularjs.org/api/ng/directive/ngModel) to pass data between the HTML and the Angular controller, and in this case we are using a `credentials` object to hold the username and pasword. According to the routes we defined the login form is linked with the "navigation" controller, which is so far empty, so let's head over to that to fill in some gaps.
 
 
 ## The Authentication Process
@@ -135,10 +135,10 @@ To support the login form we just added we need to add some more features. On th
 
 ### Submitting the Login Form
 
-To submit the form we need to define the `login()` function that we referenced already in the form via `ng-submit`, and the `credentials` object that we referenced via `ng-model`. Let's flesh out the "navigation" controller in "hello.js" (ommitting the routes config and the "home" controller):
+To submit the form we need to define the `login()` function that we referenced already in the form via `ng-submit`, and the `credentials` object that we referenced via `ng-model`. Let's flesh out the "navigation" controller in "hello.js" (omitting the routes config and the "home" controller):
 
 ```javascript
-angular.module('hello', [ 'ngRoute' ]) // ... ommitted code
+angular.module('hello', [ 'ngRoute' ]) // ... omitted code
 .controller('navigation',
 
   function($rootScope, $scope, $http, $location) {
@@ -189,7 +189,7 @@ All of the code in the "navigation" controller will be executed when the page lo
 
 The `authenticate()` function sets an application-wide flag called `authenticated` which we have already used in our "home.html" to control which parts of the page are rendered. We do this using [`$rootScope`](https://docs.angularjs.org/api/ng/service/$rootScope) because it's convenient and easy to follow, and we need to share the `authenticated` flag between the "navigation" and the "home" controllers. Angular experts might prefer to share data through a shared user-defined service (but it ends up being the same mechanism).
 
-The `login()` makes a POST to a relative resource (relative to the "index.html") "/login" with the form-encoded credentials in the body (Angular does everything in JSON by default so we had to be explicit about that). Instead of relying on being able to derive the authentication state from the result of the POST, the `login()` function uses the `authenticate()` helper. Using the result of the POST is tricky if we don't know for sure what the server is going to do on success or failure, so it's worth the extra network hop to verify the authentication in the general case (e.g. the Spring Security default behaviour is to send a 302 on success and failure, and Angular will follow the redirect, so we would have to actually parse the response from that). The `login()` function also sets a local `$scope.error` flag accordingly when we get the result of the authentication, which is used to control the display of the error message above the login form.
+The `login()` makes a POST to a relative resource (relative to the deployment root of your application) "/login" with the form-encoded credentials in the body (Angular does everything in JSON by default so we had to be explicit about that). Instead of relying on being able to derive the authentication state from the result of the POST, the `login()` function uses the `authenticate()` helper. Using the result of the POST is tricky if we don't know for sure what the server is going to do on success or failure, so it's worth the extra network hop to verify the authentication in the general case (e.g. the Spring Security default behaviour is to send a 302 on success and failure, and Angular will follow the redirect, so we would have to actually parse the response from that). The `login()` function also sets a local `$scope.error` flag accordingly when we get the result of the authentication, which is used to control the display of the error message above the login form.
 
 ### The Currently Authenticated User
 
@@ -210,7 +210,7 @@ public class UiApplication {
 }
 ```
 
-This is a useful trick in a Spring Security application. If the "/user" resource is reachable then it will return the currently authenticated user (an [`Authentication`][authentication]), and otherwise Spring Security will intercept the request and send it through am [`AuthenticationEntryPoint`][authenticationentrypoint].
+This is a useful trick in a Spring Security application. If the "/user" resource is reachable then it will return the currently authenticated user (an [`Authentication`][authentication]), and otherwise Spring Security will intercept the request and send it through an [`AuthenticationEntryPoint`][authenticationentrypoint].
 
 An alternative implementation of this `authenticate()` (client side) and "/user" (server side) could just check the HTTP response from a simple GET of any protected resource (e.g. a 401 means `authenticated=false`). This is slightly fragile because it depends on non-standard configuration of the server using a custom [`AuthenticationEntryPoint`][authenticationentrypoint].
 
@@ -339,9 +339,9 @@ The application is almost finished functionally. The last thing we need to do is
 ```html
 <div ng-controller="navigation" class="container">
   <ul class="nav nav-pills" role="tablist">
-    <li class="active"><a href='#/'>home</a></li>
-    <li><a href='#/login'>login</a></li>
-    <li ng-show="authenticated"><a href='' ng-click="logout()">logout</a></li>
+    <li class="active"><a href="#/">home</a></li>
+    <li><a href="#/login">login</a></li>
+    <li ng-show="authenticated"><a href="" ng-click="logout()">logout</a></li>
   </ul>
 </div>
 ```
@@ -407,7 +407,7 @@ The responses that are marked "ignored" above are HTML responses received by Ang
 
 Look more closely at the requests and you will see that they all have cookies. If you start with a clean browser (e.g. incognito in Chrome), the very first request has no cookies going off to the server, but the server sends back "Set-Cookie" for "JSESSIONID" (the regular `HttpSession`) and "X-XSRF-TOKEN" (the CRSF cookie that we set up above). Subsequent requests all have those cookies, and they are important: the application doesn't work without them, and they are providing some really basic security features (authentication and CSRF protection). The values of the cookies change when the user authenticates (after the POST) and this is another important security feature (preventing [session fixation attacks](http://en.wikipedia.org/wiki/Session_fixation)).
 
-> Note: it is not adequate for CSRF protection to rely on a cookie being sent back to the server because the browser will automatically send it even if you are not in a page loaded from your application (a Cross Site Scripting attack, otherwise known as [XSS]()). The header is not automatically sent, so the origin is munder control. You might see that in our application the CSRF token is sent to the client as a cookie, so we will see it being sent back automatically by the browser, but it is the header that provides the protection.
+> Note: it is not adequate for CSRF protection to rely on a cookie being sent back to the server because the browser will automatically send it even if you are not in a page loaded from your application (a Cross Site Scripting attack, otherwise known as [XSS](http://en.wikipedia.org/wiki/Cross-site_scripting)). The header is not automatically sent, so the origin is under control. You might see that in our application the CSRF token is sent to the client as a cookie, so we will see it being sent back automatically by the browser, but it is the header that provides the protection.
 
 ## Help, How is My Application Going to Scale?
 

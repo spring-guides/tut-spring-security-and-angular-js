@@ -22,12 +22,12 @@ The source code for the complete project we are going to build is in [Github her
 <span id="using-curl"></span>
 ### Using Curl
 
-The easiest way to create a new project to get started is via the [Spring Boot Initializr](http://start.spring.io). E.g. using curl on a UN*X like system:
+The easiest way to create a new project to get started is via the [Spring Boot Initializr](https://start.spring.io). E.g. using curl on a UN*X like system:
 
 ```
 $ mkdir ui && cd ui
-$ curl start.spring.io/starter.tgz -d style=web -d style=security \
--d name=ui | tar -xzvf - 
+$ curl https://start.spring.io/starter.tgz -d style=web \
+-d style=security -d name=ui | tar -xzvf - 
 ```
 
 You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line. Then jump to the [next section](#add-a-home-page).
@@ -46,7 +46,7 @@ Then jump to the [next section](#add-a-home-page).
 <span id="using-the-initializr-website"></span>
 ### Using the Initializr Website
 
-If you prefer you can also get the same code directly as a .zip file from the [Spring Boot Initializr](http://start.spring.io). Just open it up in your browser and select dependencies "Web" and "Security", then click on "Generate Project". The .zip file contains a standard Maven or Gradle project in the root directory, so you might want to create an empty directory before you unpack it. Then jump to the [next section](#add-a-home-page).
+If you prefer you can also get the same code directly as a .zip file from the [Spring Boot Initializr](https://start.spring.io). Just open it up in your browser and select dependencies "Web" and "Security", then click on "Generate Project". The .zip file contains a standard Maven or Gradle project in the root directory, so you might want to create an empty directory before you unpack it. Then jump to the [next section](#add-a-home-page).
 
 <span id="using-spring-tool-suite"></span>
 ### Using Spring Tool Suite
@@ -130,7 +130,7 @@ $ java -jar target/*.jar
 
 ## Front End Assets
 
-Other entry-level tutorials on Angular and other front end technologies often just include the front end library assets from the internet (e.g. [the Angular JS website](https://docs.angularjs.org/misc/downloading) itself recommends downloading from [Google CDN](https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js)). Instead of doing that we are going to generate the "angular-bootstrap.js" asset by concatenating several files from such libraries. This is not strictly necessary to get the application working, but it *is* best practice for a production application to consolidate scripts to avoid chatter between the browser and the server (or content delivery network). Since we aren't modifying or customizing the CSS stylesheets it is also unecessary to generate the "angular-bootstrap.css", and we could just use static assets from Google CDN for that as well. However, in a real application we almost certainly would want to modify the stylesheets and we wouldn't want to edit the CSS sources by hand, so we would use a higher level tool (e.g. [Less](http://lesscss.org/) or [Sass](http://sass-lang.com/)), so we are going to use one too.
+Entry-level tutorials on Angular and other front end technologies often just include the library assets directly from the internet (e.g. [the Angular JS website](https://docs.angularjs.org/misc/downloading) itself recommends downloading from [Google CDN](https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js)). Instead of doing that we are going to generate the "angular-bootstrap.js" asset by concatenating several files from such libraries. This is not strictly necessary to get the application working, but it *is* best practice for a production application to consolidate scripts to avoid chatter between the browser and the server (or content delivery network). Since we aren't modifying or customizing the CSS stylesheets it is also unecessary to generate the "angular-bootstrap.css", and we could just use static assets from Google CDN for that as well. However, in a real application we almost certainly would want to modify the stylesheets and we wouldn't want to edit the CSS sources by hand, so we would use a higher level tool (e.g. [Less](http://lesscss.org/) or [Sass](http://sass-lang.com/)), so we are going to use one too.
 
 There are many different ways of doing this but for the purposes of this article we are going to use [wro4j](http://alexo.github.io/wro4j/), which is a Java-based toolchain for preprocessing and packaging front end assets. It can be used as a JIT (Just in Time) `Filter` in any Servlet application, but it also has good support for build tools like Maven and Eclipse, and that is how we are going to use it. So we are going to build static resource files and bundle them in our application JAR.
 

@@ -15,6 +15,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -41,18 +43,18 @@ public class AuthserverApplication extends WebMvcConfigurerAdapter {
 
 	@RequestMapping("/user")
 	@ResponseBody
-	public Principal user(Principal user) {
-		return user;
-	}
-
-	public static void main(String[] args) {
-		SpringApplication.run(AuthserverApplication.class, args);
+	public User user(Principal user) {
+		return new User(user.getName(), "N/A", ((Authentication) user).getAuthorities());
 	}
 
 	@Override
 	public void addViewControllers(ViewControllerRegistry registry) {
 		registry.addViewController("/login").setViewName("login");
 		registry.addViewController("/oauth/confirm_access").setViewName("authorize");
+	}
+
+	public static void main(String[] args) {
+		SpringApplication.run(AuthserverApplication.class, args);
 	}
 
 	@Configuration

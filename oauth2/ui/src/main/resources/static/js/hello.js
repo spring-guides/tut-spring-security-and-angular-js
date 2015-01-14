@@ -14,7 +14,7 @@ function($rootScope, $scope, $http, $location, $route) {
 	};
 
 	$http.get('user').success(function(data) {
-		if (data.username) {
+		if (data.name) {
 			$rootScope.authenticated = true;
 		} else {
 			$rootScope.authenticated = false;

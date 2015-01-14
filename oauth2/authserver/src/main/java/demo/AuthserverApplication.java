@@ -1,11 +1,16 @@
 package demo;
 
+import java.io.IOException;
 import java.security.KeyPair;
 import java.security.Principal;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,8 +20,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -24,27 +28,29 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
+import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
-import org.springframework.security.web.util.matcher.AndRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @SpringBootApplication
 @Controller
 @SessionAttributes("authorizationRequest")
+@EnableResourceServer
 public class AuthserverApplication extends WebMvcConfigurerAdapter {
 
 	@RequestMapping("/user")
 	@ResponseBody
-	public User user(Principal user) {
-		return new User(user.getName(), "N/A", ((Authentication) user).getAuthorities());
+	public Principal user(Principal user) {
+		return user;
 	}
 
 	@Override
@@ -58,7 +64,7 @@ public class AuthserverApplication extends WebMvcConfigurerAdapter {
 	}
 
 	@Configuration
-	@Order(ManagementServerProperties.ACCESS_OVERRIDE_ORDER)
+	@Order(-10)
 	protected static class LoginConfig extends WebSecurityConfigurerAdapter {
 
 		@Autowired
@@ -66,8 +72,14 @@ public class AuthserverApplication extends WebMvcConfigurerAdapter {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			http.formLogin().loginPage("/login").permitAll().and().authorizeRequests()
-					.anyRequest().authenticated();
+			// @formatter:off
+			http
+				.formLogin().loginPage("/login").permitAll()
+			.and()
+				.requestMatchers().antMatchers("/login", "/oauth/authorize", "/oauth/confirm_access")
+			.and()
+				.authorizeRequests().anyRequest().authenticated();
+			// @formatter:on
 		}
 
 		@Override
@@ -79,15 +91,25 @@ public class AuthserverApplication extends WebMvcConfigurerAdapter {
 	@Configuration
 	@EnableResourceServer
 	protected static class OAuth2ResourceConfig extends ResourceServerConfigurerAdapter {
+
+		private TokenExtractor tokenExtractor = new BearerTokenExtractor();
+
 		@Override
 		public void configure(HttpSecurity http) throws Exception {
-			http.requestMatchers()
-					.requestMatchers(
-							new AndRequestMatcher(new NegatedRequestMatcher(
-									new AntPathRequestMatcher("/oauth/**")),
-									new NegatedRequestMatcher(new AntPathRequestMatcher(
-											"/login")))).and().authorizeRequests()
-					.anyRequest().authenticated();
+			http.addFilterAfter(new OncePerRequestFilter() {
+				@Override
+				protected void doFilterInternal(HttpServletRequest request,
+						HttpServletResponse response, FilterChain filterChain)
+						throws ServletException, IOException {
+					// We don't want to allow access to a resource with no token so clear
+					// the security context in case it is actually an OAuth2Authentication
+					if (tokenExtractor.extract(request) == null) {
+						SecurityContextHolder.clearContext();
+					}
+					filterChain.doFilter(request, response);
+				}
+			}, AbstractPreAuthenticatedProcessingFilter.class);
+			http.authorizeRequests().anyRequest().authenticated();
 		}
 	}
 

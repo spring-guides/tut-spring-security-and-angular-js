@@ -141,7 +141,7 @@ $ curl -v localhost:9000
 {"timestamp":1420544006458,"status":401,"error":"Unauthorized","message":"Full authentication is required to access this resource","path":"/"}
 ```
 
-So all we need to do is teach the UI server to send credentials with every request.
+So all we need to do is teach the client to send credentials with every request.
 
 ## Token Authentication
 
@@ -211,6 +211,8 @@ angular.module('hello', [ 'ngRoute' ])
 	})
 });
 ```
+
+(A more elegant solution might be to grab the token as needed, and use an Angular [interceptor](https://docs.angularjs.org/api/ng/service/$http) to add the header to every request to the resource server. The interceptor definition could then be abstracted instead of doing it all in one place and cluttering up the business logic.)
 
 Instead of going directly to "http://localhost:9000" we have wrapped that call in the success callback of a call to a new custom endpoint on the UI server at "/token". The implementation of that is trivial:
 

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class CorsFilter implements Filter {
+class CorsFilter implements Filter {
 
 	void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
 		HttpServletResponse response = (HttpServletResponse) res
@@ -30,7 +30,6 @@ public class CorsFilter implements Filter {
 		}
 	}
 
-	public void init(FilterConfig filterConfig) {}
-
-	public void destroy() {}
+	void init(FilterConfig filterConfig) {}
+	void destroy() {}
 }

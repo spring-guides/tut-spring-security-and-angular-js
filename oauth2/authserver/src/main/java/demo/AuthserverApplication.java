@@ -44,7 +44,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @SpringBootApplication
 @Controller
 @SessionAttributes("authorizationRequest")
-@EnableResourceServer
 public class AuthserverApplication extends WebMvcConfigurerAdapter {
 
 	@RequestMapping("/user")

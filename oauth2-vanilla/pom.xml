@@ -3,10 +3,10 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.demo</groupId>
-	<artifactId>pairs-proxy</artifactId>
+	<artifactId>pairs-oauth2-vanilla</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>Spring Pairs Samples Proxy</name>
+	<name>Spring Pairs Samples OAuth2 Vanilla</name>
 
 	<modules>
 		<module>authserver</module>

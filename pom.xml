@@ -14,6 +14,7 @@
 		<module>vanilla</module>
 		<module>spring-session</module>
 		<module>proxy</module>
+		<module>oauth2-vanilla</module>
 		<module>oauth2</module>
 	</modules>
 	

@@ -7,6 +7,3 @@ zuul:
     resource:
       path: /resource/**
       url: http://localhost:9000
-logging:
-  level:
-    org.springframework.security: DEBUG

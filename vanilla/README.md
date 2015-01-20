@@ -4,8 +4,8 @@ In this article we continue [our discussion][second] of how to use [Spring Secur
 
 > Reminder: if you are working through this article with the sample application, be sure to clear your browser cache of cookies and HTTP Basic credentials. In Chrome the best way to do that for a single server is to open a new incognito window.
 
-[first]: http://spring.io/blog/1903-spring-and-angular-js-a-secure-single-page-application (First Article in the Series)
-[second]: http://spring.io/blog/1904-the-login-page-angular-js-and-spring-security-part-ii (Second Article in the Series)
+[first]: http://spring.io/blog/2015/01/12/spring-and-angular-js-a-secure-single-page-application (First Article in the Series)
+[second]: http://spring.io/blog/2015/01/12/the-login-page-angular-js-and-spring-security-part-ii (Second Article in the Series)
 
 ## A Separate Resource Server
 
@@ -112,6 +112,8 @@ class CorsFilter implements Filter {
 ```
 
 The `Filter` is defined with an `@Order` so that it is definitely applied *before* the main Spring Security filter. With that change to the resource server, we should be able to re-launch it and get our greeting in the UI.
+
+> Note: blithely using `Access-Control-Allow-Origin=*` is quick and dirty, and it works, but it is not not secure and is not in any way recommended.
 
 ## Securing the Resource Server
 

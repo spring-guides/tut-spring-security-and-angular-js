@@ -82,7 +82,7 @@ server.port: 9000
 
 If you try loading that resource from the UI (on port 8080) in a browser, you will find that it doesn't work because the browser won't allow the XHR request.
 
-## CORS Negotation
+## CORS Negotiation
 
 The browser tries to negotiate with our resource server to find out if it is allowed to access it according to the [Common Origin Resource Sharing](http://en.wikipedia.org/wiki/Cross-origin_resource_sharing) protocol. It's not an Angular JS responsibility, so just like the cookie contract it will work like this with all JavaScript in the browser. The two servers do not declare that they have a common origin, so the browser declines to send the request and the UI is broken.
 

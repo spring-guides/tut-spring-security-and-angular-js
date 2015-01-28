@@ -6,8 +6,8 @@ In this article we continue [our discussion][fourth] of how to use [Spring Secur
 
 [first]: http://spring.io/blog/2015/01/12/spring-and-angular-js-a-secure-single-page-application (First Article in the Series)
 [second]: http://spring.io/blog/2015/01/12/the-login-page-angular-js-and-spring-security-part-ii (Second Article in the Series)
-[third]: http://spring.io/blog/1905-the-resource-server-angular-js-and-spring-security-part-iii (Third Article in the Series)
-[fourth]: http://spring.io/blog/1906-the-api-gateway-pattern-angular-js-and-spring-security-part-iv (Fourth Article in the Series)
+[third]: http://spring.io/blog/2015/01/20/the-resource-server-angular-js-and-spring-security-part-iii (Third Article in the Series)
+[fourth]: http://spring.io/blog/2015/01/28/the-api-gateway-pattern-angular-js-and-spring-security-part-iv (Fourth Article in the Series)
 
 ## Creating an OAuth2 Authorization Server
 

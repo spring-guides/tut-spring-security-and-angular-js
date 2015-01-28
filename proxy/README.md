@@ -1,6 +1,6 @@
 # The API Gateway: Single Page Application with Spring and Angular JS
 
-In this article we continue [our discussion][third] of how to use [Spring Security](http://projects.spring.io/spring-security) with [Angular JS](http://angularjs.org) in a "single page application". Here we show how to use [Spring Cloud](http://projects.spring.io/spring-cloud/) to build an API Gateway to control the authentication and access to the backend resources. This is the fourth in a series of articles, and you can catch up on the basic building blocks of the application or build it from scratch by reading the [first article][first], or you can just go straight to the [source code in Github](https://github.com/dsyer/spring-security-angular/tree/master/proxy). In the [last article][third] we built a simple distributed application that used [Spring Session](https://github.com/spring-projects/spring-session/) to authenticate the backend resources. In this one we make the UI server into a reverse proxy to the backend resource server, and fix the issues with the last implementation (technical complexity introduced by custom token authentication).
+In this article we continue [our discussion][third] of how to use [Spring Security](http://projects.spring.io/spring-security) with [Angular JS](http://angularjs.org) in a "single page application". Here we show how to build an API Gateway to control the authentication and access to the backend resources using [Spring Cloud](http://projects.spring.io/spring-cloud/). This is the fourth in a series of articles, and you can catch up on the basic building blocks of the application or build it from scratch by reading the [first article][first], or you can just go straight to the [source code in Github](https://github.com/dsyer/spring-security-angular/tree/master/proxy). In the [last article][third] we built a simple distributed application that used [Spring Session](https://github.com/spring-projects/spring-session/) to authenticate the backend resources. In this one we make the UI server into a reverse proxy to the backend resource server, fixing the issues with the last implementation (technical complexity introduced by custom token authentication), and giving us a lot of new options for controlling access from the browser client.
 
 > Reminder: if you are working through this article with the sample application, be sure to clear your browser cache of cookies and HTTP Basic credentials. In Chrome the best way to do that for a single server is to open a new incognito window.
 
@@ -12,7 +12,7 @@ In this article we continue [our discussion][third] of how to use [Spring Securi
 
 An API Gateway is a single point of entry (and control) for front end clients, which could be browser based (like the examples in this article) or mobile. The client only has to know the URL of one server, and the backend can be refactored at will with no change, which is a significant advantage. There are other advantages in terms of centralization and control: rate limiting, authentication, auditing and logging. And implementing a simple reverse proxy is really simple with [Spring Cloud](http://projects.spring.io/spring-cloud/).
 
-If you were following along in the code, you will know that the application implementation at the end of the [last article][third] was a bit complicated, so it's not a great place to iterate away from. But there was a halfway point which we could start from, where the backend resource wasn't yet secured with Spring Security. The source code for this is a separate project [in Github](https://github.com/dsyer/spring-security-angular/tree/master/vanilla) so we are going to start from there. It has a UI server and a resource server and they are talking to each other. The resource server doesn't have Spring Security, but it has some physical security (it is only accepting connections from localhost).
+If you were following along in the code, you will know that the application implementation at the end of the [last article][third] was a bit complicated, so it's not a great place to iterate away from. There was, however, a halfway point which we could start from more easily, where the backend resource wasn't yet secured with Spring Security. The source code for this is a separate project [in Github](https://github.com/dsyer/spring-security-angular/tree/master/vanilla) so we are going to start from there. It has a UI server and a resource server and they are talking to each other. The resource server doesn't have Spring Security yet so we can get the system working first and then add that layer.
 
 ### Declarative Reverse Proxy in One Line
 
@@ -30,6 +30,8 @@ public class UiApplication {
 and in an external configuration file we need to map a local resource in the UI server to a remote one in the [external configuration](https://github.com/dsyer/spring-security-angular/blob/master/proxy/ui/src/main/resources/application.yml) ("application.yml"):
 
 ```yaml
+security:
+  ...
 zuul:
   routes:
     resource:
@@ -107,7 +109,7 @@ You might remember in the intermediate state that we started from there is no se
 
 > Wow, that was easy! Do that with a network address that's only visible in your data center and you have a security solution that works for all resource servers and all user desktops.
 
-Suppose that we decide we do need security at the software level as well (quite likely for a number of reasons). That's not going to be a problem, because all we need to do is add Spring Security as a dependency (in the [resource server POM](https://github.com/dsyer/spring-security-angular/blob/master/proxy/resource/pom.xml)):
+Suppose that we decide we do need security at the software level (quite likely for a number of reasons). That's not going to be a problem, because all we need to do is add Spring Security as a dependency (in the [resource server POM](https://github.com/dsyer/spring-security-angular/blob/master/proxy/resource/pom.xml)):
 
 ```xml
 <dependency>
@@ -148,7 +150,7 @@ public class UiApplication {
 }
 ```
 
-and then the resource server.  There are two changes to make: one is adding `@EnableRedisHttpSession` and the `HeaderHttpSessionStrategy` bean to the `ResourceApplication`:
+and then the resource server.  There are two changes to make: one is adding `@EnableRedisHttpSession` and a `HeaderHttpSessionStrategy` bean to the `ResourceApplication`:
 
 ```java
 @SpringBootApplication
@@ -169,7 +171,7 @@ and the other is to explicitly ask for a non-stateless session ceration policy i
 security.sessions: NEVER
 ```
 
-As long as redis is still running in the background (use the [`fig.yml`]((https://github.com/dsyer/spring-security-angular/tree/master/proxy/fig.yml) if you like to start it) then the system will work.
+As long as redis is still running in the background (use the [`fig.yml`]((https://github.com/dsyer/spring-security-angular/tree/master/proxy/fig.yml) if you like to start it) then the system will work. Load the homepage for the UI at [http://localhost:8080](http://localhost:8080) and login and you will see the message from the backend rendered on the homepage.
 
 ## How Does it Work?
 
@@ -190,7 +192,9 @@ POST | /login                    | 302 | Redirect to home page (ignored)
 GET  | /user                     | 200 | JSON authenticated user
 GET  | /resource                 | 200 | (Proxied) JSON greeting
 
-That's identical to the sequence at the end of [Part II][second] except for the fact that the cookie names are slightly different ("SESSION" instead of "JSESSIONID") because we are using Spring Session. But the architecture is different and that last request to "/resource" is special because it was proxied to the resource server. We can see the reverse proxy in action by looking at the "/trace" endpoint (from Spring Boot Actuator, which we added with the Spring Cloud dependencies). Go to http://localhost:8080/trace in a browser and scroll to the end (if you don't have one already get a JSON plugin for your browser to make it nice and readable). You will need to authenticate with HTTP Basic (browser popup), but the same credentials are valid as for your login form. At or near the end you should see a pair of requests something like this:
+That's identical to the sequence at the end of [Part II][second] except for the fact that the cookie names are slightly different ("SESSION" instead of "JSESSIONID") because we are using Spring Session. But the architecture is different and that last request to "/resource" is special because it was proxied to the resource server. 
+
+We can see the reverse proxy in action by looking at the "/trace" endpoint in the UI server (from Spring Boot Actuator, which we added with the Spring Cloud dependencies). Go to http://localhost:8080/trace in a browser and scroll to the end (if you don't have one already get a JSON plugin for your browser to make it nice and readable). You will need to authenticate with HTTP Basic (browser popup), but the same credentials are valid as for your login form. At or near the end you should see a pair of requests something like this:
 
 ```javascript
 {

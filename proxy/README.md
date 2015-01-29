@@ -4,9 +4,9 @@ In this article we continue [our discussion][third] of how to use [Spring Securi
 
 > Reminder: if you are working through this article with the sample application, be sure to clear your browser cache of cookies and HTTP Basic credentials. In Chrome the best way to do that for a single server is to open a new incognito window.
 
-[first]: http://spring.io/blog/1903-spring-and-angular-js-a-secure-single-page-application (First Article in the Series)
-[second]: http://spring.io/blog/1904-the-login-page-angular-js-and-spring-security-part-ii (Second Article in the Series)
-[third]: http://spring.io/blog/1905-the-resource-server-angular-js-and-spring-security-part-iii (Third Article in the Series)
+[first]: http://spring.io/blog/2015/01/12/spring-and-angular-js-a-secure-single-page-application (First Article in the Series)
+[second]: http://spring.io/blog/2015/01/12/the-login-page-angular-js-and-spring-security-part-ii (Second Article in the Series)
+[third]: http://spring.io/blog/2015/01/20/the-resource-server-angular-js-and-spring-security-part-iii (Third Article in the Series)
 
 ## Creating an API Gateway
 
@@ -171,7 +171,7 @@ and the other is to explicitly ask for a non-stateless session ceration policy i
 security.sessions: NEVER
 ```
 
-As long as redis is still running in the background (use the [`fig.yml`]((https://github.com/dsyer/spring-security-angular/tree/master/proxy/fig.yml) if you like to start it) then the system will work. Load the homepage for the UI at [http://localhost:8080](http://localhost:8080) and login and you will see the message from the backend rendered on the homepage.
+As long as redis is still running in the background (use the [`fig.yml`](https://github.com/dsyer/spring-security-angular/tree/master/proxy/fig.yml) if you like to start it) then the system will work. Load the homepage for the UI at [http://localhost:8080](http://localhost:8080) and login and you will see the message from the backend rendered on the homepage.
 
 ## How Does it Work?
 

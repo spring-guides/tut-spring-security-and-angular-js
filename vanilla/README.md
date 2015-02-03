@@ -278,7 +278,24 @@ class ResourceApplication {
 }
 ```
 
-This `Filter` created is the mirror image of the one in the UI server, so it establishes Redis as the session store. The only difference is that it uses a custom `HttpSessionStrategy` that looks in the header ("X-Auth-Token" by default) instead of the default (cookie named "JSESSIONID"). 
+This `Filter` created is the mirror image of the one in the UI server, so it establishes Redis as the session store. The only difference is that it uses a custom `HttpSessionStrategy` that looks in the header ("X-Auth-Token" by default) instead of the default (cookie named "JSESSIONID"). We also need to prevent the browser from popping up a dialog in an unauthicated client - the app is secure but sends a 401 with `WWW-Authenticate: Basic` by default, so the browser responds with a dialog for username and password. There is more than one way to achieve this but what we will do is switch off the HTTP Basic filter in Spring Security, without switching off authentication altogether:
+
+```java
+@SpringBootApplication
+@RestController
+@EnableRedisHttpSession
+class ResourceApplication extends WebSecurityConfigurerAdapter {
+
+  ...
+  
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http.httpBasic().disable()
+    http.authorizeRequests().anyRequest().authenticated()
+  }
+
+}
+```
 
 There is one final change to the resource server to make it work with our new authentication scheme. Spring Boot default security is stateless, and we want this to store authentication in the session, so we need to be explicit in `application.yml` (or `application.properties`):
 

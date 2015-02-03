@@ -1,4 +1,3 @@
-debug:
 security:
   user:
     password: password

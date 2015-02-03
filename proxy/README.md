@@ -150,7 +150,7 @@ public class UiApplication {
 }
 ```
 
-and then the resource server.  There are two changes to make: one is adding `@EnableRedisHttpSession` and a `HeaderHttpSessionStrategy` bean to the `ResourceApplication`:
+and then the resource server.  There are three small changes to make: one is adding `@EnableRedisHttpSession` to the `ResourceApplication`:
 
 ```java
 @SpringBootApplication
@@ -158,14 +158,32 @@ and then the resource server.  There are two changes to make: one is adding `@En
 @EnableRedisHttpSession
 class ResourceApplication {
   ...
-  @Bean
-  HeaderHttpSessionStrategy sessionStrategy() {
-    new HeaderHttpSessionStrategy();
-  }
 }
 ```
 
-and the other is to explicitly ask for a non-stateless session ceration policy in `application.properties`:
+another is to explicitly disable HTTP Basic in the resource server (to prevent the browser from popping up authentication dialogs):
+
+```java
+@SpringBootApplication
+@RestController
+@EnableRedisHttpSession
+class ResourceApplication extends WebSecurityConfigurerAdapter {
+
+...
+
+@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http.httpBasic().disable()
+		http.authorizeRequests().anyRequest().authenticated()
+	}
+
+}
+
+```
+
+> Aside: an alternative, which would also prevent the authentication dialog, would be to keep HTTP Basic but change the 401 challenge to something other than "Basic". You can do that with a one-line implementation of `AuthenticationEntryPoint` in the `HttpSecurity` configuration callback.
+
+and the last one is to explicitly ask for a non-stateless session creation policy in `application.properties`:
 
 ```properties
 security.sessions: NEVER

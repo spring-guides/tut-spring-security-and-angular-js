@@ -36,7 +36,7 @@ import org.springframework.web.util.WebUtils;
 @EnableZuulProxy
 @EnableRedisHttpSession
 public class UiApplication {
-	
+
 	@RequestMapping("/user")
 	public Principal user(Principal user) {
 		return user;
@@ -51,11 +51,20 @@ public class UiApplication {
 	protected static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			http.formLogin().and().logout().and().authorizeRequests()
-					.antMatchers("/index.html", "/home.html", "/login.html", "/").permitAll().anyRequest()
-					.authenticated().and().csrf()
-					.csrfTokenRepository(csrfTokenRepository()).and()
-					.addFilterAfter(csrfHeaderFilter(), CsrfFilter.class);
+			// @formatter:off
+			http
+				.formLogin()
+			.and()
+				.logout()
+			.and()
+				.authorizeRequests()
+					.antMatchers("/index.html", "/home.html", "/login.html", "/").permitAll()
+					.anyRequest().authenticated()
+			.and()
+				.csrf().csrfTokenRepository(csrfTokenRepository())
+			.and()
+				.addFilterAfter(csrfHeaderFilter(), CsrfFilter.class);
+			// @formatter:on
 		}
 
 		private Filter csrfHeaderFilter() {
@@ -69,7 +78,8 @@ public class UiApplication {
 					if (csrf != null) {
 						Cookie cookie = WebUtils.getCookie(request, "XSRF-TOKEN");
 						String token = csrf.getToken();
-						if (cookie==null || token!=null && !token.equals(cookie.getValue())) {
+						if (cookie == null || token != null
+								&& !token.equals(cookie.getValue())) {
 							cookie = new Cookie("XSRF-TOKEN", token);
 							cookie.setPath("/");
 							response.addCookie(cookie);

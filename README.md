@@ -8,12 +8,12 @@ Contents:
 
 * `single`: adds form authentication, but static HTML and an API resource still in the same server ([blog](https://spring.io/blog/2015/01/12/the-login-page-angular-js-and-spring-security-part-ii)).
 
-* `vanilla`: form authentication and static HTML in one server ("ui") and an unprotected backend API resource in another ("resource") ([blog](http://spring.io/blog/1905)).
+* `vanilla`: form authentication and static HTML in one server ("ui") and an unprotected backend API resource in another ("resource") ([blog](https://spring.io/blog/2015/01/20/the-resource-server-angular-js-and-spring-security-part-iii)).
 
 * `spring-session`: the same as "vanilla", but using [Spring Session](https://github.com/spring-projects/spring-session) as an authentication token between the UI and the back end service (blog shared with `vanilla`).
 
-* `proxy`: same as "vanilla", but with the UI acting as a reverse proxy for the backend (API Gateway pattern). CORS responses are not needed because all client requests go to the same server. Authentication for the backend could be overlaid using the "spring-session" approach (above) or using "oauth2" (below) ([blog](http://spring.io/blog/1906)).
+* `proxy`: same as "vanilla", but with the UI acting as a reverse proxy for the backend (API Gateway pattern). CORS responses are not needed because all client requests go to the same server. Authentication for the backend could be overlaid using the "spring-session" approach (above) or using "oauth2" (below) ([blog](https://spring.io/blog/2015/01/28/the-api-gateway-pattern-angular-js-and-spring-security-part-iv)).
 
-* `oauth2-vanilla`: same as "proxy" but with OAuth2 SSO to the UI and OAuth2 resource server protection for the backend. The OAuth2 authorization server is no-frills ([blog](http://spring.io/blog/1907)).
+* `oauth2-vanilla`: same as "proxy" but with OAuth2 SSO to the UI and OAuth2 resource server protection for the backend. The OAuth2 authorization server is no-frills ([blog](https://spring.io/blog/2015/02/03/sso-with-oauth2-angular-js-and-spring-security-part-v)).
 
 * `oauth2`: same as "oauth2-vanilla" but JWT tokens (signed, encoded JSON, carrying information about the user and the token grant) and a nice UI with a login screen in the authorization server.

@@ -169,13 +169,13 @@ another is to explicitly disable HTTP Basic in the resource server (to prevent t
 @EnableRedisHttpSession
 class ResourceApplication extends WebSecurityConfigurerAdapter {
 
-...
+  ...
 
-@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http.httpBasic().disable()
-		http.authorizeRequests().anyRequest().authenticated()
-	}
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http.httpBasic().disable()
+    http.authorizeRequests().anyRequest().authenticated()
+  }
 
 }
 

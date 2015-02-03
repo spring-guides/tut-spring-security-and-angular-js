@@ -38,30 +38,30 @@ The authorization server is pretty easy to implement. A minimal version looks li
 @SpringBootApplication
 public class AuthserverApplication extends WebMvcConfigurerAdapter {
 
-	public static void main(String[] args) {
-		SpringApplication.run(AuthserverApplication.class, args);
-	}
-	
-	@Configuration
-	@EnableAuthorizationServer
-	protected static class OAuth2Config extends AuthorizationServerConfigurerAdapter {
+  public static void main(String[] args) {
+    SpringApplication.run(AuthserverApplication.class, args);
+  }
+  
+  @Configuration
+  @EnableAuthorizationServer
+  protected static class OAuth2Config extends AuthorizationServerConfigurerAdapter {
 
-		@Autowired
-		private AuthenticationManager authenticationManager;
-		
-		@Override
-		public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-			endpoints.authenticationManager(authenticationManager);
-		}
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    
+    @Override
+    public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+      endpoints.authenticationManager(authenticationManager);
+    }
 
 @Override
-		public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-			clients.inMemory()
-					.withClient("acme")
-					.secret("acmesecret")
-					.authorizedGrantTypes("authorization_code", "refresh_token",
-							"password").scopes("openid");
-		}
+    public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+      clients.inMemory()
+          .withClient("acme")
+          .secret("acmesecret")
+          .authorizedGrantTypes("authorization_code", "refresh_token",
+              "password").scopes("openid");
+    }
 
 }
 ```
@@ -229,13 +229,13 @@ Once that is done we can remove the session filter and the "/user" endpoint as w
 @EnableOAuth2Sso
 public class UiApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(UiApplication.class, args);
-	}
+  public static void main(String[] args) {
+    SpringApplication.run(UiApplication.class, args);
+  }
 
-	@Configuration
-	@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
-	protected static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+  @Configuration
+  @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
+  protected static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 ```
 
 Recall from [Part IV][fourth] that the UI server acts an API Gateway and we can declare the route mappings in YAML. So the "/user" endpoint can be proxied to the authorization server:
@@ -284,10 +284,10 @@ We can also remove the definition of the `login()` function in the "navigation" 
 ```javascript
 angular.module('hello', [ 'ngRoute' ]).config(function($routeProvider) {
 
-	$routeProvider.when('/', {
-		templateUrl : 'home.html',
-		controller : 'home'
-	}).otherwise('/');
+  $routeProvider.when('/', {
+    templateUrl : 'home.html',
+    controller : 'home'
+  }).otherwise('/');
 
 }). // ...
 .controller('navigation',

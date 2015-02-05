@@ -17,3 +17,13 @@ Contents:
 * `oauth2-vanilla`: same as "proxy" but with OAuth2 SSO to the UI and OAuth2 resource server protection for the backend. The OAuth2 authorization server is no-frills ([blog](https://spring.io/blog/2015/02/03/sso-with-oauth2-angular-js-and-spring-security-part-v)).
 
 * `oauth2`: same as "oauth2-vanilla" but JWT tokens (signed, encoded JSON, carrying information about the user and the token grant) and a nice UI with a login screen in the authorization server.
+
+Ideas for more samples nad blogs:
+
+* Production settings: explain how to harden the system for production use (e.g. require HTTPS for redirects).
+
+* A full blog on the JWT sample.
+
+* Add some access decisions other than simple "authenticated()". Maybe map scopes to roles.
+
+* Add service discovery to the proxy.

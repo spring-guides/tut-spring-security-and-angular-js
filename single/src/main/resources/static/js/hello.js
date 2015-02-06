@@ -4,8 +4,7 @@ angular.module('hello', [ 'ngRoute' ]).config(function($routeProvider) {
 		templateUrl : 'home.html',
 		controller : 'home'
 	}).when('/login', {
-		templateUrl : 'login.html',
-		controller : 'navigation'
+		templateUrl : 'login.html'
 	}).otherwise('/');
 
 }).controller('navigation',

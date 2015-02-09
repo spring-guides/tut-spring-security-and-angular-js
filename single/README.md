@@ -94,7 +94,7 @@ The greeting content from the old home page can go in "home.html" (right next to
 
 ```html
 <h1>Greeting</h1>
-<div ng-controller="home" ng-show="authenticated">
+<div ng-show="authenticated">
 	<p>The ID is {{greeting.id}}</p>
 	<p>The content is {{greeting.content}}</p>
 </div>

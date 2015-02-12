@@ -221,7 +221,7 @@ $ curl -H "Authorization: Bearer $TOKEN" localhost:9999/uaa/user
 
 The final piece of this application we need to complete is the UI server, extracting the authentication part and delegating to the authorization server. So, as with [the resource server](#changing-the-resource-server), we first need to remove the Spring Session and Redis dependencies and replace them with Spring OAuth2.
 
-Once that is done we can remove the session filter and the "/user" endpoint as well, and set up the application to redirect to the authorization server:
+Once that is done we can remove the session filter and the "/user" endpoint as well, and set up the application to redirect to the authorization server (using the `@EnableOAuth2Sso` annotation):
 
 ```java
 @SpringBootApplication
@@ -250,6 +250,32 @@ zuul:
       path: /user/**
       url: http://localhost:9999/uaa/user
 ```
+
+Lastly, we need to change the `WebSecurityConfigurerAdapter` to an `OAuth2SsoConfigurerAdapter` since now it is going to be used to modify the defaults in the SSO filter chain set up by `@EnableOAuth2Sso`:
+
+```
+  @Configuration
+  protected static class SecurityConfiguration extends OAuth2SsoConfigurerAdapter {
+
+    @Override
+    public void match(RequestMatchers matchers) {
+      matchers.anyRequest();
+    }
+
+    @Override
+    public void configure(HttpSecurity http) throws Exception {
+      http.authorizeRequests().antMatchers("/index.html", "/home.html", "/")
+          .permitAll().anyRequest().authenticated().and().csrf()
+          .csrfTokenRepository(csrfTokenRepository()).and()
+          .addFilterAfter(csrfHeaderFilter(), CsrfFilter.class);
+    }
+    
+    ... // the csrf*() methods are the same as the old WebSecurityConfigurerAdapter
+  }
+```
+
+The main changes (apart from the base class name) are that the matchers
+go into their own method, and there is no need for `formLogin()` any more.
 
 ### In the Client
 

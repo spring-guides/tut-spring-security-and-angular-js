@@ -248,7 +248,6 @@ If you look in the [source code in Github](https://github.com/dsyer/spring-secur
           <css>webjar:bootstrap/3.2.0/less/bootstrap.less</css>   
             <css>file:${project.basedir}/src/main/wro/main.less</css>
             <js>webjar:jquery/2.1.1/jquery.min.js</js>
-            <js>webjar:bootstrap/3.2.0/bootstrap.js</js>
             <js>webjar:angularjs/1.3.8/angular.min.js</js>
           </group>
         </groups>

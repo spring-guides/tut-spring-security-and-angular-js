@@ -238,7 +238,7 @@ public class UiApplication {
   protected static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 ```
 
-Recall from [Part IV][fourth] that the UI server acts an API Gateway and we can declare the route mappings in YAML. So the "/user" endpoint can be proxied to the authorization server:
+Recall from [Part IV][fourth] that the UI server, by virtue of the `@EnableZuulProxy`, acts an API Gateway and we can declare the route mappings in YAML. So the "/user" endpoint can be proxied to the authorization server:
 
 ```yaml
 zuul:
@@ -374,6 +374,8 @@ GET  | /resource                 | 200 | (Proxied) JSON greeting
 The requests prefixed with (uaa) are to the authorization server. The responses that are marked "ignored" are responses received by Angular in an XHR call, and since we aren't processing that data they are dropped on the floor. We do look for an authenticated user in the case of the "/user" resource, but since it isn't there in the first call, that response is dropped.
 
 In the "/trace" endpoint of the UI (scroll down to the bottom) you will see the proxied backend requests to "/user" and "/resource", with `remote:true` and the bearer token instead of the cookie (as it would have been in [Part IV][fourth]) being used for authentication. Spring Cloud Security has taken care of this for us: by recognising that we has `@EnableOAuth2Sso` and `@EnableZuulProxy` it has figured out that (by default) we want to relay the token to the proxied backends.
+
+> Note: As in previous articles, try to use a different browser for "/trace" so that there is no chance of authentication crossover (e.g. use Firefox if yoused Chrome for testing the UI).
 
 ## The Logout Experience
 

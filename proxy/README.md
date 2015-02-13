@@ -212,7 +212,9 @@ GET  | /resource                 | 200 | (Proxied) JSON greeting
 
 That's identical to the sequence at the end of [Part II][second] except for the fact that the cookie names are slightly different ("SESSION" instead of "JSESSIONID") because we are using Spring Session. But the architecture is different and that last request to "/resource" is special because it was proxied to the resource server. 
 
-We can see the reverse proxy in action by looking at the "/trace" endpoint in the UI server (from Spring Boot Actuator, which we added with the Spring Cloud dependencies). Go to http://localhost:8080/trace in a browser and scroll to the end (if you don't have one already get a JSON plugin for your browser to make it nice and readable). You will need to authenticate with HTTP Basic (browser popup), but the same credentials are valid as for your login form. At or near the end you should see a pair of requests something like this:
+We can see the reverse proxy in action by looking at the "/trace" endpoint in the UI server (from Spring Boot Actuator, which we added with the Spring Cloud dependencies). Go to http://localhost:8080/trace in a new browser and scroll to the end (if you don't have one already get a JSON plugin for your browser to make it nice and readable). You will need to authenticate with HTTP Basic (browser popup), but the same credentials are valid as for your login form. At or near the end you should see a pair of requests something like this:
+
+> Note: Try to use a different browser so that there is no chance of authentication crossover (e.g. use Firefox if yoused Chrome for testing the UI) - it won't stop the app from working, but it will make the traces harder to read if they contain a mixture of authentication from the same browser. 
 
 ```javascript
 {

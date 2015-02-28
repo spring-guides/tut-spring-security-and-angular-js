@@ -135,7 +135,7 @@ with this:
 </dependency>
 ```
 
-and then remove the session `Filter` from the [main application class](https://github.com/dsyer/spring-security-angular/blob/master/vanilla-oauth2/resource/src/main/groovy/demo/ResourceApplication.groovy), replacing it with the convenient `@EnableOAuth2ResourceServer` annotation (from Spring Cloud Security):
+and then remove the session `Filter` from the [main application class](https://github.com/dsyer/spring-security-angular/blob/master/vanilla-oauth2/resource/src/main/groovy/demo/ResourceApplication.groovy), replacing it with the convenient `@EnableOAuth2Resource` annotation (from Spring Cloud Security):
 
 ```java
 @SpringBootApplication
@@ -175,7 +175,7 @@ and you will see a 401 with a "WWW-Authenticate" header indicating that it wants
 
 ```properties
 ...
-oauth2.resource.userInfoUri: http://localhost:9999/uaa/user
+spring.oauth2.resource.userInfoUri: http://localhost:9999/uaa/user
 ```
 
 This tells the server that it can use the token to access a "/user" endpoint and use that to derive authentication information (it's a bit like the ["/me" endpoint](https://developers.facebook.com/docs/graph-api/reference/v2.2/user/?locale=en_GB) in the Facebook API). Effectively it provides a way for the resource server to decode the token, as expressed by the `ResourceServerTokenServices` interface in Spring OAuth2.

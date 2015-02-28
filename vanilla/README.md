@@ -190,7 +190,7 @@ The `@EnableRedisHttpSession` is provided by Spring Session, and Spring Boot sup
 
 With that 1 line of code in place and a Redis server running on localhost you can run the UI application, login with some valid user credentials, and the session data (the authentication and CSRF token) will be stored in redis.
 
-> Tip: if you don't have a redis server running locally you can easily spin one up with [Docker](https://www.docker.com/) (on Windows or MacOS this requires a VM). There is a [`fig.yml`](http://www.fig.sh/) file in the [source code in Github](https://github.com/dsyer/spring-security-angular/tree/master/spring-session/fig.yml) which you can run really easily on the command line with `fig up`.
+> Tip: if you don't have a redis server running locally you can easily spin one up with [Docker](https://www.docker.com/) (on Windows or MacOS this requires a VM). There is a [`docker-compose.yml`](http://docs.docker.com/compose/) file in the [source code in Github](https://github.com/dsyer/spring-security-angular/tree/master/spring-session/docker-compose.yml) which you can run really easily on the command line with `docker-compose up`.
 
 ## Sending a Custom Token from the UI
 

@@ -20,12 +20,18 @@ Contents:
 
 * `oauth2`: same as "oauth2-vanilla" but JWT tokens (signed, encoded JSON, carrying information about the user and the token grant) and a nice UI with a login screen in the authorization server.
 
-Ideas for more samples nad blogs:
+Ideas for more samples and blogs:
 
-* Production settings: explain how to harden the system for production use (e.g. require HTTPS for redirects).
+* Production settings: explain how to harden the system for production use, e.g. require HTTPS for redirects, monitoring, metering, auditing, log aggregation, custom authentication
 
 * A full blog on the JWT sample.
 
 * Add some access decisions other than simple "authenticated()". Maybe map scopes to roles.
 
 * Add service discovery to the proxy.
+
+* Add a second UI and hide them both behind a gateway
+
+* Logout
+
+* Other OAuth2 providers, and/or OAuth 1.0a

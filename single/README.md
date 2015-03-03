@@ -143,9 +143,13 @@ angular.module('hello', [ 'ngRoute' ]) // ... omitted code
 
   function($rootScope, $scope, $http, $location) {
 
-  var authenticate = function(callback) {
+  var authenticate = function(credentials, callback) {
 
-    $http.get('user').success(function(data) {
+    var headers = credentials ? {authorization : "Basic "
+        + btoa(credentials.username + ":" + credentials.password)
+    } : {};
+
+    $http.get('user', {headers : headers}).success(function(data) {
       if (data.name) {
         $rootScope.authenticated = true;
       } else {
@@ -162,11 +166,6 @@ angular.module('hello', [ 'ngRoute' ]) // ... omitted code
   authenticate();
   $scope.credentials = {};
   $scope.login = function() {
-    $http.post('login', $.param($scope.credentials), {
-      headers : {
-        "content-type" : "application/x-www-form-urlencoded"
-      }
-    }).success(function(data) {
       authenticate(function() {
         if ($rootScope.authenticated) {
           $location.path("/");
@@ -176,11 +175,6 @@ angular.module('hello', [ 'ngRoute' ]) // ... omitted code
           $scope.error = true;
         }
       });
-    }).error(function(data) {
-      $location.path("/login");
-      $scope.error = true;
-      $rootScope.authenticated = false;
-    })
   };
 });
 ```
@@ -189,7 +183,7 @@ All of the code in the "navigation" controller will be executed when the page lo
 
 The `authenticate()` function sets an application-wide flag called `authenticated` which we have already used in our "home.html" to control which parts of the page are rendered. We do this using [`$rootScope`](https://docs.angularjs.org/api/ng/service/$rootScope) because it's convenient and easy to follow, and we need to share the `authenticated` flag between the "navigation" and the "home" controllers. Angular experts might prefer to share data through a shared user-defined service (but it ends up being the same mechanism).
 
-The `login()` makes a POST to a relative resource (relative to the deployment root of your application) "/login" with the form-encoded credentials in the body (Angular does everything in JSON by default so we had to be explicit about that). Instead of relying on being able to derive the authentication state from the result of the POST, the `login()` function uses the `authenticate()` helper. Using the result of the POST is tricky if we don't know for sure what the server is going to do on success or failure, so it's worth the extra network hop to verify the authentication in the general case (e.g. the Spring Security default behaviour is to send a 302 on success and failure, and Angular will follow the redirect, so we would have to actually parse the response from that). The `login()` function also sets a local `$scope.error` flag accordingly when we get the result of the authentication, which is used to control the display of the error message above the login form.
+The `authenticate()` makes a GET to a relative resource (relative to the deployment root of your application) "/user". When called from the `login()` function it adds the Base64-encoded credentials in the headers. The `login()` function also sets a local `$scope.error` flag accordingly when we get the result of the authentication, which is used to control the display of the error message above the login form.
 
 ### The Currently Authenticated User
 
@@ -234,17 +228,29 @@ public class UiApplication {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
       http
-        .formLogin().and()
+        .httpBasic().authenticationEntryPoint(authenticationEntryPoint()).and()
         .authorizeRequests()
           .antMatchers("/index.html", "/home.html", "/login.html", "/").permitAll()
           .anyRequest().authenticated();
     }
   }
   
+  private AuthenticationEntryPoint authenticationEntryPoint() {
+    return new AuthenticationEntryPoint() {
+      @Override
+      public void commence(HttpServletRequest request, HttpServletResponse response,
+          AuthenticationException authException) throws IOException, ServletException {
+        response.setHeader("WWW-Authenticate", "Client realm=basic");
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
+            authException.getMessage());
+      }
+    };
+  }
+
 }
 ```
 
-This is a standard Spring Boot application with Spring Security customization, just adding a login form, and allowing anonymous access to the static (HTML) resources (the CSS and JS resources are already accessible by default). The HTML resources need to be available to anonymous users, not just ignored by Spring Security, for reasons that will become clear.
+This is a standard Spring Boot application with Spring Security customization, just adding a custom `AuthenticationEntryPoint`, and allowing anonymous access to the static (HTML) resources (the CSS and JS resources are already accessible by default). The HTML resources need to be available to anonymous users, not just ignored by Spring Security, for reasons that will become clear. The custom `AuthenticationEntryPoint` serves only to change the "WWW-Authenticate" header from the default value of "Basic ...", to prevent the browser from popping up an authentication dialog whenever it receives a 401 response.
 
 ## CSRF Protection
 

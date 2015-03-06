@@ -1,4 +1,4 @@
-angular.module('hello', [ 'ngRoute' ]).config(function($routeProvider) {
+angular.module('hello', [ 'ngRoute' ]).config(function($routeProvider, $httpProvider) {
 
 	$routeProvider.when('/', {
 		templateUrl : 'home.html',
@@ -7,6 +7,8 @@ angular.module('hello', [ 'ngRoute' ]).config(function($routeProvider) {
 		templateUrl : 'login.html',
 		controller : 'navigation'
 	}).otherwise('/');
+
+	$httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 }).controller(
 		'navigation',
@@ -33,10 +35,10 @@ angular.module('hello', [ 'ngRoute' ]).config(function($routeProvider) {
 					} else {
 						$rootScope.authenticated = false;
 					}
-					callback && callback();
+					callback && callback($rootScope.authenticated);
 				}).error(function() {
 					$rootScope.authenticated = false;
-					callback && callback();
+					callback && callback(false);
 				});
 
 			}
@@ -45,8 +47,8 @@ angular.module('hello', [ 'ngRoute' ]).config(function($routeProvider) {
 
 			$scope.credentials = {};
 			$scope.login = function() {
-				authenticate($scope.credentials, function() {
-					if ($rootScope.authenticated) {
+				authenticate($scope.credentials, function(authenticated) {
+					if (authenticated) {
 						console.log("Login succeeded")
 						$location.path("/");
 						$scope.error = false;

@@ -32,10 +32,4 @@ class ResourceApplication extends WebSecurityConfigurerAdapter {
 		new HeaderHttpSessionStrategy();
 	}
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		// We need this to prevent the browser from popping up a dialog on a 401
-		http.httpBasic().disable()
-		http.authorizeRequests().anyRequest().authenticated()
-	}
 }

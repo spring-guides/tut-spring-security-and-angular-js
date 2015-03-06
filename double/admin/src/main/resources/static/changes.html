@@ -1,0 +1,4 @@
+<ol>
+	<li ng-repeat="item in data">{{item.timestamp}} ({{item.user}}): "{{item.content}}"</li>
+</ol>
+<div ng-show="!data || !data.length">No changes to show</div>

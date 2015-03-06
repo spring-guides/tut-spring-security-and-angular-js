@@ -56,7 +56,7 @@ Let's modify the "hello" application (in "src/main/resources/public/js/hello.js"
 
 ```javascript
 angular.module('hello', [ 'ngRoute' ])
-  .config(function($routeProvider) {
+  .config(function($routeProvider, $httpProvider) {
 
 	$routeProvider.when('/', {
 		templateUrl : 'home.html',
@@ -65,6 +65,8 @@ angular.module('hello', [ 'ngRoute' ])
 		templateUrl : 'login.html',
 		controller : 'navigation'
 	}).otherwise('/');
+
+    $httpProvider.defaults.headers.common["X-Requested-With"] = 'XMLHttpRequest';
 
   })
   .controller('home', function($scope, $http) {
@@ -76,6 +78,8 @@ angular.module('hello', [ 'ngRoute' ])
 ```
 
 We added a dependency on an Angular module called ["ngRoute"](https://docs.angularjs.org/api/ngRoute) and this allowed us to inject a magic `$routeProvider` into the config function (Angular does dependency injection by naming convention, and recognizes the names of your function parameters). The `$routeProvider` is then used inside the function to set up links to "/" (the "home" controller) and "/login" (the "login" controller). The "templateUrls" are relative paths from the root of the routes (i.e. "/") to "partial" views that will be used to render the model created by each controller.
+
+The custom "X-Requested-With" is a conventional header sent by browser clients, and it used to be the default in Angular but they [took it out in 1.3.0](https://github.com/angular/angular.js/issues/1004). Spring Security responds to it by not sending a "WWW-Authenticate" header in a 401 response, and thus the browser will not pop up an authentication dialog (which is desirable in our app since we want to control the authentication).
 
 In order to use the "ngRoute" module, we need to add a line to the "wro.xml" configuration that builds the static assets (in "src/main/wro"):
 
@@ -166,7 +170,7 @@ angular.module('hello', [ 'ngRoute' ]) // ... omitted code
   authenticate();
   $scope.credentials = {};
   $scope.login = function() {
-      authenticate(function() {
+      authenticate($scope.credentials, function() {
         if ($rootScope.authenticated) {
           $location.path("/");
           $scope.error = false;
@@ -183,7 +187,7 @@ All of the code in the "navigation" controller will be executed when the page lo
 
 The `authenticate()` function sets an application-wide flag called `authenticated` which we have already used in our "home.html" to control which parts of the page are rendered. We do this using [`$rootScope`](https://docs.angularjs.org/api/ng/service/$rootScope) because it's convenient and easy to follow, and we need to share the `authenticated` flag between the "navigation" and the "home" controllers. Angular experts might prefer to share data through a shared user-defined service (but it ends up being the same mechanism).
 
-The `authenticate()` makes a GET to a relative resource (relative to the deployment root of your application) "/user". When called from the `login()` function it adds the Base64-encoded credentials in the headers. The `login()` function also sets a local `$scope.error` flag accordingly when we get the result of the authentication, which is used to control the display of the error message above the login form.
+The `authenticate()` makes a GET to a relative resource (relative to the deployment root of your application) "/user". When called from the `login()` function it adds the Base64-encoded credentials in the headers so on the server it does an authentication and accepts a cookie in return. The `login()` function also sets a local `$scope.error` flag accordingly when we get the result of the authentication, which is used to control the display of the error message above the login form.
 
 ### The Currently Authenticated User
 
@@ -204,9 +208,7 @@ public class UiApplication {
 }
 ```
 
-This is a useful trick in a Spring Security application. If the "/user" resource is reachable then it will return the currently authenticated user (an [`Authentication`][authentication]), and otherwise Spring Security will intercept the request and send it through an [`AuthenticationEntryPoint`][authenticationentrypoint].
-
-An alternative implementation of this `authenticate()` (client side) and "/user" (server side) could just check the HTTP response from a simple GET of any protected resource (e.g. a 401 means `authenticated=false`). This is slightly fragile because it depends on non-standard configuration of the server using a custom [`AuthenticationEntryPoint`][authenticationentrypoint].
+This is a useful trick in a Spring Security application. If the "/user" resource is reachable then it will return the currently authenticated user (an [`Authentication`][authentication]), and otherwise Spring Security will intercept the request and send a 401 response through an [`AuthenticationEntryPoint`][authenticationentrypoint].
 
 [authenticationentrypoint]: https://github.com/spring-projects/spring-security/blob/master/web/src/main/java/org/springframework/security/web/AuthenticationEntryPoint.java (AuthenticationEntryPoint)
 [authentication]: https://github.com/spring-projects/spring-security/blob/master/core/src/main/java/org/springframework/security/core/Authentication.java (Authentication)
@@ -228,29 +230,18 @@ public class UiApplication {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
       http
-        .httpBasic().authenticationEntryPoint(authenticationEntryPoint()).and()
+        .httpBasic()
+      .and()
         .authorizeRequests()
           .antMatchers("/index.html", "/home.html", "/login.html", "/").permitAll()
           .anyRequest().authenticated();
     }
   }
-  
-  private AuthenticationEntryPoint authenticationEntryPoint() {
-    return new AuthenticationEntryPoint() {
-      @Override
-      public void commence(HttpServletRequest request, HttpServletResponse response,
-          AuthenticationException authException) throws IOException, ServletException {
-        response.setHeader("WWW-Authenticate", "Client realm=basic");
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
-            authException.getMessage());
-      }
-    };
-  }
 
 }
 ```
 
-This is a standard Spring Boot application with Spring Security customization, just adding a custom `AuthenticationEntryPoint`, and allowing anonymous access to the static (HTML) resources (the CSS and JS resources are already accessible by default). The HTML resources need to be available to anonymous users, not just ignored by Spring Security, for reasons that will become clear. The custom `AuthenticationEntryPoint` serves only to change the "WWW-Authenticate" header from the default value of "Basic ...", to prevent the browser from popping up an authentication dialog whenever it receives a 401 response.
+This is a standard Spring Boot application with Spring Security customization, just allowing anonymous access to the static (HTML) resources (the CSS and JS resources are already accessible by default). The HTML resources need to be available to anonymous users, not just ignored by Spring Security, for reasons that will become clear.
 
 ## CSRF Protection
 
@@ -309,7 +300,7 @@ protected static class SecurityConfiguration extends WebSecurityConfigurerAdapte
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http
-      .formLogin().and()
+      .httpBasic().and()
       .authorizeRequests()
         .antMatchers("/index.html", "/home.html", "/login.html", "/").permitAll().anyRequest()
         .authenticated().and()
@@ -324,7 +315,7 @@ The other thing we have to do on the server is tell Spring Security to expect th
 @Override
 protected void configure(HttpSecurity http) throws Exception {
   http
-    .formLogin().and()
+    .httpBasic().and()
     ...
     .csrf().csrfTokenRepository(csrfTokenRepository());
 }
@@ -381,7 +372,8 @@ It sends an HTTP POST to "/logout" which we now need to implement on the server.
 @Override
 protected void configure(HttpSecurity http) throws Exception {
   http
-    .formLogin().and()
+    ...
+  .and()
     .logout()
     ...
   ;

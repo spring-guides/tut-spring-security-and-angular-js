@@ -1,0 +1,18 @@
+logging:
+  level:
+    org.springframework.security: DEBUG
+security:
+  user:
+    password: password
+zuul:
+  routes:
+    message:
+      path: /message/**
+      url: http://localhost:8081
+    admin:
+      path: /admin/**
+      url: http://localhost:8082
+    resource:
+      path: /resource/**
+      url: http://localhost:9000
+      

@@ -93,20 +93,21 @@ To fix that we need to support the CORS protocol which involves a "pre-flight" O
 @Order(Ordered.HIGHEST_PRECEDENCE)
 class CorsFilter implements Filter {
 
-	void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) {
-		HttpServletResponse response = (HttpServletResponse) res
-		response.setHeader("Access-Control-Allow-Origin", "*")
-		response.setHeader("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE")
-		response.setHeader("Access-Control-Max-Age", "3600")
-		if (request.getMethod()!='OPTIONS') {
-			chain.doFilter(req, res)
-		} else {
-		}
-	}
+  void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) {
+    HttpServletResponse response = (HttpServletResponse) res
+    response.setHeader("Access-Control-Allow-Origin", "*")
+    response.setHeader("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE")
+    response.setHeader("Access-Control-Allow-Headers", "x-requested-with")
+    response.setHeader("Access-Control-Max-Age", "3600")
+    if (request.getMethod()!='OPTIONS') {
+      chain.doFilter(req, res)
+    } else {
+    }
+  }
 
-	void init(FilterConfig filterConfig) {}
+  void init(FilterConfig filterConfig) {}
 
-	void destroy() {}
+  void destroy() {}
 
 }
 ```
@@ -169,7 +170,7 @@ In the UI application we need to add some dependencies to our [POM](https://gith
 </dependency>
 ```
 
-and then add the `Filter`:
+and then add `@EnableRedisHttpSession` to your main application:
 
 ```java
 @SpringBootApplication
@@ -186,7 +187,7 @@ public class UiApplication {
 }
 ```
 
-The `@EnableRedisHttpSession` is provided by Spring Session, and Spring Boot supplies a redis connection (a URL and credentials can be configured using environment variables or configuration files).
+The `@EnableRedisHttpSession` annotation comes from Spring Session, and Spring Boot supplies a redis connection (a URL and credentials can be configured using environment variables or configuration files).
 
 With that 1 line of code in place and a Redis server running on localhost you can run the UI application, login with some valid user credentials, and the session data (the authentication and CSRF token) will be stored in redis.
 
@@ -200,17 +201,17 @@ The only missing piece is the transport mechanism for the key to the data in the
 angular.module('hello', [ 'ngRoute' ])
 ...
 .controller('home', function($scope, $http) {
-	$http.get('token').success(function(token) {
-		$http({
-			url : 'http://localhost:9000',
-			method : 'GET',
-			headers : {
-				'X-Auth-Token' : token.token
-			}
-		}).success(function(data) {
-			$scope.greeting = data;
-		});
-	})
+  $http.get('token').success(function(token) {
+    $http({
+      url : 'http://localhost:9000',
+      method : 'GET',
+      headers : {
+        'X-Auth-Token' : token.token
+      }
+    }).success(function(data) {
+      $scope.greeting = data;
+    });
+  })
 });
 ```
 
@@ -252,7 +253,7 @@ public class CorsFilter implements Filter {
 
   void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
     ...
-    response.setHeader("Access-Control-Allow-Headers", "x-auth-token")
+    response.setHeader("Access-Control-Allow-Headers", "x-auth-token, x-requested-with")
     ...
   }
 
@@ -278,24 +279,7 @@ class ResourceApplication {
 }
 ```
 
-This `Filter` created is the mirror image of the one in the UI server, so it establishes Redis as the session store. The only difference is that it uses a custom `HttpSessionStrategy` that looks in the header ("X-Auth-Token" by default) instead of the default (cookie named "JSESSIONID"). We also need to prevent the browser from popping up a dialog in an unauthicated client - the app is secure but sends a 401 with `WWW-Authenticate: Basic` by default, so the browser responds with a dialog for username and password. There is more than one way to achieve this but what we will do is switch off the HTTP Basic filter in Spring Security, without switching off authentication altogether:
-
-```java
-@SpringBootApplication
-@RestController
-@EnableRedisHttpSession
-class ResourceApplication extends WebSecurityConfigurerAdapter {
-
-  ...
-  
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http.httpBasic().disable()
-    http.authorizeRequests().anyRequest().authenticated()
-  }
-
-}
-```
+This `Filter` created is the mirror image of the one in the UI server, so it establishes Redis as the session store. The only difference is that it uses a custom `HttpSessionStrategy` that looks in the header ("X-Auth-Token" by default) instead of the default (cookie named "JSESSIONID"). We also need to prevent the browser from popping up a dialog in an unauthenticated client - the app is secure but sends a 401 with `WWW-Authenticate: Basic` by default, so the browser responds with a dialog for username and password. There is more than one way to achieve this, but we already made Angular send an "X-Requested-With" header, so Spring Security handles it for us by default.
 
 There is one final change to the resource server to make it work with our new authentication scheme. Spring Boot default security is stateless, and we want this to store authentication in the session, so we need to be explicit in `application.yml` (or `application.properties`):
 

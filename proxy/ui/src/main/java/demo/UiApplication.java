@@ -53,7 +53,7 @@ public class UiApplication {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.formLogin()
+				.httpBasic()
 			.and()
 				.logout()
 			.and()

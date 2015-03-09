@@ -4,7 +4,7 @@ angular.module('hello', []).config(function($httpProvider) {
 
 }).controller('navigation',
 
-function($scope, $http, $location) {
+function($scope, $http) {
 
 	var authenticate = function(credentials, callback) {
 
@@ -14,18 +14,20 @@ function($scope, $http, $location) {
 							+ credentials.password)
 		} : {};
 
+		$scope.user = ''
 		$http.get('user', {
 			headers : headers
 		}).success(function(data) {
 			if (data.name) {
 				$scope.authenticated = true;
+				$scope.user = data.name
 			} else {
 				$scope.authenticated = false;
 			}
-			callback && callback();
+			callback && callback(true);
 		}).error(function() {
 			$scope.authenticated = false;
-			callback && callback();
+			callback && callback(false);
 		});
 
 	}
@@ -34,25 +36,15 @@ function($scope, $http, $location) {
 
 	$scope.credentials = {};
 	$scope.login = function() {
-		authenticate($scope.credentials, function() {
-			if ($scope.authenticated) {
-				console.log("Login succeeded")
-				$location.path("/");
-				$scope.error = false;
-				$scope.authenticated = true;
-			} else {
-				console.log("Login failed")
-				$location.path("/login");
-				$scope.error = true;
-				$scope.authenticated = false;
-			}
+		authenticate($scope.credentials, function(authenticated) {
+			$scope.authenticated = authenticated;
+			$scope.error = !authenticated;
 		})
 	};
 
 	$scope.logout = function() {
 		$http.post('logout', {}).success(function() {
 			$scope.authenticated = false;
-			$location.path("/");
 		}).error(function(data) {
 			console.log("Logout failed")
 			$scope.authenticated = false;

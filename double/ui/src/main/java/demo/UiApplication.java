@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @EnableAutoConfiguration
 @RestController
 @EnableRedisHttpSession
-public class MessageApplication {
+public class UiApplication {
 
 	@RequestMapping("/user")
 	public Map<String, String> user(Principal user) {
@@ -29,7 +29,7 @@ public class MessageApplication {
 	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(MessageApplication.class, args);
+		SpringApplication.run(UiApplication.class, args);
 	}
 
 	@Configuration
@@ -41,7 +41,7 @@ public class MessageApplication {
 			http
 				.authorizeRequests()
 					.antMatchers("/index.html", "/").permitAll()
-					.anyRequest().hasRole("ADMIN");
+					.anyRequest().hasRole("USER");
 			// @formatter:on
 		}
 	}

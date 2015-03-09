@@ -24,7 +24,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = MessageApplication.class)
+@SpringApplicationConfiguration(classes = UiApplication.class)
 @WebAppConfiguration
 @IntegrationTest("server.port:0")
 public class ApplicationTests {

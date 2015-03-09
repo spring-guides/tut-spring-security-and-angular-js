@@ -10,9 +10,9 @@
 
 	<modules>
 		<module>gateway</module>
-		<module>message</module>
-		<module>dashboard</module>
+		<module>ui</module>
 		<module>resource</module>
+		<module>admin</module>
 	</modules>
 	
 </project>

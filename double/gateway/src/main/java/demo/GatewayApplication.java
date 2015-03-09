@@ -65,7 +65,7 @@ public class GatewayApplication {
 		public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off	
 			auth.inMemoryAuthentication()
-				.withUser("user").password("user").roles("USER")
+				.withUser("user").password("password").roles("USER")
 			.and()
 				.withUser("admin").password("admin").roles("USER", "ADMIN", "READER", "WRITER")
 			.and()
@@ -82,7 +82,7 @@ public class GatewayApplication {
 				.logout()
 			.and()
 				.authorizeRequests()
-					.antMatchers("/index.html", "/").permitAll()
+					.antMatchers("/index.html", "/login", "/").permitAll()
 					.anyRequest().authenticated()
 			.and()
 				.csrf().csrfTokenRepository(csrfTokenRepository())

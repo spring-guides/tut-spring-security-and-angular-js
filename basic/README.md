@@ -333,14 +333,14 @@ Run the application again (or just reload the home page in the browser), and you
 
 The interactions between the browser and the backend can be seen in your browser if you use some developer tools (usually F12 opens this up, works in Chrome by default, requires a plugin in Firefox). Here's a summary:
 
-Verb | Path    | Status | Response
------|---------|--------|---------
-GET  | /       | 401    | Browser prompts for authentication
-GET  | /       | 200    | index.html
+Verb | Path             | Status | Response
+-----|------------------|--------|---------
+GET  | /                | 401    | Browser prompts for authentication
+GET  | /                | 200    | index.html
 GET  | /css/angular-bootstrap.css | 200 | Twitter bootstrap CSS
 GET  | /js/angular-bootstrap.js  | 200 | Bootstrap and Angular JS
-GET  | /js/hello.js              | 200 | Application logic
-GET  | /resource                 | 200 | JSON greeting
+GET  | /js/hello.js     | 200 | Application logic
+GET  | /resource        | 200 | JSON greeting
 
 You might not see the 401 because the browser treats the home page load as a single interaction, and you might see 2 requests for "/resource" because there is a [CORS](http://en.wikipedia.org/wiki/Cross-origin_resource_sharing) negotiation.
 

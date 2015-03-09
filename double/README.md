@@ -60,13 +60,21 @@ Lastly, we want this server to run as a backend, so we'll give it a non-default 
 
 ```properties
 server.port: 8081
+security.sessions: NEVER
 ```
 
 If that's the *only* entry in `application.properties` then the application will be secure and accessible to a user called "user" with a password that is random, but printed on the console (at log level INFO) on startup.
 
 ## The Resource Server
 
-The Resource server is easy to generate from one of our existing samples. It is the same as the "vanilla" Resource server in [Part III][third] with the Spring Session and Redis features added. It's really very simple: just a "/resource" endpoint and `@EnableRedisHttpSession` to get the distributed session data. The completed sample is [here in github](https://github.com/dsyer/spring-security-angular/double/resource) if you want to take a peek.
+The Resource server is easy to generate from one of our existing samples. It is the same as the "vanilla" Resource server in [Part III][third] with the Spring Session and Redis features added. It's really very simple: just a "/resource" endpoint and `@EnableRedisHttpSession` to get the distributed session data. We want this server to have a non-default port to listen on, and we want to be able to look up authentication in the session so we need this (in `application.properties`):
+
+```properties
+server.port: 9000
+security.sessions: NEVER
+```
+
+The completed sample is [here in github](https://github.com/dsyer/spring-security-angular/double/resource) if you want to take a peek.
 
 ## The Gateway
 
@@ -373,5 +381,7 @@ public class AdminApplication {
 Now we have a nice little system with 2 independent user interfaces and a backend Resource server, all protected by the same authentication in a Gateway. The fact that the Gateway acts as a micro-proxy makes the implementation of the backend security concerns extremely simple, and they are free to concentrate on their own business concerns. The use of Spring Session has (again) avoided a huge amount of hassle and potential errors.
 
 A powerful feature is that the backends can independently have any kind of authentication they like, and this can, for example, be useful for testing purposes (e.g. you can go directly to the UI if you know its physical address and a set of local credentials). The Gateway imposes a completely unrelated set of constraints, as long as it can authenticate users and assign metadata to them that satisfy the access rules in the backends. This is an excellent design for being able to independently develop and test the backend components. If we wanted to, we could go back to an external OAuth2 server (like in [Part V][fifth], or even something completely different) for the authentication at the Gateway, and the backends would not need to be touched.
+
+A bonus feature of this architecture (single Gateway controlling authentication, and shared session token across all components) is that "Single Logout", a feature we identified as difficult to implement in [Part V][fifth], comes for free. To be more precise, one particular approach to the user experience of single logout is automatically available in our finished system: if a user logs out of any of the UIs (Gateway, UI backend or Admin backend), he is logged out of all the others, assuming that each individual UI implemented a "logout" feature the same way (invalidating the session).
 
 > Thanks: I would like to thank again everyone who helped me develop this series, and in particular [Rob Winch](http://spring.io/team/rwinch) and [Thorsten Späth](https://twitter.com/thspaeth) for their careful reviews of the articles and sources code. Since [Part I][first] was published it hasn't changed much but all the other parts have evolved in response to comments and insights from readers, so thank you also to anyone who read the articles and took the trouble to join in the discussion.

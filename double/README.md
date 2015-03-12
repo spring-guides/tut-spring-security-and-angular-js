@@ -1,8 +1,8 @@
 # Multiple UI Applications and a Gateway: Single Page Application with Spring and Angular JS
 
-In this article we continue [our discussion][fifth] of how to use [Spring Security](http://projects.spring.io/spring-security) with [Angular JS](http://angularjs.org) in a "single page application". Here we show how to use [Spring Session](http://projects.spring.io/spring-security-oauth/) together with [Spring Cloud](http://projects.spring.io/spring-cloud/) to combine the features of the systems we built in parts II and IV, and actually end up building 3 single page applications with quite different responsibilities. The aim is to build a Gateway (like in [part IV][fourth]) that is used not only for API resources but also to load the UI from a backend server. We can simplify the token-wrangling bits of [part II][second] by using the Gateway to pass through the authentication to the backends. Then we extend the system to show how we can make local, granular access decisions in the backends, while still controlling identity and authentication at the Gateway. This is a very powerful model for building distributed systems in general, and has a number of benefits that we can explore as we introduce the features in the code we build.
+In this article we continue [our discussion][fifth] of how to use [Spring Security](http://projects.spring.io/spring-security) with [Angular JS](http://angularjs.org) in a "single page application". Here we show how to use [Spring Session](http://projects.spring.io/spring-security-oauth/) together with [Spring Cloud](http://projects.spring.io/spring-cloud/) to combine the features of the systems we built in parts II and IV, and actually end up building 3 single page applications with quite different responsibilities. The aim is to build a Gateway (like in [part IV][fourth]) that is used not only for API resources but also to load the UI from a backend server. We simplify the token-wrangling bits of [part II][second] by using the Gateway to pass through the authentication to the backends. Then we extend the system to show how we can make local, granular access decisions in the backends, while still controlling identity and authentication at the Gateway. This is a very powerful model for building distributed systems in general, and has a number of benefits that we can explore as we introduce the features in the code we build.
 
-> Reminder: if you are working through this article with the sample application, be sure to clear your browser cache of cookies and HTTP Basic credentials. In Chrome the best way to do that for a single server is to open a new incognito window.
+> Reminder: if you are working through this article with the sample application, be sure to clear your browser cache of cookies and HTTP Basic credentials. In Chrome the best way to do that is to open a new incognito window.
 
 [first]: http://spring.io/blog/2015/01/12/spring-and-angular-js-a-secure-single-page-application (First Article in the Series)
 [second]: http://spring.io/blog/2015/01/12/the-login-page-angular-js-and-spring-security-part-ii (Second Article in the Series)
@@ -26,7 +26,7 @@ The source code for the complete project we are going to build is in [Github her
 
 ## Building the Backend
 
-In this architecture the backend is very similar to the ["spring-session"](https://github.com/dsyer/spring-security-angular/tree/master/spring-session) sample we built in [Part III][third], with the exception that it doesn't actually need a login page. The easiest way to get to what we want here is probably to copy the "resource" server from Part III and take the UI from the ["basic"](https://github.com/dsyer/spring-security-angular/tree/master/basic) sample in [Part I][first]. To get from the "basic" UI to the one we want here, we need only to add a couple of dependencies (like when we first used [Spring Session](https://github.com/spring-projects/spring-session/) in Part III:
+In this architecture the backend is very similar to the ["spring-session"](https://github.com/dsyer/spring-security-angular/tree/master/spring-session) sample we built in [Part III][third], with the exception that it doesn't actually need a login page. The easiest way to get to what we want here is probably to copy the "resource" server from Part III and take the UI from the ["basic"](https://github.com/dsyer/spring-security-angular/tree/master/basic) sample in [Part I][first]. To get from the "basic" UI to the one we want here, we need only to add a couple of dependencies (like when we first used [Spring Session](https://github.com/spring-projects/spring-session/) in Part III):
 
 ```xml
 <dependency>
@@ -63,11 +63,11 @@ server.port: 8081
 security.sessions: NEVER
 ```
 
-If that's the *only* entry in `application.properties` then the application will be secure and accessible to a user called "user" with a password that is random, but printed on the console (at log level INFO) on startup.
+If that's the *whole* content `application.properties` then the application will be secure and accessible to a user called "user" with a password that is random, but printed on the console (at log level INFO) on startup. The "security.sessions" setting means that Spring Security will accept cookies as authentication tokens but won't create them unless they already exist.
 
 ## The Resource Server
 
-The Resource server is easy to generate from one of our existing samples. It is the same as the "vanilla" Resource server in [Part III][third] with the Spring Session and Redis features added. It's really very simple: just a "/resource" endpoint and `@EnableRedisHttpSession` to get the distributed session data. We want this server to have a non-default port to listen on, and we want to be able to look up authentication in the session so we need this (in `application.properties`):
+The Resource server is easy to generate from one of our existing samples. It is the same as the "spring-session" Resource server in [Part III][third]: just a "/resource" endpoint and `@EnableRedisHttpSession` to get the distributed session data. We want this server to have a non-default port to listen on, and we want to be able to look up authentication in the session so we need this (in `application.properties`):
 
 ```properties
 server.port: 9000
@@ -89,11 +89,12 @@ $ curl https://cloud-start.spring.io/starter.tgz -d style=web \
 
 You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line. There is a version [in github](https://github.com/dsyer/spring-security-angular/double/gateway) if you want to go from there, but it has a few extra features that we don't need yet.
 
-Starting from the blank Initializr application, we need to add the Spring Session dependency (like in the UI above), and the `@EnableRedisHttpSession` annotation:
+Starting from the blank Initializr application, we add the Spring Session dependency (like in the UI above), and the `@EnableRedisHttpSession` annotation:
 
 ```java
 @SpringBootApplication
 @EnableRedisHttpSession
+@EnableZuulProxy
 public class GatewayApplication {
 
 public static void main(String[] args) {
@@ -123,7 +124,7 @@ There are 2 routes in the proxy, one each for the UI and resource server, and we
 
 ## Up and Running
 
-We now have three components, running on 3 ports. If you point the browser at http://localhost:8080/ui/ you should get an HTTP Basic challenge, and you can authenticate as "user/password" (your credentials in the Gateway), and once you do that you should see your message in the UI, via a backend call through the proxy to the Resource server.
+We now have three components, running on 3 ports. If you point the browser at http://localhost:8080/ui/ you should get an HTTP Basic challenge, and you can authenticate as "user/password" (your credentials in the Gateway), and once you do that you should see a greeting in the UI, via a backend call through the proxy to the Resource server.
 
 The interactions between the browser and the backend can be seen in your browser if you use some developer tools (usually F12 opens this up, works in Chrome by default, requires a plugin in Firefox). Here's a summary:
 
@@ -144,24 +145,28 @@ Hurrah, it works! You have two backend servers, one of which is a UI, each with 
 
 ## Adding a Login Form
 
-Just as in the "basic" sample in [Part I][first] we can now add a login form to the Gateway, e.g. by copying the code from [Part II][second]. When we do that we can also add a basic navigation UI in the Gateway, so the user doesn't have to know the path to the UI backend in the proxy. So let's first copy the static assets from the UI backend into the Gateway, delete the message rendering and insert a login form into our home page (in the `<body/>` somewhere):
+Just as in the "basic" sample in [Part I][first] we can now add a login form to the Gateway, e.g. by copying the code from [Part II][second]. When we do that we can also add some basic navigation elements in the Gateway, so the user doesn't have to know the path to the UI backend in the proxy. So let's first copy the static assets from the "single" UI into the Gateway, delete the message rendering and insert a login form into our home page (in the `<body/>` somewhere):
 
 ```html
-<div class="container" ng-show="!authenticated">
-  <form role="form" ng-submit="login()">
-    <div class="form-group">
-      <label for="username">Username:</label> <input type="text"
-        class="form-control" id="username" name="username"
-        ng-model="credentials.username" />
-    </div>
-    <div class="form-group">
-      <label for="password">Password:</label> <input type="password"
-        class="form-control" id="password" name="password"
-        ng-model="credentials.password" />
-    </div>
-    <button type="submit" class="btn btn-primary">Submit</button>
-  </form>
-</div>
+<body ng-app="hello" ng-controller="navigation" ng-cloak
+	class="ng-cloak">
+  ...
+  <div class="container" ng-show="!authenticated">
+    <form role="form" ng-submit="login()">
+      <div class="form-group">
+        <label for="username">Username:</label> <input type="text"
+          class="form-control" id="username" name="username"
+          ng-model="credentials.username" />
+      </div>
+      <div class="form-group">
+        <label for="password">Password:</label> <input type="password"
+          class="form-control" id="password" name="password"
+          ng-model="credentials.password" />
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+</body>
 ```
 
 Instead of the message rendering we will have a nice big navigation button:
@@ -176,7 +181,7 @@ If you are looking at the sample in github, it also has a minimal navigation bar
 
 ![Login Page](https://raw.githubusercontent.com/dsyer/spring-security-angular/master/double/login.png)
 
-To support the login form we need some JavaScript implementing the `login()` function we declared in the `<form/>`, and we need to set the `authenticated` flag so that the home page will render different content depending on whether or not we are authenticated. For example:
+To support the login form we need some JavaScript with a "navigation" controller implementing the `login()` function we declared in the `<form/>`, and we need to set the `authenticated` flag so that the home page will render differently depending on whether or not the user is authenticated. For example:
 
 ```javascript
 angular.module('hello', []).controller('navigation',
@@ -233,7 +238,7 @@ var authenticate = function(credentials, callback) {
 }
 ```
 
-We can simply use the `$scope` to store the `authenticated` flag because there is only one controller in such a simple application.
+We can use the `$scope` to store the `authenticated` flag because there is only one controller in this simple application.
 
 If we run this enhanced Gateway, instead of having to remember the URL for the UI we can just load the home page and follow links. Here's the home page for an authenticated user:
 
@@ -241,7 +246,7 @@ If we run this enhanced Gateway, instead of having to remember the URL for the U
 
 ## Granular Access Decisions in the Backend
 
-Up to now our application is functionally very similar to the one in [Part III][third] or [Part IV][fourth], but with an additional dedicated Gateway. The advantage of the extra layer is not yet apparent, but we can emphasise it by expanding the system a bit. Suppose we want to use that Gateway to expose another backend UI, for users to "administrate" the content in the main UI, and that we want to restrict access to this feature to users with special roles. So we will add an "Admin" application behind the proxy, and the system will look like this:
+Up to now our application is functionally very similar to the one in [Part III][third] or [Part IV][fourth], but with an additional dedicated Gateway. The advantage of the extra layer may not be yet apparent, but we can emphasise it by expanding the system a bit. Suppose we want to use that Gateway to expose another backend UI, for users to "administrate" the content in the main UI, and that we want to restrict access to this feature to users with special roles. So we will add an "Admin" application behind the proxy, and the system will look like this:
 
 ![Components of the System](https://raw.githubusercontent.com/dsyer/spring-security-angular/master/double/double-components.png)
 
@@ -258,9 +263,9 @@ zuul:
       url: http://localhost:9000
 ```
 
-The fact that the existing UI is available to users in the "USER" role is indicated on the block diagram above in the Gateway box (green lettering), as is the fact that the "ADMIN" role is needed to go to the Admin application. The access decision for the "ADMIN" role could be applied in the Gateway, in which case it would appear in a `WebSecurityConfigurerAdapter`, or it could be applied in the Admin application itself (which is probably preferable and we will see how to do that below).
+The fact that the existing UI is available to users in the "USER" role is indicated on the block diagram above in the Gateway box (green lettering), as is the fact that the "ADMIN" role is needed to go to the Admin application. The access decision for the "ADMIN" role could be applied in the Gateway, in which case it would appear in a `WebSecurityConfigurerAdapter`, or it could be applied in the Admin application itself (and we will see how to do that below).
 
-In addition, suppose that inside the Admin application we want to distinguish between "READER" and "WRITER" roles, so that we can permit (let's say) users who are auditors to view the changes made by the main admin users. This is a granular access decision, where the rule is only known, and should only be known, in the backend application. In the Gateway we only need to ensure that our user accounts have the roles needed, and this information is available, but the Gateway doesn't need to know how to interpret it. In the Gateway we create user accounts to keep the sample application self-contained:
+In addition, suppose that within the Admin application we want to distinguish between "READER" and "WRITER" roles, so that we can permit (let's say) users who are auditors to view the changes made by the main admin users. This is a granular access decision, where the rule is only known, and should only be known, in the backend application. In the Gateway we only need to ensure that our user accounts have the roles needed, and this information is available, but the Gateway doesn't need to know how to interpret it. In the Gateway we create user accounts to keep the sample application self-contained:
 
 ```javascript
 @Configuration
@@ -380,7 +385,7 @@ public class AdminApplication {
 
 Now we have a nice little system with 2 independent user interfaces and a backend Resource server, all protected by the same authentication in a Gateway. The fact that the Gateway acts as a micro-proxy makes the implementation of the backend security concerns extremely simple, and they are free to concentrate on their own business concerns. The use of Spring Session has (again) avoided a huge amount of hassle and potential errors.
 
-A powerful feature is that the backends can independently have any kind of authentication they like, and this can, for example, be useful for testing purposes (e.g. you can go directly to the UI if you know its physical address and a set of local credentials). The Gateway imposes a completely unrelated set of constraints, as long as it can authenticate users and assign metadata to them that satisfy the access rules in the backends. This is an excellent design for being able to independently develop and test the backend components. If we wanted to, we could go back to an external OAuth2 server (like in [Part V][fifth], or even something completely different) for the authentication at the Gateway, and the backends would not need to be touched.
+A powerful feature is that the backends can independently have any kind of authentication they like (e.g. you can go directly to the UI if you know its physical address and a set of local credentials). The Gateway imposes a completely unrelated set of constraints, as long as it can authenticate users and assign metadata to them that satisfy the access rules in the backends. This is an excellent design for being able to independently develop and test the backend components. If we wanted to, we could go back to an external OAuth2 server (like in [Part V][fifth], or even something completely different) for the authentication at the Gateway, and the backends would not need to be touched.
 
 A bonus feature of this architecture (single Gateway controlling authentication, and shared session token across all components) is that "Single Logout", a feature we identified as difficult to implement in [Part V][fifth], comes for free. To be more precise, one particular approach to the user experience of single logout is automatically available in our finished system: if a user logs out of any of the UIs (Gateway, UI backend or Admin backend), he is logged out of all the others, assuming that each individual UI implemented a "logout" feature the same way (invalidating the session).
 

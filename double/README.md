@@ -83,8 +83,8 @@ For an initial implementation of a Gateway (the simplest thing that could possib
 ```
 $ mkdir gateway && cd gateway
 $ curl https://cloud-start.spring.io/starter.tgz -d style=web \
--d style=security -d style=cloud-zuul -d name=gateway \
--d style=redis | tar -xzvf - 
+  -d style=security -d style=cloud-zuul -d name=gateway \
+  -d style=redis | tar -xzvf - 
 ```
 
 You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line. There is a version [in github](https://github.com/dsyer/spring-security-angular/double/gateway) if you want to go from there, but it has a few extra features that we don't need yet.
@@ -138,9 +138,9 @@ GET  | /ui/js/hello.js              | 200 | Application logic
 GET  | /ui/user    | 200    | authentication
 GET  | /resource/  | 200 | JSON greeting
 
-You might not see the 401 because the browser treats the home page load as a single interaction. All requests are proxied (there is no content in the Gateway yet).
+You might not see the 401 because the browser treats the home page load as a single interaction. All requests are proxied (there is no content in the Gateway yet, beyond the Actuator endpoints for management).
 
-Hurrah, it works! You have 
+Hurrah, it works! You have two backend servers, one of which is a UI, each with independent capabilities and able to be tested in isolation, and they are connected together with a secure Gateway that you control and for which you have configured the authentication. If the backends are not accessible to the browser it doesn't matter (in fact it's probably an advantage because it gives you yet more control over physical security).
 
 ## Adding a Login Form
 

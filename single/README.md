@@ -392,13 +392,12 @@ GET  | /       | 200    | index.html
 GET  | /css/angular-bootstrap.css | 200 | Twitter bootstrap CSS
 GET  | /js/angular-bootstrap.js  | 200 | Bootstrap and Angular JS
 GET  | /js/hello.js              | 200 | Application logic
-GET  | /user                     | 302 | Redirect to login page
-GET  | /login                    | 200 | Whitelabel login page (ignored)
-GET  | /resource                 | 302 | Redirect to login page
-GET  | /login                    | 200 | Whitelabel login page (ignored)
+GET  | /user                     | 401 | Unauthorized
+GET  | /home.html                | 200 | Home page
+GET  | /resource                 | 401 | Unauthorized
 GET  | /login.html               | 200 | Angular login form partial
-POST | /login                    | 302 | Redirect to home page (ignored)
-GET  | /user                     | 200 | JSON authenticated user
+GET  | /user                     | 401 | Unauthorized
+GET  | /user                     | 200 | Send credentials and get JSON
 GET  | /resource                 | 200 | JSON greeting
 
 The responses that are marked "ignored" above are HTML responses received by Angular in an XHR call, and since we aren't processing that data the HTML is dropped on the floor. We do look for an authenticated user in the case of the "/user" resource, but since it isn't there in the first call, that response is dropped.

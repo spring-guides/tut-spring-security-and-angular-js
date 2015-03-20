@@ -277,6 +277,32 @@ Lastly, we need to change the `WebSecurityConfigurerAdapter` to an `OAuth2SsoCon
 The main changes (apart from the base class name) are that the matchers
 go into their own method, and there is no need for `formLogin()` any more.
 
+There are also some mandatory external configuration properties for the 
+`@EnableOAuth2Sso` annotation to be able to contact and authenticate with
+thr right authorization server. So we need this in `application.yml`:
+
+```yaml
+spring:
+  oauth2:
+    sso:
+      home:
+        secure: false
+        path: /,/**/*.html
+    client:
+      accessTokenUri: http://localhost:9999/uaa/oauth/token
+      userAuthorizationUri: http://localhost:9999/uaa/oauth/authorize
+      clientId: acme
+      clientSecret: acmesecret
+    resource:
+      userInfoUri: http://localhost:9999/uaa/user
+```
+
+The bulk of that is about the OAuth2 client ("acme") and the
+authorization server locations. There is also a `userInfoUri` (just
+like in the resource server) so that the user can be authenticated in
+the UI app itself. The "home" stuff is about allowing anonymous access
+to the static resources in our single page application.
+
 ### In the Client
 
 There are some minor tweaks to the UI application on the front end that we still need to make to trigger the redirect to the authorization server. The first is in the navigation bar in "index.html" where the "login" link changes from an Angular route:

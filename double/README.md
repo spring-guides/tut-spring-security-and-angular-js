@@ -74,7 +74,7 @@ server.port: 9000
 security.sessions: NEVER
 ```
 
-The completed sample is [here in github](https://github.com/dsyer/spring-security-angular/double/resource) if you want to take a peek.
+The completed sample is [here in github](https://github.com/dsyer/spring-security-angular/tree/master/double/resource) if you want to take a peek.
 
 ## The Gateway
 
@@ -87,7 +87,7 @@ $ curl https://cloud-start.spring.io/starter.tgz -d style=web \
   -d style=redis | tar -xzvf - 
 ```
 
-You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line. There is a version [in github](https://github.com/dsyer/spring-security-angular/double/gateway) if you want to go from there, but it has a few extra features that we don't need yet.
+You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line. There is a version [in github](https://github.com/dsyer/spring-security-angular/tree/master/double/gateway) if you want to go from there, but it has a few extra features that we don't need yet.
 
 Starting from the blank Initializr application, we add the Spring Session dependency (like in the UI above), and the `@EnableRedisHttpSession` annotation:
 

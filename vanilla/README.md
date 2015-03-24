@@ -138,10 +138,18 @@ Re-launch the resource server and, hey presto! It's secure:
 
 ```
 $ curl -v localhost:9000
-< HTTP/1.1 401 Unauthorized
-< WWW-Authenticate: Basic realm="Spring"
+< HTTP/1.1 302 Found
+< Location: http://localhost:9000/login
 ...
-{"timestamp":1420544006458,"status":401,"error":"Unauthorized","message":"Full authentication is required to access this resource","path":"/"}
+```
+
+We are getting a redirect to a (whitelabel) login page because curl is not sending the same headers that our Angular client will. Modifying the command to send more similar headers:
+
+```
+$ curl -v -H "Accept: application/json" \
+    -H "X-Requested-With: XMLHttpRequest" localhost:9000
+< HTTP/1.1 401 Unauthorized
+...
 ```
 
 So all we need to do is teach the client to send credentials with every request.

@@ -29,8 +29,7 @@ public class ApplicationTests {
 	@Test
 	public void resourceProtected() {
 		ResponseEntity<String> response = template.getForEntity("http://localhost:${port}/", String.class)
-		// N.B. better if it was UNAUTHORIZED but that means we have to add a custom authentication entry point
-		assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode())
+		assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode())
 	}
 
 }

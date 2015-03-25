@@ -26,7 +26,7 @@ public class ApplicationTests {
 
 	@Value("${spring.oauth2.client.userAuthorizationUri}")
 	private String authorizeUri;
-	
+
 	private RestTemplate template = new TestRestTemplate();
 
 	@Test
@@ -40,18 +40,18 @@ public class ApplicationTests {
 	public void userEndpointProtected() {
 		ResponseEntity<String> response = template.getForEntity("http://localhost:"
 				+ port + "/user", String.class);
-		assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-		assertEquals("Session realm=\"JSESSIONID\"",
-				response.getHeaders().getFirst("WWW-Authenticate"));
+		assertEquals(HttpStatus.FOUND, response.getStatusCode());
+		assertEquals("http://localhost:" + port + "/login", response.getHeaders()
+				.getLocation().toString());
 	}
 
 	@Test
 	public void resourceEndpointProtected() {
 		ResponseEntity<String> response = template.getForEntity("http://localhost:"
 				+ port + "/resource", String.class);
-		assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-		assertEquals("Session realm=\"JSESSIONID\"",
-				response.getHeaders().getFirst("WWW-Authenticate"));
+		assertEquals(HttpStatus.FOUND, response.getStatusCode());
+		assertEquals("http://localhost:" + port + "/login", response.getHeaders()
+				.getLocation().toString());
 	}
 
 	@Test
@@ -60,7 +60,7 @@ public class ApplicationTests {
 				+ port + "/login", String.class);
 		assertEquals(HttpStatus.FOUND, response.getStatusCode());
 		String location = response.getHeaders().getFirst("Location");
-		assertTrue("Wrong location: " + location , location.startsWith(authorizeUri));
+		assertTrue("Wrong location: " + location, location.startsWith(authorizeUri));
 	}
 
 }

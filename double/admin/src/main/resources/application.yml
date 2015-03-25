@@ -3,6 +3,6 @@ logging:
     org.springframework.security: DEBUG
 security:
   user:
-    password: password
+    role: USER,ADMIN
 server:
   port: 8082

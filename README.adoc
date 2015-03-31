@@ -1,0 +1,16 @@
+---
+tags: [security,angular,rest,oauth]
+projects: [spring-security,spring-security-oauth]
+---
+= Spring and Angular JS
+:toc:
+:icons: font
+:source-highlighter: prettify
+:image-width: 500
+
+include::part-1.adoc[leveloffset=+1]
+include::part-2.adoc[leveloffset=+1]
+include::part-3.adoc[leveloffset=+1]
+include::part-4.adoc[leveloffset=+1]
+include::part-5.adoc[leveloffset=+1]
+include::part-6.adoc[leveloffset=+1]

@@ -7,6 +7,8 @@ projects: [spring-security,spring-security-oauth]
 :source-highlighter: prettify
 :image-width: 500
 
+= Spring Security and Angular JS
+
 include::part-1.adoc[leveloffset=+1]
 include::part-2.adoc[leveloffset=+1]
 include::part-3.adoc[leveloffset=+1]

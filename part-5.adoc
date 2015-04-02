@@ -70,13 +70,9 @@ public class AuthserverApplication extends WebMvcConfigurerAdapter {
 
 We only had to do 2 things (after adding `@EnableAuthorizationServer`):
 
-* 
+* Register a client "acme" with a secret and some authorized grant types including "authorization_code".
 
-Register a client "acme" with a secret and some authorized grant types including "authorization_code".
-
-* 
-
-Inject the default `AuthenticationManager` from Spring Boot autoconfiguration and wire it into the OAuth2 endpoints.
+* Inject the default `AuthenticationManager` from Spring Boot autoconfiguration and wire it into the OAuth2 endpoints.
 
 Now let's get it running on port 9999, with a predictable password for testing:
 
@@ -126,8 +122,7 @@ ____
 
 If you followed the link above you would have seen the whitelabel UI provided by Spring OAuth. To start with we will use this and we can come back later to beef it up like we did in <<The Login Page: Angular JS and Spring Security Part II,Part II>> for the self-contained server.
 
-<span id="changing-the-resource-server"></span>
-
+[[changing-the-resource-server]]
 == Changing the Resource Server
 
 If we follow on from <<The API Gateway Pattern: Angular JS and Spring Security Part IV,Part IV>>, our resource server is using https://github.com/spring-projects/spring-session/[Spring Session] for authentication, so we can take that out and replace it with Spring OAuth. We also need to remove the Spring Session and Redis dependencies, so replace this:
@@ -248,7 +243,7 @@ $ curl -H "Authorization: Bearer $TOKEN" localhost:9999/uaa/user
 
 == The UI Server
 
-The final piece of this application we need to complete is the UI server, extracting the authentication part and delegating to the authorization server. So, as with link:#changing-the-resource-server[the resource server], we first need to remove the Spring Session and Redis dependencies and replace them with Spring OAuth2.
+The final piece of this application we need to complete is the UI server, extracting the authentication part and delegating to the authorization server. So, as with <<changing-the-resource-server,the resource server>>, we first need to remove the Spring Session and Redis dependencies and replace them with Spring OAuth2.
 
 Once that is done we can remove the session filter and the "/user" endpoint as well, and set up the application to redirect to the authorization server (using the `@EnableOAuth2Sso` annotation):
 

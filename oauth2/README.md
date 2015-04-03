@@ -1,3 +1,0 @@
-# Bootstrap UI and JWT Tokens for the Authorization Server
-
-You will find a version of this application in the [source code in Github](https://github.com/dsyer/spring-security-angular/tree/master/oauth2-vanilla) which has a whitelabel HTML interface and HTTP Basic authentication. This one has a pretty login page and user approval page implemented similarly to the way we did the login page in [the single server sample](https://github.com/dsyer/spring-security-angular/tree/master/single). It also uses [JWT](http://en.wikipedia.org/wiki/JWT) to encode the tokens, so instead of using the "/user" endpoint, the resource server can pull enough information out of the token itself to do a simple authentication.

@@ -1,5 +1,5 @@
 [[_spring_and_angular_js_a_secure_single_page_application]]
-= Spring and Angular JS: A Secure Single Page Application
+= A Secure Single Page Application
 
 In this section we show some nice features of Spring Security, Spring Boot and Angular JS working together to provide a pleasant and secure user experience. It should be accessible to beginners with Spring and Angular JS, but there also is plenty of detail that will be of use to experts in either. This is actually the first in a series of sections on Spring Security and Angular JS, with new features exposed in each one successively. We'll improve on the application in the <<_the_login_page_angular_js_and_spring_security_part_ii,second>> and subsequent installments, but the main changes after this are architectural rather than functional.
 
@@ -61,6 +61,7 @@ In http://spring.io/tools/sts[Spring Tool Suite] (a set of Eclipse plugins) you 
 
 The core of a single page application is a static "index.html", so let's go ahead and create one (in "src/main/resources/static" or "src/main/resources/public"):
 
+.index.html
 [source,html]
 ----
 <!doctype html>
@@ -146,6 +147,7 @@ ____
 
 To create static resources at build time we add some magic to the Maven `pom.xml` (it's quite verbose, but boilerplate, so it could be extracted into a parent pom in Maven, or a shared task or plugin for Gradle):
 
+.pom.xml
 [source,xml]
 ----
 <build>
@@ -247,7 +249,8 @@ If you look in the https://github.com/dsyer/spring-security-angular/tree/master/
 
 * `wro.properties` is a configuration file for the preprocessing and rendering engine in wro4j. You can use it to switch on and off various parts of the toolchain. In this case we use it to compile CSS from http://lesscss.org/[Less] and to minify JavaScript, ultimately combining the sources from all the libraries we need in two files.
 +
-[source]
+.wro.properties
+[source,properties]
 ----
 preProcessors=lessCssImport
 postProcessors=less4j,jsMin
@@ -255,7 +258,8 @@ postProcessors=less4j,jsMin
 +
 * `wro.xml` declares a single "group" of resources called "angular-bootstrap", and this ends up being the base name of the static resources that are generated. It includes references to `&lt;css&gt;` and `&lt;js&gt;` elements in the webjars we added, and also to a local source file `main.less`.
 +
-[source]
+.wro.xml
+[source,xml]
 ----
 <groups xmlns="http://www.isdc.ro/wro">
   <group name="angular-bootstrap">
@@ -267,7 +271,13 @@ postProcessors=less4j,jsMin
 </groups>
 ----
 +
-* `main.less` is empty, but could be used to customise the look and feel, changing the default settings in Twitter Bootstrap. E.g. to change the colours from default blue to light pink you could add a single line: `@brand-primary: #de8579;`.
+* `main.less` is empty in the sample code, but could be used to customise the look and feel, changing the default settings in Twitter Bootstrap. E.g. to change the colours from default blue to light pink you could add a single line:
++
+.main.less
+[source]
+----
+@brand-primary: #de8579;
+----
 
 Copy those files to your project and run "mvn package" and you should see the "bootstrap-angular.*" resources show up in your JAR file. If you run the app now, you should see the CSS take effect, but the business logic and navigation is still missing.
 
@@ -277,6 +287,7 @@ Let's create the "hello" application (in "src/main/resources/static/js/hello.js"
 
 A minimal Angular JS application looks like this:
 
+.hello.js
 [source,javascript]
 ----
 angular.module('hello', [])
@@ -296,6 +307,7 @@ If you added that file under "src/main/resources/static/js" your app should now 
 
 So far we have an application with a greeting that is hard coded. That's useful for learning how things fit together, but really we expect content to come from a backend server, so let's create an HTTP endpoint that we can use to grab a greeting. In your https://github.com/dsyer/spring-security-angular/blob/master/basic/src/main/java/demo/UiApplication.java[application class] (in "src/main/java/demo"), add the `@RestController` annotation and define a new `@RequestMapping`:
 
+.UiApplication.java
 [source,java]
 ----
 @SpringBootApplication
@@ -331,6 +343,7 @@ $ curl localhost:8080/resource
 
 So let's grab that message in the browser. Modify the "home" controller to load the protected resource using XHR:
 
+.hello.js
 [source,javascript]
 ----
 angular.module('hello', [])

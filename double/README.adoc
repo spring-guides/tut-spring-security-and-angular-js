@@ -1,5 +1,5 @@
 [[_multiple_ui_applications_and_a_gateway_single_page_application_with_spring_and_angular_js_part_vi]]
-= Multiple UI Applications and a Gateway: Single Page Application with Spring and Angular JS
+= Multiple UI Applications and a Gateway
 
 In this section we continue <<_sso_with_oauth2_angular_js_and_spring_security_part_v,our discussion>> of how to use http://projects.spring.io/spring-security[Spring Security] with http://angularjs.org[Angular JS] in a "single page application". Here we show how to use http://projects.spring.io/spring-security-oauth/[Spring Session] together with http://projects.spring.io/spring-cloud/[Spring Cloud] to combine the features of the systems we built in parts II and IV, and actually end up building 3 single page applications with quite different responsibilities. The aim is to build a Gateway (like in <<_the_api_gateway_pattern_angular_js_and_spring_security_part_iv,part IV>>) that is used not only for API resources but also to load the UI from a backend server. We simplify the token-wrangling bits of <<_the_login_page_angular_js_and_spring_security_part_ii,part II>> by using the Gateway to pass through the authentication to the backends. Then we extend the system to show how we can make local, granular access decisions in the backends, while still controlling identity and authentication at the Gateway. This is a very powerful model for building distributed systems in general, and has a number of benefits that we can explore as we introduce the features in the code we build.
 
@@ -25,6 +25,7 @@ The source code for the complete project we are going to build is in https://git
 
 In this architecture the backend is very similar to the https://github.com/dsyer/spring-security-angular/tree/master/spring-session["spring-session"] sample we built in <<_the_resource_server_angular_js_and_spring_security_part_iii,Part III>>, with the exception that it doesn't actually need a login page. The easiest way to get to what we want here is probably to copy the "resource" server from Part III and take the UI from the https://github.com/dsyer/spring-security-angular/tree/master/basic["basic"] sample in <<_spring_and_angular_js_a_secure_single_page_application,Part I>>. To get from the "basic" UI to the one we want here, we need only to add a couple of dependencies (like when we first used https://github.com/spring-projects/spring-session/[Spring Session] in Part III):
 
+.pom.xml
 [source,xml]
 ----
 <dependency>
@@ -40,6 +41,7 @@ In this architecture the backend is very similar to the https://github.com/dsyer
 
 and add the `@EnableRedisHttpSession` annotation to the main application class:
 
+.UiApplication.java
 [source,java]
 ----
 @SpringBootApplication
@@ -57,6 +59,7 @@ Since this is now a UI there is no need for the "/resource" endpoint. When you h
 
 Lastly, we want this server to run as a backend, so we'll give it a non-default port to listen on (in `application.properties`):
 
+.application.properties
 [source,properties]
 ----
 server.port: 8081
@@ -69,6 +72,7 @@ If that's the _whole_ content `application.properties` then the application will
 
 The Resource server is easy to generate from one of our existing samples. It is the same as the "spring-session" Resource server in <<_the_resource_server_angular_js_and_spring_security_part_iii,Part III>>: just a "/resource" endpoint and `@EnableRedisHttpSession` to get the distributed session data. We want this server to have a non-default port to listen on, and we want to be able to look up authentication in the session so we need this (in `application.properties`):
 
+.application.properties
 [source,properties]
 ----
 server.port: 9000
@@ -93,6 +97,7 @@ You can then import that project (it's a normal Maven Java project by default) i
 
 Starting from the blank Initializr application, we add the Spring Session dependency (like in the UI above), and the `@EnableRedisHttpSession` annotation:
 
+.GatewayApplication.java
 [source,java]
 ----
 @SpringBootApplication
@@ -109,6 +114,7 @@ public static void main(String[] args) {
 
 The Gateway is ready to run, but it doesn't yet know about our backend services, so let's just set that up in its `application.yml` (renaming from `application.properties` if you did the curl thing above):
 
+.application.yml
 [source]
 ----
 zuul:
@@ -152,6 +158,7 @@ Hurrah, it works! You have two backend servers, one of which is a UI, each with 
 
 Just as in the "basic" sample in <<_spring_and_angular_js_a_secure_single_page_application,Part I>> we can now add a login form to the Gateway, e.g. by copying the code from <<_the_login_page_angular_js_and_spring_security_part_ii,Part II>>. When we do that we can also add some basic navigation elements in the Gateway, so the user doesn't have to know the path to the UI backend in the proxy. So let's first copy the static assets from the "single" UI into the Gateway, delete the message rendering and insert a login form into our home page (in the `&lt;body/&gt;` somewhere):
 
+.index.html
 [source,html]
 ----
 <body ng-app="hello" ng-controller="navigation" ng-cloak
@@ -177,6 +184,7 @@ Just as in the "basic" sample in <<_spring_and_angular_js_a_secure_single_page_a
 
 Instead of the message rendering we will have a nice big navigation button:
 
+.index.html
 [source,html]
 ----
 <div class="container" ng-show="authenticated">
@@ -190,6 +198,7 @@ image:https://raw.githubusercontent.com/dsyer/spring-security-angular/master/dou
 
 To support the login form we need some JavaScript with a "navigation" controller implementing the `login()` function we declared in the `&lt;form/&gt;`, and we need to set the `authenticated` flag so that the home page will render differently depending on whether or not the user is authenticated. For example:
 
+.hello.js
 [source,javascript]
 ----
 angular.module('hello', []).controller('navigation',
@@ -220,6 +229,7 @@ $scope.login = function() {
 
 where the implementation of the `authenticate()` function is similar to that in <<_the_login_page_angular_js_and_spring_security_part_ii,Part II>>:
 
+.hello.js
 [source,javascript]
 ----
 var authenticate = function(credentials, callback) {
@@ -261,6 +271,7 @@ image:https://raw.githubusercontent.com/dsyer/spring-security-angular/master/dou
 
 There is a new component (Admin) and a new route in the Gateway in `application.yml`:
 
+.application.yml
 [source,yaml]
 ----
 zuul:
@@ -277,6 +288,7 @@ The fact that the existing UI is available to users in the "USER" role is indica
 
 In addition, suppose that within the Admin application we want to distinguish between "READER" and "WRITER" roles, so that we can permit (let's say) users who are auditors to view the changes made by the main admin users. This is a granular access decision, where the rule is only known, and should only be known, in the backend application. In the Gateway we only need to ensure that our user accounts have the roles needed, and this information is available, but the Gateway doesn't need to know how to interpret it. In the Gateway we create user accounts to keep the sample application self-contained:
 
+.SecurityConfiguration.class
 [source,javascript]
 ----
 @Configuration
@@ -303,6 +315,7 @@ ____
 
 The access decisions go in the Admin application. For the "ADMIN" role (which is required globally for this backend) we do it in Spring Security:
 
+.SecurityConfiguration.java
 [source,java]
 ----
 @Configuration
@@ -324,6 +337,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 For the "READER" and "WRITER" roles the application itself is split, and since the application is implemented in JavaScript, that is where we need to make the access decision. One way to do this is to have a home page with a computed view embedded in it:
 
+.index.html
 [source,html]
 ----
 <div class="container">
@@ -339,6 +353,7 @@ TIP: A more complex application might use other mechanisms to modularize itself,
 
 The `template` variable is initialized in our controller, first by defining a utility function:
 
+.admin.js
 [source,javascript]
 ----
 var computeDefaultTemplate = function(user) {
@@ -349,6 +364,7 @@ var computeDefaultTemplate = function(user) {
 
 then by using the utility function when the controller loads:
 
+.admin.js
 [source,javascript]
 ----
 angular.module('admin', []).controller('home',
@@ -374,6 +390,7 @@ the first thing the application does is look at the usual (for this series) "/us
 
 To support this function on the backend we need an endpoint, e.g. in our main application class:
 
+.AdminApplication.java
 [source,java]
 ----
 @SpringBootApplication

@@ -1,5 +1,5 @@
 [[_the_api_gateway_pattern_angular_js_and_spring_security_part_iv]]
-= The API Gateway: Single Page Application with Spring and Angular JS
+= The API Gateway
 
 In this section we continue <<_the_resource_server_angular_js_and_spring_security_part_iii,our discussion>> of how to use http://projects.spring.io/spring-security[Spring Security] with http://angularjs.org[Angular JS] in a "single page application". Here we show how to build an API Gateway to control the authentication and access to the backend resources using http://projects.spring.io/spring-cloud/[Spring Cloud]. This is the fourth in a series of sections, and you can catch up on the basic building blocks of the application or build it from scratch by reading the <<_spring_and_angular_js_a_secure_single_page_application,first section>>, or you can just go straight to the https://github.com/dsyer/spring-security-angular/tree/master/proxy[source code in Github]. In the <<_the_resource_server_angular_js_and_spring_security_part_iii,last section>> we built a simple distributed application that used https://github.com/spring-projects/spring-session/[Spring Session] to authenticate the backend resources. In this one we make the UI server into a reverse proxy to the backend resource server, fixing the issues with the last implementation (technical complexity introduced by custom token authentication), and giving us a lot of new options for controlling access from the browser client.
 
@@ -17,6 +17,7 @@ If you were following along in the code, you will know that the application impl
 
 To turn it into an API Gateawy, the UI server needs one small tweak. Somewhere in the Spring configuration we need to add an `@EnableZuulProxy` annotation, e.g. in the main (only) https://github.com/dsyer/spring-security-angular/blob/master/proxy/ui/src/main/java/demo/UiApplication.java[application class]:
 
+.UiApplication.java
 [source,java]
 ----
 @SpringBootApplication
@@ -29,6 +30,7 @@ public class UiApplication {
 
 and in an external configuration file we need to map a local resource in the UI server to a remote one in the https://github.com/dsyer/spring-security-angular/blob/master/proxy/ui/src/main/resources/application.yml[external configuration] ("application.yml"):
 
+.application.yml
 [source,yaml]
 ----
 security:
@@ -44,6 +46,7 @@ This says "map paths with the pattern /resource/** in this server to the same pa
 
 All we need to make this work is the right stuff on the classpath. For that purpose we have a few new lines in our Maven POM:
 
+.pom.xml
 [source,xml]
 ----
 <dependencyManagement>
@@ -73,6 +76,7 @@ Note the use of the "spring-cloud-starter-zuul" - it's a starter POM just like t
 
 With those changes in place our application still works, but we haven't actually used the new proxy yet until we modify the client. Fortunately that's trivial. We just need to go from this implementation of the "home" controller:
 
+.hello.js
 [source,javascript]
 ----
 angular.module('hello', [ 'ngRoute' ])
@@ -86,6 +90,7 @@ angular.module('hello', [ 'ngRoute' ])
 
 to a local resource:
 
+.hello.js
 [source,javascript]
 ----
 angular.module('hello', [ 'ngRoute' ])
@@ -111,9 +116,10 @@ ____
 Aside: Lack of software security might not even be a problem if your network architecture mirrors the application architecture (you can just make the resource server physically inaccessible to anyone but the UI server). As a simple demonstration of that we can make the resource server only accessible on localhost. Just add this to `application.properties` in the resource server:
 ____
 
+.application.properties
 [source]
 ----
-    server.address: 127.0.0.1
+server.address: 127.0.0.1
 ----
 
 ____
@@ -122,6 +128,7 @@ ____
 
 Suppose that we decide we do need security at the software level (quite likely for a number of reasons). That's not going to be a problem, because all we need to do is add Spring Security as a dependency (in the https://github.com/dsyer/spring-security-angular/blob/master/proxy/resource/pom.xml[resource server POM]):
 
+.pom.xml
 [source,xml]
 ----
 <dependency>
@@ -136,6 +143,7 @@ That's enough to get us a secure resource server, but it won't get us a working 
 
 We can use the same mechanism to share authentication (and CSRF) state as we did in the last, i.e. https://github.com/spring-projects/spring-session/[Spring Session]. We add the dependency to both servers as before:
 
+.pom.xml
 [source,xml]
 ----
 <dependency>
@@ -151,6 +159,7 @@ We can use the same mechanism to share authentication (and CSRF) state as we did
 
 but this time the configuration is much simpler because we can just add the same `Filter` declaration to both. First the UI server (adding `@EnableRedisHttpSession`):
 
+.UiApplication.java
 [source,java]
 ----
 @SpringBootApplication
@@ -166,6 +175,7 @@ public class UiApplication {
 
 and then the resource server. There are three small changes to make: one is adding `@EnableRedisHttpSession` to the `ResourceApplication`:
 
+.ResourceApplication.groovy
 [source,java]
 ----
 @SpringBootApplication
@@ -178,6 +188,7 @@ class ResourceApplication {
 
 another is to explicitly disable HTTP Basic in the resource server (to prevent the browser from popping up authentication dialogs):
 
+.ResourceApplication.groovy
 [source,java]
 ----
 @SpringBootApplication
@@ -203,6 +214,7 @@ ____
 
 and the last one is to explicitly ask for a non-stateless session creation policy in `application.properties`:
 
+.application.properties
 [source,properties]
 ----
 security.sessions: NEVER
@@ -237,6 +249,7 @@ We can see the reverse proxy in action by looking at the "/trace" endpoint in th
 
 NOTE: Try to use a different browser so that there is no chance of authentication crossover (e.g. use Firefox if yoused Chrome for testing the UI) - it won't stop the app from working, but it will make the traces harder to read if they contain a mixture of authentication from the same browser.
 
+./trace
 [source,javascript]
 ----
 {

@@ -1,14 +1,14 @@
 = Tutorial on Spring Security and Angular JS
 :toc: left
 
-include::basic/README.adoc[]
+include::basic/README.adoc[leveloffset=1]
 
-include::single/README.adoc[]
+include::single/README.adoc[leveloffset=1]
 
-include::vanilla/README.adoc[]
+include::vanilla/README.adoc[leveloffset=1]
 
-include::proxy/README.adoc[]
+include::proxy/README.adoc[leveloffset=1]
 
-include::oauth2-vanilla/README.adoc[]
+include::oauth2-vanilla/README.adoc[leveloffset=1]
 
-include::double/README.adoc[]
+include::double/README.adoc[leveloffset=1]

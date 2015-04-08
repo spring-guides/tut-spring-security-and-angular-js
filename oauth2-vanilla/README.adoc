@@ -1,5 +1,5 @@
 [[_sso_with_oauth2_angular_js_and_spring_security_part_v]]
-= Single Sign On with OAuth2: Single Page Application with Spring and Angular JS
+= Single Sign On with OAuth2
 
 In this section we continue <<_the_api_gateway_pattern_angular_js_and_spring_security_part_iv,our discussion>> of how to use http://projects.spring.io/spring-security[Spring Security] with http://angularjs.org[Angular JS] in a "single page application". Here we show how to use http://projects.spring.io/spring-security-oauth/[Spring Security OAuth] together with http://projects.spring.io/spring-cloud/[Spring Cloud] to extend our API Gateway to do Single Sign On and OAuth2 token authentication to backend resources. This is the fifth in a series of sections, and you can catch up on the basic building blocks of the application or build it from scratch by reading the <<_spring_and_angular_js_a_secure_single_page_application,first section>>, or you can just go straight to the https://github.com/dsyer/spring-security-angular/tree/master/oauth2[source code in Github]. In the <<_the_api_gateway_pattern_angular_js_and_spring_security_part_iv,last section>> we built a small distributed application that used https://github.com/spring-projects/spring-session/[Spring Session] to authenticate the backend resources and http://projects.spring.io/spring-cloud/[Spring Cloud] to implement an embedded API Gateway in the UI server. In this section we extract the authentication responsibilities to a separate server to make our UI server the first of potentially many Single Sign On applications to the authorization server. This is a common pattern in many applications these days, both in the enterprise and in social startups. We will use an OAuth2 server as the authenticator, so that we can also use it to grant tokens for the backend resource server. Spring Cloud will automatically relay the access token to our backend, and enable us to further simplify the implementation of both the UI and resource servers.
 
@@ -23,6 +23,7 @@ You can then import that project (it's a normal Maven Java project by default) i
 
 We need to add the http://projects.spring.io/spring-security-oauth[Spring OAuth] dependencies, so in our https://github.com/dsyer/spring-security-angular/blob/master/oauth2/authserver/pom.xml[POM] we add:
 
+.pom.xml
 [source,xml]
 ----
 <dependency>
@@ -34,6 +35,7 @@ We need to add the http://projects.spring.io/spring-security-oauth[Spring OAuth]
 
 The authorization server is pretty easy to implement. A minimal version looks like this:
 
+.AuthserverApplication.java
 [source,java]
 ----
 @SpringBootApplication
@@ -75,6 +77,7 @@ We only had to do 2 things (after adding `@EnableAuthorizationServer`):
 
 Now let's get it running on port 9999, with a predictable password for testing:
 
+.application.properties
 [source,properties]
 ----
 server.port=9999
@@ -118,6 +121,7 @@ If you followed the link above you would have seen the whitelabel UI provided by
 
 If we follow on from <<_the_api_gateway_pattern_angular_js_and_spring_security_part_iv,Part IV>>, our resource server is using https://github.com/spring-projects/spring-session/[Spring Session] for authentication, so we can take that out and replace it with Spring OAuth. We also need to remove the Spring Session and Redis dependencies, so replace this:
 
+.pom.xml
 [source,xml]
 ----
 <dependency>
@@ -133,6 +137,7 @@ If we follow on from <<_the_api_gateway_pattern_angular_js_and_spring_security_p
 
 with this:
 
+.pom.xml
 [source,xml]
 ----
 <dependency>
@@ -143,6 +148,7 @@ with this:
 
 and then remove the session `Filter` from the https://github.com/dsyer/spring-security-angular/blob/master/vanilla-oauth2/resource/src/main/groovy/demo/ResourceApplication.groovy[main application class], replacing it with the convenient `@EnableOAuth2Resource` annotation (from Spring Cloud Security):
 
+.ResourceApplication.groovy
 [source,java]
 ----
 @SpringBootApplication
@@ -181,6 +187,7 @@ $ curl -v localhost:9000
 
 and you will see a 401 with a "WWW-Authenticate" header indicating that it wants a bearer token. We are going to add a small amount of external configuration (in "application.properties") to allow the resource server to decode the tokens it is given and authenticate a user:
 
+.application.properties
 [source,properties]
 ----
 ...
@@ -195,6 +202,7 @@ NOTE: the `userInfoUri` is by far not the only way of hooking a resource server 
 
 On the authorization server we can easily add that endpoint
 
+.AuthserverApplication.java
 [source,java]
 ----
 @SpringBootApplication
@@ -233,6 +241,7 @@ The final piece of this application we need to complete is the UI server, extrac
 
 Once that is done we can remove the session filter and the "/user" endpoint as well, and set up the application to redirect to the authorization server (using the `@EnableOAuth2Sso` annotation):
 
+.UiApplication.java
 [source,java]
 ----
 @SpringBootApplication
@@ -251,6 +260,7 @@ public class UiApplication {
 
 Recall from <<_the_api_gateway_pattern_angular_js_and_spring_security_part_iv,Part IV>> that the UI server, by virtue of the `@EnableZuulProxy`, acts an API Gateway and we can declare the route mappings in YAML. So the "/user" endpoint can be proxied to the authorization server:
 
+.application.yml
 [source,yaml]
 ----
 zuul:
@@ -265,7 +275,8 @@ zuul:
 
 Lastly, we need to change the `WebSecurityConfigurerAdapter` to an `OAuth2SsoConfigurerAdapter` since now it is going to be used to modify the defaults in the SSO filter chain set up by `@EnableOAuth2Sso`:
 
-[source]
+.SecurityConfiguration.java
+[source,java,indent=0]
 ----
   @Configuration
   protected static class SecurityConfiguration extends OAuth2SsoConfigurerAdapter {
@@ -294,6 +305,7 @@ There are also some mandatory external configuration properties for the
 `@EnableOAuth2Sso` annotation to be able to contact and authenticate with
 thr right authorization server. So we need this in `application.yml`:
 
+.application.yml
 [source,yaml]
 ----
 spring:
@@ -321,6 +333,7 @@ to the static resources in our single page application.
 
 There are some minor tweaks to the UI application on the front end that we still need to make to trigger the redirect to the authorization server. The first is in the navigation bar in "index.html" where the "login" link changes from an Angular route:
 
+.index.html
 [source,html]
 ----
 <div ng-controller="navigation" class="container">
@@ -334,6 +347,7 @@ There are some minor tweaks to the UI application on the front end that we still
 
 to a plain HTML link
 
+.index.html
 [source,html]
 ----
 <div ng-controller="navigation" class="container">
@@ -349,6 +363,7 @@ The "/login" endpoint that this goes to is handled by Spring Security and if the
 
 We can also remove the definition of the `login()` function in the "navigation" controller, and the "/login" route from the Angular configuration, which simplifies the implementation a bit:
 
+.hello.js
 [source,javascript]
 ----
 angular.module('hello', [ 'ngRoute' ]).config(function($routeProvider) {

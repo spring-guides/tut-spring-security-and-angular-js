@@ -1,0 +1,425 @@
+<span id="_modular_angular_js_and_spring_security_part_vii"></span>
+# Modular AngularJS Application
+
+In this article we continue [our discussion][sixth] of how to use [Spring Security](http://projects.spring.io/spring-security) with [Angular JS](http://angularjs.org) in a "single page application". Here we show how to modularize the client-side code, and how to use "nice" URL paths without the fragment notation (e.g. "/#/login") which Angular uses by default, but most users dislike. This is the seventh in a series of articles, and you can catch up on the basic building blocks of the application or build it from scratch by reading the [first article][first], or you can just go straight to the [source code in Github](https://github.com/dsyer/spring-security-angular/tree/master/modular). We will be able to tidy up a lot of loose ends from the JavaScript code of the rest of this series, and at the same time show how it can fit very snugly against a backend server built from Spring Security and Spring Boot.
+
+[first]: https://spring.io/blog/2015/01/12/spring-and-angular-js-a-secure-single-page-application (First Article in the Series)
+[second]: https://spring.io/blog/2015/01/12/the-login-page-angular-js-and-spring-security-part-ii (Second Article in the Series)
+[sixth]: https://spring.io/blog/2015/03/23/multiple-ui-applications-and-a-gateway-single-page-application-with-spring-and-angular-js-part-vi (Sixth Article in the Series)
+
+## Breaking up the Application
+
+The sample application that we worked with so far in this series was trivial enough that we could get away with a single JavaScript source file for the whole thing. No larger application will ever end up that way, even if it starts out life like this one, so to mimic real life in a sample we are going to break things up. A good starting point would be to take the "single" application from [Part II][second] and have a look at its structure in the source code. Here's a directory listing for the static content (excluding the "application.yml" that belongs on the server):
+
+```
+static/
+ js/
+   hello.js
+ home.html
+ login.html
+ index.html
+```
+
+There are a few problems with this. One is obvious: all the JavaScript is in a single file (`hello.js`). Another is more subtle: we have HTML "partials" for views inside our application ("login.html" and "home.html") but they are all in a flat structure and not associated with the controller code that uses them.
+
+Let's take a closer look at the JavaScript and we will see that Angular makes it easy for us to break it up into more manageable pieces:
+
+```
+angular.module('hello', [ 'ngRoute' ]).config(
+
+  function($routeProvider, $httpProvider) {
+
+    $routeProvider.when('/', {
+      templateUrl : 'home.html',
+      controller : 'home'
+    }).when('/login', {
+      templateUrl : 'login.html',
+      controller : 'navigation'
+    }).otherwise('/');
+
+    ...
+
+}).controller('navigation',
+    function($rootScope, $scope, $http, $location, $route) {
+      ...
+}).controller('home', function($scope, $http) {
+    ...
+  })
+});
+```
+
+There is some "config" and there are 2 controllers ("home" and "navigation"), and the controllers seem to map nicely to the partials ("home.html" and "login.html" respectively). So let's break them out into those pieces:
+
+```
+static/
+  js/
+    home/
+      home.js
+      home.html
+    navigation/
+      navigation.js
+      login.html
+    hello.js
+  index.html
+```
+
+The controller definitions have moved into their own modules, alongside the HTML that they need to operate - nice and modular. If we had needed images or custom stylesheets we would have done the same with those.
+
+> Note: all the client-side code is under a single directory, "js" (except `index.html` because that is a "welcome" page and loads automatically from the "static" directory). This is intentional because it makes it easy to apply a single Spring Security access rule to all the static resources. These ones are all unsecured (because `/js/**` is unsecure by default in a Spring Boot application), but you might need other rules for other applications, in which case you would pick a different path.
+
+For example, here's the `home.js`:
+
+```javascript
+angular.module('home', []).controller('home', function($scope, $http) {
+	$http.get('/user/').success(function(data) {
+		$scope.user = data.name;
+	});
+});
+```
+
+and here's the new `hello.js`:
+
+```javascript
+angular
+    .module('hello', [ 'ngRoute', 'home', 'navigation' ])
+    .config(
+
+        function($routeProvider, $httpProvider) {
+
+          $routeProvider.when('/', {
+            templateUrl : 'js/home/home.html',
+            controller : 'home'
+          }).when('/login', {
+            templateUrl : 'js/navigation/login.html',
+            controller : 'navigation'
+          }).otherwise('/');
+
+          $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+        });
+```
+
+Notice how the "hello" module *depends on* the other two by listing them in the initial declaration along with `ngRoute`. To make that work you just need to load the module definitions in the right order in `index.html`:
+
+```html
+...
+<script src="js/angular-bootstrap.js" type="text/javascript"></script>
+<script src="js/home/home.js" type="text/javascript"></script>
+<script src="js/navigation/navigation.js" type="text/javascript"></script>
+<script src="js/hello.js" type="text/javascript"></script>
+...
+```
+
+This is the Angular JS dependency management system in action. Other frameworks have similar (and arguably superior) features. Also, in a larger application, you might use a build time step to bundle all the JavaScript together so it can be loaded efficiently by the browser, but that's almost a matter of taste.
+
+## Using "Natural" Routes
+
+The Angular `$routeProvider` by default works with fragment locators in the URL path, e.g. the login page is specified as a route in `hello.js` as "/login" and this translates into "/#/login" in the actual URL (the one you see in the browser window). This is so that the JavaScript in the `index.html`, loaded via the root path "/", stays active on all routes. The fragment naming is a bit unfamiliar to users and it is sometimes more convenient to use "natural" routes, where the URL path is the same as the Angular route declarations, e.g. "/login" for "/login". You can't do that if you have *only* static resources, because `index.html` can only be loaded one way, but if you have some active components in the stack (a proxy or some server-side logic) then you can arrange for it to work by loading `index.html` from all the Angular routes.
+
+In this series you have Spring Boot, so of course you have server-side logic, and using a simple Spring MVC controller you can naturalize the routes in your application. All you need is a a way to enumerate the Angular routes in the server. Here we choose to do it by a naming convention: all paths that do not contain a period (and are not explicitly mapped already) are Angular routes, and should forward to the home page:
+
+```java
+@RequestMapping(value = "/{[path:[^\\.]*}")
+public String redirect() {
+  return "forward:/";
+}
+```
+
+This method just needs to be in a `@Controller` (not a `@RestController`) somewhere in the Spring application. We use a "forward" (not a "redirect") so that the browser remembers the "real" route, and that's what the user sees in the URL. It also means that any saved-request mechanisms around authentication in Spring Security would work out of the box, although we won't be taking advantage of that in this application.
+
+> Note: the application in the sample code [in github](https://github.com/dsyer/spring-security-angular/tree/master/modular) has an extra route, so you can see a slightly more fully featured, and therefore hopefully realistic, application ("/home" and "/message" are different modules with slightly different views).
+
+To complete the application with "natural" routes, you need to tell Angular about it. There are two steps. First, in `hello.js` you add a line to the `config` function setting the "HTML5 mode" in the `$locationProvider`:
+
+```javascript
+angular.module('hello', [ 'ngRoute', 'home', 'navigation' ]).config(
+
+  function($locationProvider, $routeProvider, $httpProvider) {
+
+    $locationProvider.html5Mode(true);
+    ...
+});
+```
+
+Coupled with that you need an extra `<base/>` element in the header of the HTML in `index.html`, and you need to change the links in the menu bar to remove the fragments ("#"):
+
+```html
+<html>
+<head>
+<base href="/" />
+...
+</head>
+<body ng-app="hello" ng-cloak class="ng-cloak">
+	<div ng-controller="navigation" class="container">
+		<ul class="nav nav-pills" role="tablist">
+			<li><a href="/">home</a></li>
+			<li><a href="/login">login</a></li>
+			<li ng-show="authenticated"><a href="" ng-click="logout()">logout</a></li>
+		</ul>
+	</div>
+...
+</html>
+```
+
+Angular uses the `<base/>` element to anchor the routes and write the URLs that show up in the browser. You are running in a Spring Boot application so the default setting is to serve from root path "/" (on port 8080). If you need to be able to serve from different root paths with the same application then you will need to render that path into the HTML using a server-side template (many people prefer to stick with static resources for a Single Page Application, so they are stuck with a static root path).
+
+## Extracting the Authentication Concerns
+
+When you modularized the application above you should have found that the code worked just by splitting it into modules, but there is a small niggle there that we are still using `$rootScope` to share state between the controllers. There's nothing horribly wrong with that for such a small application and it got us a decent prototype to play with quite quickly, so let's not be too sad about it, but now we can take the opportunity to extract all the authentication concerns into a separate module. In Angular terms what you need is a "service", so create a new module ("auth") next to your "home" and "navigation" modules:
+
+```
+static/
+  js/
+    auth/
+      auth.js
+    home/
+      home.js
+      home.html
+    navigation/
+      navigation.js
+      login.html
+    hello.js
+  index.html
+```
+
+Before writing the `auth.js` code we can anticipate the changes in the other modules. First in `navigation.js` you should make the "navigation" module depend on the new "auth" module, and inject the "auth" service into the controller (and of course `$rootScope` is no longer needed):
+
+```
+angular.module('navigation', ['auth']).controller(
+		'navigation',
+
+		function($scope, auth) {
+
+			$scope.credentials = {};
+
+			$scope.authenticated = function() {
+				return auth.authenticated;
+			}
+
+			$scope.login = function() {
+				auth.authenticate($scope.credentials, function(authenticated) {
+					if (authenticated) {
+						console.log("Login succeeded")
+						$scope.error = false;
+					} else {
+						console.log("Login failed")
+						$scope.error = true;
+					}
+				})
+			};
+
+			$scope.logout = function() {
+              auth.clear();
+            }
+
+		});
+
+```
+
+It isn't very different from the old controller (it still needs functions for user actions, login and logout, and an object to hold the credentials for login), but it has abstracted the implementation to the new "auth" service. The "auth" service will need an `authenticate()` function to support the `login()`, and a `clear()` function to support `logout()`. It also has a flag `authenticated` that replaces the `$rootScope.authenticated` from the old controller. We use the `authenticated` flag in a function with the same name attached to the `$scope` of the controller, so that Angular will keep checking its value and update the UI when the user logs in.
+
+Suppose you want to make the "auth" module re-usable, so you don't want any hard-coded paths in it. That's not a problem, but you will need to initialize or configure the paths in the `hello.js` module, so you can add a `run()` function:
+
+```
+angular
+  .module('hello', [ 'ngRoute', 'auth', 'home', 'navigation' ])
+  .config(
+	...
+  }).run(function(auth) {
+
+    auth.init('/', '/login', '/logout');
+
+});
+```
+
+The `run()` function can call into any of the modules that "hello" depends on, in this case injecting an `auth` service and initializing it with the paths of the home page, login and logout endpoints respectively.
+
+Now you need to load the "auth" module in `index.html` in addition to the other modules (and before the "login" module since it depends on "auth"):
+
+```html
+...
+<script src="js/auth/auth.js" type="text/javascript"></script>
+...
+<script src="js/hello.js" type="text/javascript"></script>
+...
+```
+
+Then finally you can write the code for the three functions you pencilled in above (`authenticate()`, `clear()` and `init()`). Here's most of the code:
+
+```javascript
+angular.module('auth', []).factory(
+    'auth',
+
+    function($http, $location) {
+
+      var auth = {
+
+        authenticated : false,
+
+        loginPath : '/login',
+        logoutPath : '/logout',
+        homePath : '/',
+
+        authenticate : function(credentials, callback) {
+
+          var headers = credentials && credentials.username ? {
+            authorization : "Basic "
+                + btoa(credentials.username + ":"
+                    + credentials.password)
+          } : {};
+
+          $http.get('user', {
+            headers : headers
+          }).success(function(data) {
+            if (data.name) {
+              auth.authenticated = true;
+            } else {
+              auth.authenticated = false;
+            }
+            $location.path(auth.homePath);
+            callback && callback(auth.authenticated);
+          }).error(function() {
+            auth.authenticated = false;
+            callback && callback(false);
+          });
+
+        },
+        
+        clear : function() { ... },
+        
+        init : function(homePath, loginPath, logoutPath) { ... }
+
+      };
+
+      return auth;
+
+    });
+
+```
+
+The "auth" module creates a factory for an `auth` service (which you already injected into the "navigation" controller for instance). The factory is just a function that returns an object (`auth`), and the object has to have the three functions and the flag that we anticipated above. Above, we have shown an implementation of the `authenticate()` function, which is substantially the same as the old one in the "navigation" controller, it calls out to a backend resource at "/user", sets a flag `authenticated` and calls an optional callback with the value of the flag. If successful, it also sends the user to the `homePath` using the `$location` service (we will improve on this in a minute).
+
+Here is a bare-bones implementation of the `init()` function that just sets up the various paths you didn't want to hard code in the "auth" module:
+
+```javascript
+init : function(homePath, loginPath, logoutPath) {
+  auth.homePath = homePath;
+  auth.loginPath = loginPath;
+  auth.logoutPath = logoutPath;
+}
+```
+
+The `clear()` function implementation comes next, but it's rather simple:
+
+```javascript
+clear : function() {
+  auth.authenticated = false;
+  $location.path(auth.loginPath);
+  $http.post(auth.logoutPath, {});
+}
+```
+
+It unsets the `authenticated` flag, sends the user back to the login page, and then sends an HTTP POST to the logout path. The POST succeeds because we still have the CSRF protection features from the original "single" application in place. If you see a 403, look at the error message and server logs, then check that you have that filter in place and the XSRF cookie is being sent.
+
+The very last change is to the `index.html` so that the "logout" link is hidden when the user is not authenticated:
+
+```html
+<html>
+...
+<body ng-app="hello" ng-cloak class="ng-cloak">
+  <div ng-controller="navigation" class="container">
+    <ul class="nav nav-pills" role="tablist">
+          ...
+      <li ng-show="authenticated()"><a href="" ng-click="logout()">logout</a></li>
+    </ul>
+  </div>
+...
+</html>
+```
+You simply need to convert the flag `authenticated` to a function call `authenticated()`, so that the "navigation" controller can reach into the "auth" service and find the value of the flag, now that it is not in `$rootScope`.
+
+## Redirecting to the Login Page
+
+The way we have implemented our home page up to now it has some content it can display when the user is anauthenticated (it just invites them to log in). Some applications work that way, and some don't. Some provide a different user experience where the user never sees anything apart from the login page until he is authenticated, so let's see how we might convert our application to this pattern.
+
+Hiding all content with a login page is a classic cross-cutting concern: you don't want all the logic for showing the login page stuck in all the UI modules (it would be duplicated everywhere, making the code harder to read and harder to maintain). Spring Security is all about cross-cutting concerns in the server, since it builds on top of `Filters` and AOP interceptors. Unfortunately that won't help us much in a Single Page Application, but fortunately Angular also has some features that make it easy to implement the pattern we want. The feature that helps us here is that you can install a listener for "route changes", so every time the user moves to a new route (i.e. clicks on a menu bar or whatever) or when the page loads for the first time, you get to inspect the route and if you need to you can change it.
+
+To install the listener you can write a small piece of extra code in your `auth.init()` function (since that is already arranged to run when the main "hello" module loads):
+
+```javascript
+angular.module('auth', []).factory(
+    'auth',
+
+    function($rootScope, $http, $location) {
+
+      var auth = {
+      
+        ...
+
+        init : function(homePath, loginPath, logoutPath) {
+          ...
+          $rootScope.$on('$routeChangeStart', function() {
+            enter();
+          });
+        }
+
+      };
+
+      return auth;
+
+    });
+```
+
+We registered a simple listener which just delegates to a new `enter()` function, so now you need to implement that as well in the "auth" module factory function (where it has access to the factory object itself):
+
+```javascript
+enter = function() {
+  if ($location.path() != auth.loginPath) {
+    auth.path = $location.path();
+    if (!auth.authenticated) {
+      $location.path(auth.loginPath);
+    }
+  }          
+}
+```
+
+The logic is simple: if the path just changed to something other than the login page, then make a record of the path value, and then if the user is not authenticated, go to the login page. The reason we save the path value is so we can go back to it after a successful authentication (Spring Security has this feature server side and it's quite nice for users). You do that in the `authenticate()` function by adding some code to the success handler:
+
+```javascript
+authenticate : function(credentials, callback) {
+ ...
+ $http.get('user', {
+  headers : headers
+  }).success(function(data) {
+      ...
+      $location.path(auth.path==auth.loginPath ? auth.homePath : auth.path);
+  }).error(...);
+
+},
+```
+
+On successful authentication we just set the location to either the home page or the most recently selected path (as long as it's not the login page).
+
+There is one final change to make the user experience more uniform: we would like to show the login page instead of the home page when the application first starts up. You already have that logic (redirect to login page) in the `authenticate()` function, so all you need to do is add some code in the `init()` function to authenticate with empty credentials (which fails unless the user has a cookie already):
+
+```javascript
+init : function(homePath, loginPath, logoutPath) {
+  ...
+  auth.authenticate({}, function(authenticated) {
+    if (authenticated) {
+      $location.path(auth.path);
+    }
+  });
+  ...
+}
+```
+
+As long as `auth.path` is initialized with `$location.path()`, this will even work if the user types in a route explicitly into the browser (i.e. doesn't want to load the home page first).
+
+Fire up the application (using your IDE and the `main()` method, or on the command line with `mvn spring-boot:run`) and visit it at [http://localhost:8080](http://localhost:8080) to see the result.
+
+> Reminder: be sure to clear your browser cache of cookies and HTTP Basic credentials. In Chrome the best way to do that is to open a new incognito window.
+
+## Conclusion
+
+In this article we have seen how to modularize an Angular application (taking as a starting point the application from [Part II][second] of [the series][first]), how to make it redirect to a login page, and how to use "natural" routes that can be typed or bookmarked easily by users. We took a step back from the last couple of articles in the series, concentrating on the client-side code a bit more, and temporarily ditching the distributed architecture that we were building in Parts III-VI. That doesn't mean that the changes here can't be applied to those other applications (actually it's fairly trivial) - it was just to simplify the server-side code while we were learning how to do things on the client. There *were* a couple of server-side features that we used or discussed briefly though (for instance the use of a "forward" view in Spring MVC to enable "natural" routes), so we have continued the theme of Angular and Spring working together, and shown that they do so quite well with small tweaks here and there.

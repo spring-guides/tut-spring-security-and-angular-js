@@ -435,7 +435,7 @@ The requests prefixed with (uaa) are to the authorization server. The responses 
 
 In the "/trace" endpoint of the UI (scroll down to the bottom) you will see the proxied backend requests to "/user" and "/resource", with `remote:true` and the bearer token instead of the cookie (as it would have been in <<_the_api_gateway_pattern_angular_js_and_spring_security_part_iv,Part IV>>) being used for authentication. Spring Cloud Security has taken care of this for us: by recognising that we has `@EnableOAuth2Sso` and `@EnableZuulProxy` it has figured out that (by default) we want to relay the token to the proxied backends.
 
-NOTE: As in previous sections, try to use a different browser for "/trace" so that there is no chance of authentication crossover (e.g. use Firefox if yoused Chrome for testing the UI).
+NOTE: As in previous sections, try to use a different browser for "/trace" so that there is no chance of authentication crossover (e.g. use Firefox if you used Chrome for testing the UI).
 
 == The Logout Experience
 

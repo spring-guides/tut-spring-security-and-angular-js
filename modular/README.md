@@ -218,7 +218,7 @@ angular.module('navigation', ['auth']).controller(
 
 It isn't very different from the old controller (it still needs functions for user actions, login and logout, and an object to hold the credentials for login), but it has abstracted the implementation to the new "auth" service. The "auth" service will need an `authenticate()` function to support the `login()`, and a `clear()` function to support `logout()`. It also has a flag `authenticated` that replaces the `$rootScope.authenticated` from the old controller. We use the `authenticated` flag in a function with the same name attached to the `$scope` of the controller, so that Angular will keep checking its value and update the UI when the user logs in.
 
-Suppose you want to make the "auth" module re-usable, so you don't want any hard-coded paths in it. That's not a problem, but you will need to initialize or configure the paths in the `hello.js` module, so you can add a `run()` function:
+Suppose you want to make the "auth" module re-usable, so you don't want any hard-coded paths in it. That's not a problem, but you will need to initialize or configure the paths in the `hello.js` module. To do that you can add a `run()` function:
 
 ```
 angular

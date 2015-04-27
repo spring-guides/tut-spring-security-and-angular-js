@@ -17,6 +17,7 @@
 		<module>oauth2-vanilla</module>
 		<module>oauth2</module>
 		<module>double</module>
+		<module>modular</module>
 	</modules>
 	
 </project>

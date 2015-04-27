@@ -6,56 +6,35 @@ image:https://badges.gitter.im/Join%20Chat.svg[Gitter,link=https://gitter.im/dsy
 
 Contents: 
 
-* 
+* `basic`: sample with HTTP Basic authentication, static HTML and an API resource all in the same server (http://spring.io/blog/2015/01/12/spring-and-angular-js-a-secure-single-page-application[blog]).
 
-`basic`: sample with HTTP Basic authentication, static HTML and an API resource all in the same server (http://spring.io/blog/2015/01/12/spring-and-angular-js-a-secure-single-page-application[blog]).
+* `single`: adds form authentication, but static HTML and an API resource still in the same server (https://spring.io/blog/2015/01/12/the-login-page-angular-js-and-spring-security-part-ii[blog]).
 
-* 
+* `vanilla`: form authentication and static HTML in one server ("ui") and an unprotected backend API resource in another ("resource") (https://spring.io/blog/2015/01/20/the-resource-server-angular-js-and-spring-security-part-iii[blog]).
 
-`single`: adds form authentication, but static HTML and an API resource still in the same server (https://spring.io/blog/2015/01/12/the-login-page-angular-js-and-spring-security-part-ii[blog]).
+* `spring-session`: the same as "vanilla", but using https://github.com/spring-projects/spring-session[Spring Session] as an authentication token between the UI and the back end service (blog shared with "vanilla").
 
-* 
+* `proxy`: same as "vanilla", but with the UI acting as a reverse proxy for the backend (API Gateway pattern). CORS responses are not needed because all client requests go to the same server. Authentication for the backend could be overlaid using the "spring-session" approach (above) or using "oauth2" (below) (https://spring.io/blog/2015/01/28/the-api-gateway-pattern-angular-js-and-spring-security-part-iv[blog]).
 
-`vanilla`: form authentication and static HTML in one server ("ui") and an unprotected backend API resource in another ("resource") (https://spring.io/blog/2015/01/20/the-resource-server-angular-js-and-spring-security-part-iii[blog]).
+* `oauth2-vanilla`: same as "proxy" but with OAuth2 SSO to the UI and OAuth2 resource server protection for the backend. The OAuth2 authorization server is no-frills (https://spring.io/blog/2015/02/03/sso-with-oauth2-angular-js-and-spring-security-part-v[blog]).
 
-* 
+* `oauth2`: same as "oauth2-vanilla" but JWT tokens (signed, encoded JSON, carrying information about the user and the token grant) and a nice UI with a login screen in the authorization server (blog shared with "oauth2-vanilla").
 
-`spring-session`: the same as "vanilla", but using https://github.com/spring-projects/spring-session[Spring Session] as an authentication token between the UI and the back end service (blog shared with `vanilla`).
+* `double`: access decisions and multiple UIs. Uses a proxy to sidestep CORS and Spring Session for authentication (would also work with OAuth2) (https://spring.io/blog/2015/03/23/multiple-ui-applications-and-a-gateway-single-page-application-with-spring-and-angular-js-part-vi[blog]).
 
-* 
+* `modular`: modular client and "natural" routes. Same as "single" but with a more modular client and also using natural routes (e.g. "/login" instead of "/#/login"). Redirects to login page for unauthenticated user.
 
-`proxy`: same as "vanilla", but with the UI acting as a reverse proxy for the backend (API Gateway pattern). CORS responses are not needed because all client requests go to the same server. Authentication for the backend could be overlaid using the "spring-session" approach (above) or using "oauth2" (below) (https://spring.io/blog/2015/01/28/the-api-gateway-pattern-angular-js-and-spring-security-part-iv[blog]).
-
-* 
-
-`oauth2-vanilla`: same as "proxy" but with OAuth2 SSO to the UI and OAuth2 resource server protection for the backend. The OAuth2 authorization server is no-frills (https://spring.io/blog/2015/02/03/sso-with-oauth2-angular-js-and-spring-security-part-v[blog]).
-
-* 
-
-`oauth2`: same as "oauth2-vanilla" but JWT tokens (signed, encoded JSON, carrying information about the user and the token grant) and a nice UI with a login screen in the authorization server.
-
-* 
-
-`double`: access decisions and multiple UIs. Uses a proxy to sidestep CORS and Spring Session for authentication (would also work with OAuth2).
+There is also a blog covering unit tests in the client, iliustrated with the test code in "basic" and "single".
 
 Ideas for more samples and blogs:
 
-* 
+* Production settings: explain how to harden the system for production use, e.g. require HTTPS for redirects, monitoring, metering, auditing, log aggregation, custom authentication
 
-Production settings: explain how to harden the system for production use, e.g. require HTTPS for redirects, monitoring, metering, auditing, log aggregation, custom authentication
+* A full blog on the JWT sample.
 
-* 
+* Add service discovery to the proxy.
 
-A full blog on the JWT sample.
+* Logout
 
-* 
+* Other OAuth2 providers, and/or OAuth 1.0a
 
-Add service discovery to the proxy.
-
-* 
-
-Logout
-
-* 
-
-Other OAuth2 providers, and/or OAuth 1.0a

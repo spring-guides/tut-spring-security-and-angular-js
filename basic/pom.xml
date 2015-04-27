@@ -32,6 +32,18 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>angularjs</artifactId>
+			<version>1.3.8</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jasmine</artifactId>
+			<version>2.0.0</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<properties>
@@ -112,6 +124,40 @@
 						<groupId>org.webjars</groupId>
 						<artifactId>bootstrap</artifactId>
 						<version>3.2.0</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>com.github.searls</groupId>
+				<artifactId>jasmine-maven-plugin</artifactId>
+				<version>2.0-alpha-01</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>test</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<additionalContexts>
+						<context>
+							<contextRoot>/lib</contextRoot>
+							<directory>${project.build.directory}/generated-resources/static/js</directory>
+						</context>
+					</additionalContexts>
+					<preloadSources>
+						<source>/lib/angular-bootstrap.js</source>
+						<source>/webjars/angularjs/1.3.8/angular-mocks.js</source>
+					</preloadSources>
+					<jsSrcDir>${project.basedir}/src/main/resources/static/js</jsSrcDir>
+					<jsTestSrcDir>${project.basedir}/src/test/resources/static/js</jsTestSrcDir>
+					<webDriverClassName>org.openqa.selenium.phantomjs.PhantomJSDriver</webDriverClassName>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.webjars</groupId>
+						<artifactId>angularjs</artifactId>
+						<version>1.3.8</version>
 					</dependency>
 				</dependencies>
 			</plugin>

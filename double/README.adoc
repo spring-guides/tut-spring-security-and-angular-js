@@ -136,7 +136,7 @@ There are 2 routes in the proxy, one each for the UI and resource server, and we
 
 We now have three components, running on 3 ports. If you point the browser at http://localhost:8080/ui/[http://localhost:8080/ui/] you should get an HTTP Basic challenge, and you can authenticate as "user/password" (your credentials in the Gateway), and once you do that you should see a greeting in the UI, via a backend call through the proxy to the Resource server.
 
-The interactions between the browser and the backend can be seen in your browser if you use some developer tools (usually F12 opens this up, works in Chrome by default, requires a plugin in Firefox). Here's a summary:
+The interactions between the browser and the backend can be seen in your browser if you use some developer tools (usually F12 opens this up, works in Chrome by default, may require a plugin in Firefox). Here's a summary:
 
 |===
 |Verb |Path |Status |Response

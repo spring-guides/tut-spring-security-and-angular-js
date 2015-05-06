@@ -406,7 +406,7 @@ function($rootScope, $scope, $http, $location, $route) {
 
 Run all the servers together now, and visit the UI in a browser at http://localhost:8080[http://localhost:8080]. Click on the "login" link and you will be redirected to the authorization server to authenticate (HTTP Basic popup) and approve the token grant (whitelabel HTML), before being redirected to the home page in the UI with the greeting fetched from the OAuth2 resource server using the same token as we authenticated the UI with.
 
-The interactions between the browser and the backend can be seen in your browser if you use some developer tools (usually F12 opens this up, works in Chrome by default, requires a plugin in Firefox). Here's a summary:
+The interactions between the browser and the backend can be seen in your browser if you use some developer tools (usually F12 opens this up, works in Chrome by default, may require a plugin in Firefox). Here's a summary:
 
 |===
 |Verb |Path |Status |Response

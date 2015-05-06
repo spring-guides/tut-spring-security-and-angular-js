@@ -390,27 +390,11 @@ $scope.logout = function() {
 });
 ----
 
-It sends an HTTP POST to "/logout" which we now need to implement on the server. This is straightforward:
-
-.SecurityConfiguration.java
-[source,java]
-----
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-  http
-    ...
-  .and()
-    .logout()
-    ...
-  ;
-}
-----
-
-(we just added `.logout()` to the `HttpSecurity` configuration builder).
+It sends an HTTP POST to "/logout" which we now need to implement on the server. This is straightforward because it is added for us already by Spring Security (i.e. we don't need to do anything for this simple use case). For more control over the behaviour of logout you could use the `HttpSecurity` callbacks in your `WebSecurityAdapter` to, for instance execute some business logic after logout.
 
 == How Does it Work?
 
-The interactions between the browser and the backend can be seen in your browser if you use some developer tools (usually F12 opens this up, works in Chrome by default, requires a plugin in Firefox). Here's a summary:
+The interactions between the browser and the backend can be seen in your browser if you use some developer tools (usually F12 opens this up, works in Chrome by default, may require a plugin in Firefox). Here's a summary:
 
 |===
 |Verb |Path |Status |Response

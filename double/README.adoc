@@ -122,7 +122,7 @@ zuul:
     ui:
       url: http://localhost:8081
     resource:
-      url: http://locahost:9000
+      url: http://localhost:9000
 security:
   user:
     password:

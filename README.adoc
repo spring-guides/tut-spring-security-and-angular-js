@@ -15,3 +15,4 @@ include::https://raw.githubusercontent.com/dsyer/spring-security-angular/master/
 include::https://raw.githubusercontent.com/dsyer/spring-security-angular/master/proxy/README.adoc[leveloffset=+1]
 include::https://raw.githubusercontent.com/dsyer/spring-security-angular/master/oauth2-vanilla/README.adoc[leveloffset=+1]
 include::https://raw.githubusercontent.com/dsyer/spring-security-angular/master/double/README.adoc[leveloffset=+1]
+include::https://raw.githubusercontent.com/dsyer/spring-security-angular/master/modular/README.adoc[leveloffset=+1]

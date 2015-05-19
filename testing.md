@@ -8,7 +8,7 @@ As with the rest of this series, the build tools are typical for Spring users, a
 [first]: https://spring.io/blog/2015/01/12/spring-and-angular-js-a-secure-single-page-application (First Article in the Series)
 [second]: https://spring.io/blog/2015/01/12/the-login-page-angular-js-and-spring-security-part-ii (Second Article in the Series)
 [sixth]: https://spring.io/blog/2015/03/23/multiple-ui-applications-and-a-gateway-single-page-application-with-spring-and-angular-js-part-vi (Sixth Article in the Series)
-[seventh]: https://spring.io/admin/blog/2084-modularizing-the-client-angular-js-and-spring-security-part-vii (Seventh Article in the Series)
+[seventh]: https://spring.io/blog/2015/05/13/modularizing-the-client-angular-js-and-spring-security-part-vii (Seventh Article in the Series)
 
 > Reminder: if you are working through this section with the sample application, be sure to clear your browser cache of cookies and HTTP Basic credentials. In Chrome the best way to do that for a single server is to open a new incognito window.
 

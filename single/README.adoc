@@ -256,13 +256,56 @@ public class UiApplication {
 
 This is a standard Spring Boot application with Spring Security customization, just allowing anonymous access to the static (HTML) resources (the CSS and JS resources are already accessible by default). The HTML resources need to be available to anonymous users, not just ignored by Spring Security, for reasons that will become clear.
 
+== Logout
+
+The application is almost finished functionally. The last thing we need to do is implement the logout feature that we sketched in the home page. Here's a reminder what the navigation bar looks like:
+
+.index.html
+[source,html]
+----
+<div ng-controller="navigation" class="container">
+  <ul class="nav nav-pills" role="tablist">
+    <li class="active"><a href="#/">home</a></li>
+    <li><a href="#/login">login</a></li>
+    <li ng-show="authenticated"><a href="" ng-click="logout()">logout</a></li>
+  </ul>
+</div>
+----
+
+If the user is authenticated then we show a "logout" link and hook it to a `logout()` function in the "navigation" controller. The implementation of the function is relatively simple:
+
+.hello.js
+[source,javascript]
+----
+angular.module('hello', [ 'ngRoute' ]). 
+// ...
+.controller('navigation', function(...) {
+
+...
+
+$scope.logout = function() {
+  $http.post('logout', {}).success(function() {
+    $rootScope.authenticated = false;
+    $location.path("/");
+  }).error(function(data) {
+    $rootScope.authenticated = false;
+  });
+}
+
+...
+
+});
+----
+
+It sends an HTTP POST to "/logout" which we now need to implement on the server. This is straightforward because it is added for us already by Spring Security (i.e. we don't need to do anything for this simple use case). For more control over the behaviour of logout you could use the `HttpSecurity` callbacks in your `WebSecurityAdapter` to, for instance execute some business logic after logout.
+
 == CSRF Protection
 
-The application is almost ready to use, but if you try running it you will find that the login form doesn't work. Look at the responses in the browser and you will see why:
+The application is almost ready to use, and in fact if you run it you will find that everything we built so far actually works except the logout link. Try using it annd look at the responses in the browser and you will see why:
 
 [source]
 ----
-POST /login HTTP/1.1
+POST /logout HTTP/1.1
 ...
 Content-Type: application/x-www-form-urlencoded
 
@@ -279,7 +322,7 @@ Transfer-Encoding: chunked
 
 That's good because it means that Spring Security's built-in CSRF protection has kicked in to prevent us from shooting ourselves in the foot. All it wants is a token sent to it in a header called "X-CSRF". The value of the CSRF token was available server side in the `HttpRequest` attributes from the initial request that loaded the home page. To get it to the client we could render it using a dynamic HTML page on the server, or expose it via a custom endpoint, or else we could send it as a cookie. The last choice is the best because Angular has https://docs.angularjs.org/api/ng/service/$http[built in support for CSRF] (which it calls "XSRF") based on cookies.
 
-So all we need on the server is a custom filter that will send the cookie. Angular wants the cookie name to be "XSRF-TOKEN" and Spring Security provides it as a request attribute, so we just need to transfer the value from a request attribute to a cookie:
+So on the server we need a custom filter that will send the cookie. Angular wants the cookie name to be "XSRF-TOKEN" and Spring Security provides it as a request attribute, so we just need to transfer the value from a request attribute to a cookie:
 
 .CsrfHeaderFilter.java
 [source,java]
@@ -348,49 +391,6 @@ private CsrfTokenRepository csrfTokenRepository() {
 ----
 
 With those changes in place we don't need to do anything on the client side and the login form is now working.
-
-== Logout
-
-The application is almost finished functionally. The last thing we need to do is implement the logout feature that we sketched in the home page. Here's a reminder what the navigation bar looks like:
-
-.index.html
-[source,html]
-----
-<div ng-controller="navigation" class="container">
-  <ul class="nav nav-pills" role="tablist">
-    <li class="active"><a href="#/">home</a></li>
-    <li><a href="#/login">login</a></li>
-    <li ng-show="authenticated"><a href="" ng-click="logout()">logout</a></li>
-  </ul>
-</div>
-----
-
-If the user is authenticated then we show a "logout" link and hook it to a `logout()` function in the "navigation" controller. The implementation of the function is relatively simple:
-
-.hello.js
-[source,javascript]
-----
-angular.module('hello', [ 'ngRoute' ]). 
-// ...
-.controller('navigation', function(...) {
-
-...
-
-$scope.logout = function() {
-  $http.post('logout', {}).success(function() {
-    $rootScope.authenticated = false;
-    $location.path("/");
-  }).error(function(data) {
-    $rootScope.authenticated = false;
-  });
-}
-
-...
-
-});
-----
-
-It sends an HTTP POST to "/logout" which we now need to implement on the server. This is straightforward because it is added for us already by Spring Security (i.e. we don't need to do anything for this simple use case). For more control over the behaviour of logout you could use the `HttpSecurity` callbacks in your `WebSecurityAdapter` to, for instance execute some business logic after logout.
 
 == How Does it Work?
 

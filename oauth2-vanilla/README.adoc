@@ -168,7 +168,18 @@ class ResourceApplication {
 
 ----
 
-That much is enough to get us a protected resource. Run the application and hit the home page with a command line client:
+With that one change the app is ready to challenge for an access token instead of HTTP Basic, but we need a config change to actually finish the process. We are going to add a small amount of external configuration (in "application.properties") to allow the resource server to decode the tokens it is given and authenticate a user:
+
+.application.properties
+[source,properties]
+----
+...
+spring.oauth2.resource.userInfoUri: http://localhost:9999/uaa/user
+----
+
+This tells the server that it can use the token to access a "/user" endpoint and use that to derive authentication information (it's a bit like the https://developers.facebook.com/docs/graph-api/reference/v2.2/user/?locale=en_GB["/me" endpoint] in the Facebook API). Effectively it provides a way for the resource server to decode the token, as expressed by the `ResourceServerTokenServices` interface in Spring OAuth2.
+
+Run the application and hit the home page with a command line client:
 
 [source]
 ----
@@ -185,16 +196,7 @@ $ curl -v localhost:9000
 {"error":"unauthorized","error_description":"An Authentication object was not found in the SecurityContext"}
 ----
 
-and you will see a 401 with a "WWW-Authenticate" header indicating that it wants a bearer token. We are going to add a small amount of external configuration (in "application.properties") to allow the resource server to decode the tokens it is given and authenticate a user:
-
-.application.properties
-[source,properties]
-----
-...
-spring.oauth2.resource.userInfoUri: http://localhost:9999/uaa/user
-----
-
-This tells the server that it can use the token to access a "/user" endpoint and use that to derive authentication information (it's a bit like the https://developers.facebook.com/docs/graph-api/reference/v2.2/user/?locale=en_GB["/me" endpoint] in the Facebook API). Effectively it provides a way for the resource server to decode the token, as expressed by the `ResourceServerTokenServices` interface in Spring OAuth2.
+and you will see a 401 with a "WWW-Authenticate" header indicating that it wants a bearer token.
 
 NOTE: the `userInfoUri` is by far not the only way of hooking a resource server up with a way to decode tokens. In fact it's sort of a lowest common denominator (and not part of the spec), but quite often available from OAuth2 providers (like Facebook, Cloud Foundry, Github), and other choices are available. For instance you can encode the user authentication in the token itself (e.g. with http://jwt.io/[JWT]), or use a shared backend store. There is also a `/token_info` endpoint in CloudFoundry, which provides more detailed information than the user info endpoint, but which requires more thorough authentication. Different options (naturally) provide different benefits and trade-offs, but a full discussion of those is outside the scope of this section.
 

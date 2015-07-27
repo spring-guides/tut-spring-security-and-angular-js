@@ -156,7 +156,7 @@ Hurrah, it works! You have two backend servers, one of which is a UI, each with 
 
 == Adding a Login Form
 
-Just as in the "basic" sample in <<_spring_and_angular_js_a_secure_single_page_application,Part I>> we can now add a login form to the Gateway, e.g. by copying the code from <<_the_login_page_angular_js_and_spring_security_part_ii,Part II>>. When we do that we can also add some basic navigation elements in the Gateway, so the user doesn't have to know the path to the UI backend in the proxy. So let's first copy the static assets from the "single" UI into the Gateway, delete the message rendering and insert a login form into our home page (in the `&lt;body/&gt;` somewhere):
+Just as in the "basic" sample in <<_spring_and_angular_js_a_secure_single_page_application,Part I>> we can now add a login form to the Gateway, e.g. by copying the code from <<_the_login_page_angular_js_and_spring_security_part_ii,Part II>>. When we do that we can also add some basic navigation elements in the Gateway, so the user doesn't have to know the path to the UI backend in the proxy. So let's first copy the static assets from the "single" UI into the Gateway, delete the message rendering and insert a login form into our home page (in the `<body/>` somewhere):
 
 .index.html
 [source,html]
@@ -196,7 +196,7 @@ If you are looking at the sample in github, it also has a minimal navigation bar
 
 image:https://raw.githubusercontent.com/dsyer/spring-security-angular/master/double/login.png[Login Page]
 
-To support the login form we need some JavaScript with a "navigation" controller implementing the `login()` function we declared in the `&lt;form/&gt;`, and we need to set the `authenticated` flag so that the home page will render differently depending on whether or not the user is authenticated. For example:
+To support the login form we need some JavaScript with a "navigation" controller implementing the `login()` function we declared in the `<form/>`, and we need to set the `authenticated` flag so that the home page will render differently depending on whether or not the user is authenticated. For example:
 
 .gateway.js
 [source,javascript]

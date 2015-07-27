@@ -198,10 +198,10 @@ image:https://raw.githubusercontent.com/dsyer/spring-security-angular/master/dou
 
 To support the login form we need some JavaScript with a "navigation" controller implementing the `login()` function we declared in the `&lt;form/&gt;`, and we need to set the `authenticated` flag so that the home page will render differently depending on whether or not the user is authenticated. For example:
 
-.hello.js
+.gateway.js
 [source,javascript]
 ----
-angular.module('hello', []).controller('navigation',
+angular.module('gateway', []).controller('navigation',
 function($scope, $http) {
 
   ...
@@ -229,7 +229,7 @@ $scope.login = function() {
 
 where the implementation of the `authenticate()` function is similar to that in <<_the_login_page_angular_js_and_spring_security_part_ii,Part II>>:
 
-.hello.js
+.gateway.js
 [source,javascript]
 ----
 var authenticate = function(credentials, callback) {

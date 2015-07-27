@@ -1,4 +1,4 @@
-angular.module('hello', []).config(function($httpProvider) {
+angular.module('gateway', []).config(function($httpProvider) {
 
 	$httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 

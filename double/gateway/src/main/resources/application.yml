@@ -3,6 +3,10 @@ logging:
     org.springframework.security: DEBUG
 security:
   sessions: ALWAYS
+spring:
+  redis:
+    host: 192.168.59.103
+    port: 6379
 zuul:
   routes:
     ui:
@@ -11,4 +15,5 @@ zuul:
       url: http://localhost:8082
     resource:
       url: http://localhost:9000
-      
+    uitest:
+      url: http://localhost:8085/ui/test

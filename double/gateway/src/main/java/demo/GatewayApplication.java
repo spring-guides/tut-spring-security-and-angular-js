@@ -82,7 +82,7 @@ public class GatewayApplication {
 				.logout()
 			.and()
 				.authorizeRequests()
-					.antMatchers("/index.html", "/login", "/").permitAll()
+					.antMatchers("/index.html", "/login", "/", "/uitest").permitAll()
 					.anyRequest().authenticated()
 			.and()
 				.csrf().csrfTokenRepository(csrfTokenRepository())

@@ -11,6 +11,7 @@
 	<modules>
 		<module>gateway</module>
 		<module>ui</module>
+		<module>uitest</module>
 		<module>resource</module>
 		<module>admin</module>
 	</modules>

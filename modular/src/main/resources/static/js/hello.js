@@ -21,8 +21,8 @@ angular
 
 				}).run(function(auth) {
 
-			// Initialize auth module with the home page and login/logout path
-			// respectively
-			auth.init('/', '/login', '/logout');
+					// Initialize auth module with the home page and login/logout path
+					// respectively
+					auth.init('/', '/login', '/logout');
 
-		});
+				});

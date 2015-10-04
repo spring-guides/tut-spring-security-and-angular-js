@@ -11,4 +11,9 @@ zuul:
       url: http://localhost:8082
     resource:
       url: http://localhost:9000
-      
+#check out more configuations in https://github.com/Netflix/Hystrix/wiki/Configuration
+hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 60000
+#set high time out for debugging purpose
+ribbon:
+  ConnectTimeout: 3000
+  ReadTimeout: 600000

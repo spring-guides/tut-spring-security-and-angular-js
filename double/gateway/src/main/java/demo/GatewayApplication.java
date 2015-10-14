@@ -23,10 +23,10 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -87,7 +87,7 @@ public class GatewayApplication {
 			.and()
 				.csrf().csrfTokenRepository(csrfTokenRepository())
 			.and()
-				.addFilterAfter(csrfHeaderFilter(), CsrfFilter.class);
+				.addFilterAfter(csrfHeaderFilter(), SessionManagementFilter.class);
 			// @formatter:on
 		}
 

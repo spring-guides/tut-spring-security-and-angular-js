@@ -9,12 +9,12 @@ projects: [spring-security,spring-security-oauth]
 
 = Spring Security and Angular JS
 
-include::https://raw.githubusercontent.com/dsyer/spring-security-angular/master/basic/README.adoc[leveloffset=+1]
-include::https://raw.githubusercontent.com/dsyer/spring-security-angular/master/single/README.adoc[leveloffset=+1]
-include::https://raw.githubusercontent.com/dsyer/spring-security-angular/master/vanilla/README.adoc[leveloffset=+1]
-include::https://raw.githubusercontent.com/dsyer/spring-security-angular/master/proxy/README.adoc[leveloffset=+1]
-include::https://raw.githubusercontent.com/dsyer/spring-security-angular/master/oauth2-vanilla/README.adoc[leveloffset=+1]
-include::https://raw.githubusercontent.com/dsyer/spring-security-angular/master/double/README.adoc[leveloffset=+1]
-include::https://raw.githubusercontent.com/dsyer/spring-security-angular/master/modular/README.adoc[leveloffset=+1]
+include::basic/README.adoc[leveloffset=+1]
+include::single/README.adoc[leveloffset=+1]
+include::vanilla/README.adoc[leveloffset=+1]
+include::proxy/README.adoc[leveloffset=+1]
+include::oauth2-vanilla/README.adoc[leveloffset=+1]
+include::double/README.adoc[leveloffset=+1]
+include::modular/README.adoc[leveloffset=+1]
 
 include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/footer.adoc[]

@@ -1,0 +1,8 @@
+language: java
+jdk:
+- oraclejdk8
+script:
+- mvn install
+notifications:
+  slack:
+    secure: PQfJGH7pGWjWURxh3yj2O6Ct1n0a7WGeZEqgJbm45+eWe0476OucPTS5BPvyUssuaLMXVRy87C3+WGhoGV9LHhljlC275MbTWp5khI7H/4jFXQ9CHPRKAB9/6i/2uqbBmQpPWHXLDDaOUB4NqrIhqUvf1SQF9g3TTVrHXKf2hv4=

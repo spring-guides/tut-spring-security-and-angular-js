@@ -52,7 +52,7 @@ public class AuthserverApplication extends WebMvcConfigurerAdapter {
 	}
 
 	@Configuration
-	@Order(-10)
+	@Order(-20)
 	protected static class LoginConfig extends WebSecurityConfigurerAdapter {
 
 		@Autowired

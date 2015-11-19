@@ -31,7 +31,6 @@ In this architecture the backend is very similar to the https://github.com/dsyer
 <dependency>
   <groupId>org.springframework.session</groupId>
   <artifactId>spring-session</artifactId>
-  <version>1.0.0.RELEASE</version>
 </dependency>
 <dependency>
   <groupId>org.springframework.boot</groupId>
@@ -309,9 +308,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 where the "admin" user has been enhanced with 3 new roles ("ADMIN", "READER" and "WRITER") and we have also added an "audit" user with "ADMIN" access, but not "WRITER".
 
-____
-Aside: In a production system the user account data would be managed in a backend database (most likely a directory service), not hard coded in the Spring Configuration. Sample applications connecting to such a database are easy to find on the internet, for example in the https://github.com/spring-projects/spring-security/tree/master/samples[Spring Security Samples].
-____
+TIP: In a production system the user account data would be managed in a backend database (most likely a directory service), not hard coded in the Spring Configuration. Sample applications connecting to such a database are easy to find on the internet, for example in the https://github.com/spring-projects/spring-security/tree/master/samples[Spring Security Samples].
 
 The access decisions go in the Admin application. For the "ADMIN" role (which is required globally for this backend) we do it in Spring Security:
 
@@ -416,6 +413,64 @@ public class AdminApplication {
 
 NOTE: the role names come back from the "/user" endpoint with the "ROLE_" prefix so we can distinguish them from other kinds of authorities (it's a Spring Security thing). Thus the "ROLE_" prefix is needed in the JavaScript, but not in the Spring Security configuration, where it is clear from the method names that "roles" are the focus of the operations.
 
+== Changes in the Gateway to Support Admin UI
+
+We are going to use the roles to make access decisions in the Gateway as well (so we can conditionally display a link to the admin UI), so we should add the "roles" to the "/user" endpoint in the Gateway as well. Once that is in place we can add some JavaScript to set up a flag to indicate that the current user is an "ADMIN". In the `authenticated()` function:
+
+.gateway.js
+[source,javascript]
+----
+$http.get('user', {
+  headers : headers
+}).success(function(data) {
+  if (data.name) {
+    $scope.authenticated = true;
+    $scope.user = data.name
+    $scope.admin = data && data.roles && data.roles.indexOf("ROLE_ADMIN")>0;
+  } else {
+    $scope.authenticated = false;
+    $scope.admin = false;
+  }
+  callback && callback(true);
+}).error(function() {
+  $scope.authenticated = false;
+  callback && callback(false);
+});
+----
+
+and we also need to reset the `admin` flag to `false` when a user logs out:
+
+.gateway.js
+[source,javascript]
+----
+$scope.logout = function() {
+  $http.post('logout', {}).success(function() {
+    $scope.authenticated = false;
+    $scope.admin = false;
+  }).error(function(data) {
+    console.log("Logout failed")
+    $scope.authenticated = false;
+    $scope.admin = false;
+  });
+}
+----
+
+and then in the HTML we can conditionally show a new link:
+
+.index.html
+[source,html]
+----
+<div class="container" ng-show="authenticated">
+  <a class="btn btn-primary" href="/ui/">Go To User Interface</a>
+</div>
+<br/>
+<div class="container" ng-show="authenticated && admin">
+  <a class="btn btn-primary" href="/admin/">Go To Admin Interface</a>
+</div>
+----
+
+Run all the apps and go to http://localhost:8080 to see the result. Everything should be working fine, and the UI should change depending on the currently authenticated user.
+
 == Why are we Here?
 
 Now we have a nice little system with 2 independent user interfaces and a backend Resource server, all protected by the same authentication in a Gateway. The fact that the Gateway acts as a micro-proxy makes the implementation of the backend security concerns extremely simple, and they are free to concentrate on their own business concerns. The use of Spring Session has (again) avoided a huge amount of hassle and potential errors.
@@ -424,6 +479,6 @@ A powerful feature is that the backends can independently have any kind of authe
 
 A bonus feature of this architecture (single Gateway controlling authentication, and shared session token across all components) is that "Single Logout", a feature we identified as difficult to implement in <<_sso_with_oauth2_angular_js_and_spring_security_part_v,Part V>>, comes for free. To be more precise, one particular approach to the user experience of single logout is automatically available in our finished system: if a user logs out of any of the UIs (Gateway, UI backend or Admin backend), he is logged out of all the others, assuming that each individual UI implemented a "logout" feature the same way (invalidating the session).
 
-____
+****
 Thanks: I would like to thank again everyone who helped me develop this series, and in particular http://spring.io/team/rwinch[Rob Winch] and https://twitter.com/thspaeth[Thorsten Späth] for their careful reviews of the sections and sources code. Since <<_spring_and_angular_js_a_secure_single_page_application,Part I>> was published it hasn't changed much but all the other parts have evolved in response to comments and insights from readers, so thank you also to anyone who read the sections and took the trouble to join in the discussion.
-____
+****

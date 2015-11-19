@@ -38,3 +38,4 @@ Ideas for more samples and blogs:
 
 * Other OAuth2 providers, and/or OAuth 1.0a
 
+* Native clients (e.g. Android)

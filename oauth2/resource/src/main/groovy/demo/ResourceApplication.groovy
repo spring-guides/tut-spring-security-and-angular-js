@@ -2,13 +2,13 @@ package demo
 
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.cloud.security.oauth2.resource.EnableOAuth2Resource
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @SpringBootApplication
 @RestController
-@EnableOAuth2Resource
+@EnableResourceServer
 class ResourceApplication {
 	
 	@RequestMapping('/')

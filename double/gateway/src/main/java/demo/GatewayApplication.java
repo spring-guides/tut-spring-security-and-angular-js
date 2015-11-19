@@ -2,7 +2,7 @@ package demo;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.servlet.Filter;
@@ -23,6 +23,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
@@ -45,7 +47,11 @@ public class GatewayApplication {
 	@RequestMapping("/user")
 	@ResponseBody
 	public Map<String, Object> user(Principal user) {
-		return Collections.<String, Object> singletonMap("name", user.getName());
+		Map<String, Object> map = new LinkedHashMap<String, Object>();
+		map.put("name", user.getName());
+		map.put("roles", AuthorityUtils.authorityListToSet(((Authentication) user)
+				.getAuthorities()));
+		return map;
 	}
 
 	@RequestMapping("/login")

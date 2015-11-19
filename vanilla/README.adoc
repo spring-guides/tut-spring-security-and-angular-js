@@ -189,7 +189,6 @@ In the UI application we need to add some dependencies to our https://github.com
 <dependency>
   <groupId>org.springframework.session</groupId>
   <artifactId>spring-session</artifactId>
-  <version>1.0.0.RELEASE</version>
 </dependency>
 <dependency>
   <groupId>org.springframework.boot</groupId>

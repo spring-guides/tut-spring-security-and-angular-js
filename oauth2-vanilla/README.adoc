@@ -39,41 +39,29 @@ The authorization server is pretty easy to implement. A minimal version looks li
 [source,java]
 ----
 @SpringBootApplication
+@EnableAuthorizationServer
 public class AuthserverApplication extends WebMvcConfigurerAdapter {
 
   public static void main(String[] args) {
     SpringApplication.run(AuthserverApplication.class, args);
   }
   
-  @Configuration
-  @EnableAuthorizationServer
-  protected static class OAuth2Config extends AuthorizationServerConfigurerAdapter {
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    
-    @Override
-    public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-      endpoints.authenticationManager(authenticationManager);
-    }
-
-@Override
-    public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-      clients.inMemory()
-          .withClient("acme")
-          .secret("acmesecret")
-          .authorizedGrantTypes("authorization_code", "refresh_token",
-              "password").scopes("openid");
-    }
-
 }
 ----
 
-We only had to do 2 things (after adding `@EnableAuthorizationServer`):
+We only have to do 1 more thing (after adding `@EnableAuthorizationServer`):
 
-* Register a client "acme" with a secret and some authorized grant types including "authorization_code".
+.application.properties
+[source,properties]
+---
+...
+security.oauth2.client.clientId: acme
+security.oauth2.client.clientSecret: acmesecret
+security.oauth2.client.authorized-grant-types: authorization_code,refresh_token,password
+security.oauth2.client.scopes: openid
+---
 
-* Inject the default `AuthenticationManager` from Spring Boot autoconfiguration and wire it into the OAuth2 endpoints.
+This registers a client "acme" with a secret and some authorized grant types including "authorization_code".
 
 Now let's get it running on port 9999, with a predictable password for testing:
 
@@ -83,6 +71,7 @@ Now let's get it running on port 9999, with a predictable password for testing:
 server.port=9999
 security.user.password=password
 server.contextPath=/uaa
+...
 ----
 
 We also set the context path so that it doesn't use the default ("/") because otherwise you can get cookies for other servers on localhost being sent to the wrong server. So get the server running and we can make sure it is working:
@@ -127,7 +116,6 @@ If we follow on from <<_the_api_gateway_pattern_angular_js_and_spring_security_p
 <dependency>
   <groupId>org.springframework.session</groupId>
   <artifactId>spring-session</artifactId>
-  <version>1.0.0.RC1</version>
 </dependency>
 <dependency>
   <groupId>org.springframework.boot</groupId>
@@ -146,14 +134,14 @@ with this:
 </dependency>
 ----
 
-and then remove the session `Filter` from the https://github.com/dsyer/spring-security-angular/blob/master/vanilla-oauth2/resource/src/main/groovy/demo/ResourceApplication.groovy[main application class], replacing it with the convenient `@EnableOAuth2Resource` annotation (from Spring Cloud Security):
+and then remove the session `Filter` from the https://github.com/dsyer/spring-security-angular/blob/master/vanilla-oauth2/resource/src/main/groovy/demo/ResourceApplication.groovy[main application class], replacing it with the convenient `@EnableResourceServer` annotation (from Spring Security OAuth2):
 
 .ResourceApplication.groovy
 [source,java]
 ----
 @SpringBootApplication
 @RestController
-@EnableOAuth2Resource
+@EnableResourceServer
 class ResourceApplication {
 
   @RequestMapping('/')
@@ -174,7 +162,7 @@ With that one change the app is ready to challenge for an access token instead o
 [source,properties]
 ----
 ...
-spring.oauth2.resource.userInfoUri: http://localhost:9999/uaa/user
+security.oauth2.resource.userInfoUri: http://localhost:9999/uaa/user
 ----
 
 This tells the server that it can use the token to access a "/user" endpoint and use that to derive authentication information (it's a bit like the https://developers.facebook.com/docs/graph-api/reference/v2.2/user/?locale=en_GB["/me" endpoint] in the Facebook API). Effectively it provides a way for the resource server to decode the token, as expressed by the `ResourceServerTokenServices` interface in Spring OAuth2.
@@ -209,6 +197,7 @@ On the authorization server we can easily add that endpoint
 ----
 @SpringBootApplication
 @RestController
+@EnableAuthorizationServer
 @EnableResourceServer
 public class AuthserverApplication {
 
@@ -255,9 +244,9 @@ public class UiApplication {
     SpringApplication.run(UiApplication.class, args);
   }
 
-  @Configuration
-  @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
-  protected static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+...
+
+}
 ----
 
 Recall from <<_the_api_gateway_pattern_angular_js_and_spring_security_part_iv,Part IV>> that the UI server, by virtue of the `@EnableZuulProxy`, acts an API Gateway and we can declare the route mappings in YAML. So the "/user" endpoint can be proxied to the authorization server:
@@ -275,19 +264,15 @@ zuul:
       url: http://localhost:9999/uaa/user
 ----
 
-Lastly, we need to change the `WebSecurityConfigurerAdapter` to an `OAuth2SsoConfigurerAdapter` since now it is going to be used to modify the defaults in the SSO filter chain set up by `@EnableOAuth2Sso`:
+Lastly, we need to change the application to a `WebSecurityConfigurerAdapter` since now it is going to be used to modify the defaults in the SSO filter chain set up by `@EnableOAuth2Sso`:
 
 .SecurityConfiguration.java
 [source,java,indent=0]
 ----
-  @Configuration
-  protected static class SecurityConfiguration extends OAuth2SsoConfigurerAdapter {
-
-    @Override
-    public void match(RequestMatchers matchers) {
-      matchers.anyRequest();
-    }
-
+@SpringBootApplication
+@EnableZuulProxy
+@EnableOAuth2Sso
+public class UiApplication extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(HttpSecurity http) throws Exception {
       http.authorizeRequests().antMatchers("/index.html", "/home.html", "/")
@@ -297,7 +282,7 @@ Lastly, we need to change the `WebSecurityConfigurerAdapter` to an `OAuth2SsoCon
     }
     
     ... // the csrf*() methods are the same as the old WebSecurityConfigurerAdapter
-  }
+}
 ----
 
 The main changes (apart from the base class name) are that the matchers
@@ -310,12 +295,9 @@ thr right authorization server. So we need this in `application.yml`:
 .application.yml
 [source,yaml]
 ----
-spring:
+security:
+  ...
   oauth2:
-    sso:
-      home:
-        secure: false
-        path: /,/**/*.html
     client:
       accessTokenUri: http://localhost:9999/uaa/oauth/token
       userAuthorizationUri: http://localhost:9999/uaa/oauth/authorize
@@ -328,8 +310,7 @@ spring:
 The bulk of that is about the OAuth2 client ("acme") and the
 authorization server locations. There is also a `userInfoUri` (just
 like in the resource server) so that the user can be authenticated in
-the UI app itself. The "home" stuff is about allowing anonymous access
-to the static resources in our single page application.
+the UI app itself.
 
 === In the Client
 

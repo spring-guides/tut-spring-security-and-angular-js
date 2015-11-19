@@ -24,7 +24,7 @@ public class ApplicationTests {
 	@Value("${local.server.port}")
 	private int port;
 
-	@Value("${spring.oauth2.client.userAuthorizationUri}")
+	@Value("${security.oauth2.client.userAuthorizationUri}")
 	private String authorizeUri;
 
 	private RestTemplate template = new TestRestTemplate();

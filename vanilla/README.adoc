@@ -3,9 +3,7 @@
 
 In this section we continue <<_the_login_page_angular_js_and_spring_security_part_ii,our discussion>> of how to use http://projects.spring.io/spring-security[Spring Security] with http://angularjs.org[Angular JS] in a "single page application". Here we start by breaking out the "greeting" resource that we are using as the dynamic content in our application into a separate server, first as an unprotected resource, and then protected by an opaque token. This is the third in a series of sections, and you can catch up on the basic building blocks of the application or build it from scratch by reading the <<_spring_and_angular_js_a_secure_single_page_application,first section>>, or you can just go straight to the source code in Github, which is in two parts: one where the https://github.com/dsyer/spring-security-angular/tree/master/vanilla[resource is unprotected], and one where it is https://github.com/dsyer/spring-security-angular/tree/master/spring-session[protected by a token].
 
-____
-Reminder: if you are working through this section with the sample application, be sure to clear your browser cache of cookies and HTTP Basic credentials. In Chrome the best way to do that for a single server is to open a new incognito window.
-____
+TIP: if you are working through this section with the sample application, be sure to clear your browser cache of cookies and HTTP Basic credentials. In Chrome the best way to do that for a single server is to open a new incognito window.
 
 == A Separate Resource Server
 

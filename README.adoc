@@ -16,5 +16,6 @@ include::proxy/README.adoc[leveloffset=+1]
 include::oauth2-vanilla/README.adoc[leveloffset=+1]
 include::double/README.adoc[leveloffset=+1]
 include::modular/README.adoc[leveloffset=+1]
+include::testing.adoc[leveloffset=+1]
 
 include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/footer.adoc[]

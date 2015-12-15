@@ -1,3 +1,4 @@
+[[_modular_angular_js_and_spring_security_part_vii]]
 = Modular AngularJS Application
 
 In this section we continue <<_spring_and_angular_js_a_secure_single_page_application,our discussion>> of how to use http://projects.spring.io/spring-security[Spring Security] with http://angularjs.org[Angular JS] in a "single page application". Here we show how to modularize the client-side code, and how to use "nice" URL paths without the fragment notation (e.g. "/#/login") which Angular uses by default, but most users dislike. This is the seventh section of a tutorial, and you can catch up on the basic building blocks of the application or build it from scratch by reading the <<_spring_and_angular_js_a_secure_single_page_application,first section>>, or you can just go straight to the https://github.com/dsyer/spring-security-angular/tree/master/modular[source code in Github]. We will be able to tidy up a lot of loose ends from the JavaScript code of the rest of this series, and at the same time show how it can fit very snugly against a backend server built from Spring Security and Spring Boot.
@@ -67,9 +68,8 @@ NOTE: all the client-side code is under a single directory, "js" (except `index.
 
 For example, here's the `home.js`:
 
-[code,javascript]
+[source,javascript]
 ----
-code,javascript
 angular.module('home', []).controller('home', function($scope, $http) {
     $http.get('/user/').success(function(data) {
         $scope.user = data.name;
@@ -79,7 +79,7 @@ angular.module('home', []).controller('home', function($scope, $http) {
 
 and here's the new `hello.js`:
 
-[code,javascript]
+[source,javascript]
 ----
 code,javascript
 angular
@@ -103,7 +103,7 @@ angular
 
 Notice how the "hello" module _depends on_ the other two by listing them in the initial declaration along with `ngRoute`. To make that work you just need to load the module definitions in the right order in `index.html`:
 
-[code,html]
+[source,html]
 ----
 ...
 <script src="js/angular-bootstrap.js" type="text/javascript"></script>
@@ -122,7 +122,7 @@ The Angular `$routeProvider` by default works with fragment locators in the URL 
 
 In this series you have Spring Boot, so of course you have server-side logic, and using a simple Spring MVC controller you can naturalize the routes in your application. All you need is a a way to enumerate the Angular routes in the server. Here we choose to do it by a naming convention: all paths that do not contain a period (and are not explicitly mapped already) are Angular routes, and should forward to the home page:
 
-[code,java]
+[source,java]
 ----
 @RequestMapping(value = "/{[path:[^\\.]*}")
 public String redirect() {
@@ -137,7 +137,7 @@ NOTE: the application in the sample code https://github.com/dsyer/spring-securit
 
 To complete the application with "natural" routes, you need to tell Angular about it. There are two steps. First, in `hello.js` you add a line to the `config` function setting the "HTML5 mode" in the `$locationProvider`:
 
-[code,javascript]
+[source,javascript]
 ----
 angular.module('hello', [ 'ngRoute', 'home', 'navigation' ]).config(
 
@@ -150,7 +150,7 @@ angular.module('hello', [ 'ngRoute', 'home', 'navigation' ]).config(
 
 Coupled with that you need an extra `<base/>` element in the header of the HTML in `index.html`, and you need to change the links in the menu bar to remove the fragments ("#"):
 
-[code,html]
+[source,html]
 ----
 <html>
 <head>
@@ -246,7 +246,7 @@ The `run()` function can call into any of the modules that "hello" depends on, i
 
 Now you need to load the "auth" module in `index.html` in addition to the other modules (and before the "login" module since it depends on "auth"):
 
-[code,html]
+[source,html]
 ----
 ...
 <script src="js/auth/auth.js" type="text/javascript"></script>
@@ -258,7 +258,7 @@ Now you need to load the "auth" module in `index.html` in addition to the other 
 Then finally you can write the code for the three functions you pencilled in above (`authenticate()`, `clear()` and
 `init()`). Here's most of the code:
 
-[code,javascript]
+[source,javascript]
 ----
 angular.module('auth', []).factory(
     'auth',
@@ -313,7 +313,7 @@ The "auth" module creates a factory for an `auth` service (which you already inj
 
 Here is a bare-bones implementation of the `init()` function that just sets up the various paths you didn't want to hard code in the "auth" module:
 
-[code,javascript]
+[source,javascript]
 ----
 init : function(homePath, loginPath, logoutPath) {
   auth.homePath = homePath;
@@ -324,7 +324,7 @@ init : function(homePath, loginPath, logoutPath) {
 
 The `clear()` function implementation comes next, but it's rather simple:
 
-[code,javascript]
+[source,javascript]
 ----
 clear : function() {
   auth.authenticated = false;
@@ -337,7 +337,7 @@ It unsets the `authenticated` flag, sends the user back to the login page, and t
 
 The very last change is to the `index.html` so that the "logout" link is hidden when the user is not authenticated:
 
-[code,html]
+[source,html]
 ----
 <html>
 ...
@@ -363,7 +363,7 @@ Hiding all content with a login page is a classic cross-cutting concern: you don
 
 To install the listener you can write a small piece of extra code in your `auth.init()` function (since that is already arranged to run when the main "hello" module loads):
 
-[code,javascript]
+[source,javascript]
 ----
 angular.module('auth', []).factory(
     'auth',
@@ -390,7 +390,7 @@ angular.module('auth', []).factory(
 
 We registered a simple listener which just delegates to a new `enter()` function, so now you need to implement that as well in the "auth" module factory function (where it has access to the factory object itself):
 
-[code,javascript]
+[source,javascript]
 ----
 enter = function() {
   if ($location.path() != auth.loginPath) {
@@ -404,7 +404,7 @@ enter = function() {
 
 The logic is simple: if the path just changed to something other than the login page, then make a record of the path value, and then if the user is not authenticated, go to the login page. The reason we save the path value is so we can go back to it after a successful authentication (Spring Security has this feature server side and it's quite nice for users). You do that in the `authenticate()` function by adding some code to the success handler:
 
-[code,javascript]
+[source,javascript]
 ----
 authenticate : function(credentials, callback) {
  ...
@@ -422,7 +422,7 @@ On successful authentication we just set the location to either the home page or
 
 There is one final change to make the user experience more uniform: we would like to show the login page instead of the home page when the application first starts up. You already have that logic (redirect to login page) in the `authenticate()` function, so all you need to do is add some code in the `init()` function to authenticate with empty credentials (which fails unless the user has a cookie already):
 
-[code,javascript]
+[source,javascript]
 ----
 init : function(homePath, loginPath, logoutPath) {
   ...

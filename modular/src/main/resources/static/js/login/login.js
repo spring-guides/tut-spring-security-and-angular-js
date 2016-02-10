@@ -1,5 +1,5 @@
-angular.module('navigation', ['ngRoute', 'auth']).controller(
-		'navigation',
+angular.module('login', ['ngRoute', 'auth']).controller(
+		'login',
 
 		function($scope, $route, auth) {
 

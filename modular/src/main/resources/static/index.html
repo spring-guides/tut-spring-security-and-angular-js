@@ -12,11 +12,11 @@
 </head>
 
 <body ng-app="hello" ng-cloak class="ng-cloak">
-	<div ng-controller="login" class="container">
+	<div ng-controller="navigation" class="container">
 		<ul class="nav nav-pills" role="tablist">
 			<li ng-class="{active:tab('home')}"><a href="/">home</a></li>
 			<li ng-class="{active:tab('message')}"><a href="/message">message</a></li>
-			<li ng-class="{active:tab('login')}"><a href="/login">login</a></li>
+			<li><a href="/login">login</a></li>
 			<li ng-show="authenticated()"><a href="" ng-click="logout()">logout</a></li>
 		</ul>
 	</div>
@@ -25,7 +25,7 @@
 	<script src="js/auth/auth.js" type="text/javascript"></script>
 	<script src="js/home/home.js" type="text/javascript"></script>
 	<script src="js/message/message.js" type="text/javascript"></script>
-	<script src="js/login/login.js" type="text/javascript"></script>
+	<script src="js/navigation/navigation.js" type="text/javascript"></script>
 	<script src="js/hello.js" type="text/javascript"></script>
 </body>
 </html>

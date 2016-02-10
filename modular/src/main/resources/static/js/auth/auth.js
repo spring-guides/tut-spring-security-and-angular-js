@@ -3,7 +3,7 @@ angular.module('auth', []).factory(
 
 		function($rootScope, $http, $location) {
 
-			var enter = function() {
+			enter = function() {
 				if ($location.path() != auth.loginPath) {
 					auth.path = $location.path();
 					if (!auth.authenticated) {

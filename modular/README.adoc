@@ -55,8 +55,8 @@ static/
     home/
       home.js
       home.html
-    login/
-      login.js
+    navigation/
+      navigation.js
       login.html
     hello.js
   index.html
@@ -83,7 +83,7 @@ and here's the new `hello.js`:
 ----
 code,javascript
 angular
-    .module('hello', [ 'ngRoute', 'home', 'login' ])
+    .module('hello', [ 'ngRoute', 'home', 'navigation' ])
     .config(
 
         function($routeProvider, $httpProvider) {
@@ -92,8 +92,8 @@ angular
             templateUrl : 'js/home/home.html',
             controller : 'home'
           }).when('/login', {
-            templateUrl : 'js/login/login.html',
-            controller : 'login'
+            templateUrl : 'js/navigation/login.html',
+            controller : 'navigation'
           }).otherwise('/');
 
           $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
@@ -108,7 +108,7 @@ Notice how the "hello" module _depends on_ the other two by listing them in the 
 ...
 <script src="js/angular-bootstrap.js" type="text/javascript"></script>
 <script src="js/home/home.js" type="text/javascript"></script>
-<script src="js/login/login.js" type="text/javascript"></script>
+<script src="js/navigation/navigation.js" type="text/javascript"></script>
 <script src="js/hello.js" type="text/javascript"></script>
 ...
 ----
@@ -139,7 +139,7 @@ To complete the application with "natural" routes, you need to tell Angular abou
 
 [source,javascript]
 ----
-angular.module('hello', [ 'ngRoute', 'home', 'login' ]).config(
+angular.module('hello', [ 'ngRoute', 'home', 'navigation' ]).config(
 
   function($locationProvider, $routeProvider, $httpProvider) {
 
@@ -158,7 +158,7 @@ Coupled with that you need an extra `<base/>` element in the header of the HTML 
 ...
 </head>
 <body ng-app="hello" ng-cloak class="ng-cloak">
-    <div ng-controller="login" class="container">
+    <div ng-controller="navigation" class="container">
         <ul class="nav nav-pills" role="tablist">
             <li><a href="/">home</a></li>
             <li><a href="/login">login</a></li>
@@ -174,7 +174,7 @@ Angular uses the `<base/>` element to anchor the routes and write the URLs that 
 [[extracting-the-authentication-concerns]]
 == Extracting the Authentication Concerns
 
-When you modularized the application above you should have found that the code worked just by splitting it into modules, but there is a small niggle there that we are still using `$rootScope` to share state between the controllers. There's nothing horribly wrong with that for such a small application and it got us a decent prototype to play with quite quickly, so let's not be too sad about it, but now we can take the opportunity to extract all the authentication concerns into a separate module. In Angular terms what you need is a "service", so create a new module ("auth") next to your "home" and "login" modules:
+When you modularized the application above you should have found that the code worked just by splitting it into modules, but there is a small niggle there that we are still using `$rootScope` to share state between the controllers. There's nothing horribly wrong with that for such a small application and it got us a decent prototype to play with quite quickly, so let's not be too sad about it, but now we can take the opportunity to extract all the authentication concerns into a separate module. In Angular terms what you need is a "service", so create a new module ("auth") next to your "home" and "navigation" modules:
 
 ----
 static/
@@ -184,19 +184,19 @@ static/
     home/
       home.js
       home.html
-    login/
-      login.js
+    navigation/
+      navigation.js
       login.html
     hello.js
   index.html
 ----
 
-Before writing the `auth.js` code we can anticipate the changes in the other modules. First in `login.js` you should make the "login" module depend on the new "auth" module, and inject the "auth" service into the controller (and of course `$rootScope` is no longer needed):
+Before writing the `auth.js` code we can anticipate the changes in the other modules. First in `navigation.js` you should make the "navigation" module depend on the new "auth" module, and inject the "auth" service into the controller (and of course `$rootScope` is no longer needed):
 
 [source,javascript]
 ----
-angular.module('login', ['auth']).controller(
-        'login',
+angular.module('navigation', ['auth']).controller(
+        'navigation',
 
         function($scope, auth) {
 
@@ -232,7 +232,7 @@ Suppose you want to make the "auth" module re-usable, so you don't want any hard
 [source,javascript]
 ----
 angular
-  .module('hello', [ 'ngRoute', 'auth', 'home', 'login' ])
+  .module('hello', [ 'ngRoute', 'auth', 'home', 'navigation' ])
   .config(
     ...
   }).run(function(auth) {
@@ -309,7 +309,7 @@ angular.module('auth', []).factory(
     });
 ----
 
-The "auth" module creates a factory for an `auth` service (which you already injected into the "login" controller for instance). The factory is just a function that returns an object (`auth`), and the object has to have the three functions and the flag that we anticipated above. Above, we have shown an implementation of the `authenticate()` function, which is substantially the same as the old one in the "login" controller, it calls out to a backend resource at "/user", sets a flag `authenticated` and calls an optional callback with the value of the flag. If successful, it also sends the user to the `homePath` using the `$location` service (we will improve on this in a minute).
+The "auth" module creates a factory for an `auth` service (which you already injected into the "navigation" controller for instance). The factory is just a function that returns an object (`auth`), and the object has to have the three functions and the flag that we anticipated above. Above, we have shown an implementation of the `authenticate()` function, which is substantially the same as the old one in the "navigation" controller, it calls out to a backend resource at "/user", sets a flag `authenticated` and calls an optional callback with the value of the flag. If successful, it also sends the user to the `homePath` using the `$location` service (we will improve on this in a minute).
 
 Here is a bare-bones implementation of the `init()` function that just sets up the various paths you didn't want to hard code in the "auth" module:
 
@@ -342,7 +342,7 @@ The very last change is to the `index.html` so that the "logout" link is hidden 
 <html>
 ...
 <body ng-app="hello" ng-cloak class="ng-cloak">
-  <div ng-controller="login" class="container">
+  <div ng-controller="navigation" class="container">
     <ul class="nav nav-pills" role="tablist">
           ...
       <li ng-show="authenticated()"><a href="" ng-click="logout()">logout</a></li>
@@ -352,7 +352,7 @@ The very last change is to the `index.html` so that the "logout" link is hidden 
 </html>
 ----
 
-You simply need to convert the flag `authenticated` to a function call `authenticated()`, so that the "login" controller can reach into the "auth" service and find the value of the flag, now that it is not in `$rootScope`.
+You simply need to convert the flag `authenticated` to a function call `authenticated()`, so that the "navigation" controller can reach into the "auth" service and find the value of the flag, now that it is not in `$rootScope`.
 
 [[redirecting-to-the-login-page]]
 == Redirecting to the Login Page

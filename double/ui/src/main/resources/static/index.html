@@ -12,24 +12,24 @@
 </style>
 </head>
 
-<body ng-app="hello" ng-cloak class="ng-cloak" ng-controller="home">
+<body ng-app="hello" ng-cloak class="ng-cloak" ng-controller="home as home">
 	<nav class="navbar navbar-default">
 		<div class="container">
 			<p>
 				<a class="navbar-brand" href='#/'><b>Home</b></a>
 			</p>
-			<p class="navbar-text navbar-right" ng-show="authenticated">
-				Signed in as <a href="#/" class="navbar-link">{{user}}</a>
+			<p class="navbar-text navbar-right" ng-show="home.authenticated">
+				Signed in as <a href="#/" class="navbar-link">{{home.user}}</a>
 			</p>
 		</div>
 	</nav>
 	<div class="container">
 		<h1>Message</h1>
-		<div ng-show="authenticated">
-			<p>The ID is {{greeting.id}}</p>
-			<p>The content is {{greeting.content}}</p>
+		<div ng-show="home.authenticated">
+			<p>The ID is {{home.greeting.id}}</p>
+			<p>The content is {{home.greeting.content}}</p>
 		</div>
-		<div ng-show="!authenticated">
+		<div ng-show="!home.authenticated">
 			<p>Login to see your greeting</p>
 		</div>
 	</div>

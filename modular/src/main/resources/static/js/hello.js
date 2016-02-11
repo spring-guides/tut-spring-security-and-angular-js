@@ -8,13 +8,16 @@ angular
 
 					$routeProvider.when('/', {
 						templateUrl : 'js/home/home.html',
-						controller : 'home'
+						controller : 'home',
+						controllerAs : 'controller'
 					}).when('/message', {
 						templateUrl : 'js/message/message.html',
-						controller : 'message'
+						controller : 'message',
+						controllerAs : 'controller'
 					}).when('/login', {
 						templateUrl : 'js/navigation/login.html',
-						controller : 'navigation'
+						controller : 'navigation',
+						controllerAs : 'controller'
 					}).otherwise('/');
 
 					$httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';

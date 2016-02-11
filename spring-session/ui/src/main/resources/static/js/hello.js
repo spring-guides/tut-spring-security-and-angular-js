@@ -2,19 +2,23 @@ angular.module('hello', [ 'ngRoute' ]).config(function($routeProvider, $httpProv
 
 	$routeProvider.when('/', {
 		templateUrl : 'home.html',
-		controller : 'home'
+		controller : 'home',
+		controllerAs : 'controller'
 	}).when('/login', {
 		templateUrl : 'login.html',
-		controller : 'navigation'
+		controller : 'navigation',
+		controllerAs : 'controller'
 	}).otherwise('/');
 
 	$httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 }).controller('navigation',
 
-function($rootScope, $scope, $http, $location, $route) {
+function($rootScope, $http, $location, $route) {
+	
+	var self = this;
 
-	$scope.tab = function(route) {
+	self.tab = function(route) {
 		return $route.current && route === $route.current.controller;
 	};
 
@@ -44,24 +48,24 @@ function($rootScope, $scope, $http, $location, $route) {
 
 	authenticate();
 
-	$scope.credentials = {};
-	$scope.login = function() {
-		authenticate($scope.credentials, function() {
+	self.credentials = {};
+	self.login = function() {
+		authenticate(self.credentials, function() {
 			if ($rootScope.authenticated) {
 				console.log("Login succeeded")
 				$location.path("/");
-				$scope.error = false;
+				self.error = false;
 				$rootScope.authenticated = true;
 			} else {
 				console.log("Login failed")
 				$location.path("/login");
-				$scope.error = true;
+				self.error = true;
 				$rootScope.authenticated = false;
 			}
 		})
 	};
 
-	$scope.logout = function() {
+	self.logout = function() {
 		$http.post('logout', {}).success(function() {
 			$rootScope.authenticated = false;
 			$location.path("/");
@@ -71,7 +75,8 @@ function($rootScope, $scope, $http, $location, $route) {
 		});
 	}
 
-}).controller('home', function($scope, $http) {
+}).controller('home', function($http) {
+	var self = this;
 	$http.get('token').success(function(token) {
 		$http({
 			url : 'http://localhost:9000',
@@ -80,7 +85,7 @@ function($rootScope, $scope, $http, $location, $route) {
 				'X-Auth-Token' : token.token
 			}
 		}).success(function(data) {
-			$scope.greeting = data;
+			self.greeting = data;
 		});
 	})
 });

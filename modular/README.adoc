@@ -39,15 +39,15 @@ angular.module('hello', [ 'ngRoute' ]).config(
     ...
 
 }).controller('navigation',
-    function($rootScope, $scope, $http, $location, $route) {
+    function($rootScope, $http, $location, $route) {
       ...
-}).controller('home', function($scope, $http) {
+}).controller('home', function($http) {
     ...
   })
 });
 ----
 
-There is some "config" and there are 2 controllers ("home" and "navigation"), and the controllers seem to map nicely to the partials ("home.html" and "login.html" respectively). So let's break them out into those pieces:
+There is some "config" and there are 2 controllers ("home" and "navigation"), and the controllers seem to map nicely to the partials ("home.html" and "login.html" respectively). So let's break them out into those pieces (and using the more consistent name "login" instead of "navigation" for the controller that manages the menu bar):
 
 -------------------
 static/
@@ -70,10 +70,11 @@ For example, here's the `home.js`:
 
 [source,javascript]
 ----
-angular.module('home', []).controller('home', function($scope, $http) {
-    $http.get('/user/').success(function(data) {
-        $scope.user = data.name;
-    });
+angular.module('home', []).controller('home', function($http) {
+  var self = this;
+  $http.get('/user/').success(function(data) {
+    self.user = data.name;
+  });
 });
 ----
 
@@ -158,11 +159,11 @@ Coupled with that you need an extra `<base/>` element in the header of the HTML 
 ...
 </head>
 <body ng-app="hello" ng-cloak class="ng-cloak">
-    <div ng-controller="navigation" class="container">
+    <div ng-controller="navigation as nav" class="container">
         <ul class="nav nav-pills" role="tablist">
             <li><a href="/">home</a></li>
             <li><a href="/login">login</a></li>
-            <li ng-show="authenticated"><a href="" ng-click="logout()">logout</a></li>
+            <li ng-show="nav.authenticated"><a href="" ng-click="nav.logout()">logout</a></li>
         </ul>
     </div>
 ...
@@ -198,34 +199,36 @@ Before writing the `auth.js` code we can anticipate the changes in the other mod
 angular.module('navigation', ['auth']).controller(
         'navigation',
 
-        function($scope, auth) {
+        function(auth) {
 
-            $scope.credentials = {};
+            var self = this;
 
-            $scope.authenticated = function() {
+            self.credentials = {};
+
+            self.authenticated = function() {
                 return auth.authenticated;
             }
 
-            $scope.login = function() {
-                auth.authenticate($scope.credentials, function(authenticated) {
+            self.login = function() {
+                auth.authenticate(self.credentials, function(authenticated) {
                     if (authenticated) {
                         console.log("Login succeeded")
-                        $scope.error = false;
+                        self.error = false;
                     } else {
                         console.log("Login failed")
-                        $scope.error = true;
+                        self.error = true;
                     }
                 })
             };
 
-            $scope.logout = function() {
+            self.logout = function() {
               auth.clear();
             }
 
         });
 ----
 
-It isn't very different from the old controller (it still needs functions for user actions, login and logout, and an object to hold the credentials for login), but it has abstracted the implementation to the new "auth" service. The "auth" service will need an `authenticate()` function to support the `login()`, and a `clear()` function to support `logout()`. It also has a flag `authenticated` that replaces the `$rootScope.authenticated` from the old controller. We use the `authenticated` flag in a function with the same name attached to the `$scope` of the controller, so that Angular will keep checking its value and update the UI when the user logs in.
+It isn't very different from the old controller (it still needs functions for user actions, login and logout, and an object to hold the credentials for login), but it has abstracted the implementation to the new "auth" service. The "auth" service will need an `authenticate()` function to support the `login()`, and a `clear()` function to support `logout()`. It also has a flag `authenticated` that replaces the `$rootScope.authenticated` from the old controller. We use the `authenticated` flag in a function with the same name attached the controller, so that Angular will keep checking its value and update the UI when the user logs in.
 
 Suppose you want to make the "auth" module re-usable, so you don't want any hard-coded paths in it. That's not a problem, but you will need to initialize or configure the paths in the `hello.js` module. To do that you can add a `run()` function:
 
@@ -342,10 +345,10 @@ The very last change is to the `index.html` so that the "logout" link is hidden 
 <html>
 ...
 <body ng-app="hello" ng-cloak class="ng-cloak">
-  <div ng-controller="navigation" class="container">
+  <div ng-controller="navigation as nav" class="container">
     <ul class="nav nav-pills" role="tablist">
           ...
-      <li ng-show="authenticated()"><a href="" ng-click="logout()">logout</a></li>
+      <li ng-show="nav.authenticated()"><a href="" ng-click="nav.logout()">logout</a></li>
     </ul>
   </div>
 ...

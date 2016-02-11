@@ -2,16 +2,19 @@ angular.module('hello', [ 'ngRoute' ]).config(function($routeProvider, $httpProv
 
 	$routeProvider.when('/', {
 		templateUrl : 'home.html',
-		controller : 'home'
+		controller : 'home',
+		controllerAs : 'controller'
 	}).otherwise('/');
 
 	$httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 }).controller('navigation',
 
-function($rootScope, $scope, $http, $location, $route) {
+function($rootScope, $http, $location, $route) {
 
-	$scope.tab = function(route) {
+	var self = this;
+
+	self.tab = function(route) {
 		return $route.current && route === $route.current.controller;
 	};
 
@@ -25,9 +28,9 @@ function($rootScope, $scope, $http, $location, $route) {
 		$rootScope.authenticated = false;
 	});
 
-	$scope.credentials = {};
+	self.credentials = {};
 
-	$scope.logout = function() {
+	self.logout = function() {
 		$http.post('logout', {}).success(function() {
 			$rootScope.authenticated = false;
 			$location.path("/");
@@ -37,8 +40,9 @@ function($rootScope, $scope, $http, $location, $route) {
 		});
 	}
 
-}).controller('home', function($scope, $http) {
+}).controller('home', function($http) {
+	var self = this;
 	$http.get('resource/').success(function(data) {
-		$scope.greeting = data;
+		self.greeting = data;
 	})
 });

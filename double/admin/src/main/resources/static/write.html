@@ -1,8 +1,8 @@
-<form ng-submit="update()">
-	<p>The ID is {{greeting.id}}</p>
+<form ng-submit="home.update()">
+	<p>The ID is {{home.greeting.id}}</p>
 	<div class="form-group">
 		<label for="username">Content:</label> <input type="text"
-			class="form-control" id="content" name="content" ng-model="greeting.content"/>
+			class="form-control" id="content" name="content" ng-model="home.greeting.content"/>
 	</div>
 	<button type="submit" class="btn btn-primary">Submit</button>
 </form>

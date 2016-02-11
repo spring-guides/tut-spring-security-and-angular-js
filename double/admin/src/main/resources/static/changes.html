@@ -1,4 +1,4 @@
 <ol>
-	<li ng-repeat="item in data">{{item.timestamp}} ({{item.user}}): "{{item.content}}"</li>
+	<li ng-repeat="item in home.data">{{item.timestamp}} ({{item.user}}): "{{item.content}}"</li>
 </ol>
-<div ng-show="!data || !data.length">No changes to show</div>
+<div ng-show="!home.data || !home.data.length">No changes to show</div>

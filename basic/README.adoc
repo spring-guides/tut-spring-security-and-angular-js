@@ -302,6 +302,31 @@ Notice that we injected a magic `$scope` into the controller function (Angular d
 
 If you added that file under "src/main/resources/static/js" your app should now be secure and functional, and it will say "Hello World!". The `greeting` is rendered by Angular in the HTML using the handlebar placeholders, `{{greeting.id}}` and `{{greeting.content}}`.
 
+[[controller-as]]
+== Using Controller As
+
+Binding directly to `$scope` is a little bit too magic for us - in fact it is sort of a smell, and we want to flush it out now before we make any more changes. Angular provides us with a simple idiom to explicitly declare a namespace for the controller, and use the controller instance itself, not the implicit `$scope` when we bind in the UI. We need to make 2 simple changes, one to the HTML where we add the "as" keyword to the `ng-controller` and then refer back to it when we bind to the model:
+
+.index.html
+[source,html]
+----
+<div ng-controller="home as home" ng-cloak class="ng-cloak">
+  <p>The ID is {{home.greeting.id}}</p>
+  <p>The content is {{home.greeting.content}}</p>
+</div>
+----
+
+and in the client we also need to bind the greeting to the controller instead of to `$scope`:
+
+.hello.js
+[source,javascript]
+----
+angular.module('hello', [])
+  .controller('home', function() {
+    this.greeting = {id: 'xxx', content: 'Hello World!'}
+})
+----
+
 [[dynamic-content]]
 == Adding Dynamic Content
 
@@ -347,14 +372,17 @@ So let's grab that message in the browser. Modify the "home" controller to load 
 [source,javascript]
 ----
 angular.module('hello', [])
-  .controller('home', function($scope, $http) {
+  .controller('home', function($http) {
+  var self = this;
   $http.get('/resource/').success(function(data) {
-    $scope.greeting = data;
+    self.greeting = data;
   })
 });
 ----
 
 We injected an https://docs.angularjs.org/api/ng/service/$http[`$http` service], which is provided by Angular as a core feature, and used it to GET our resource. Angular passes us the JSON from the response body back to a callback function on success.
+
+NOTE: following a common convention, we introduced a "self" variable as an alias for "this" to refer back to the controller inside a callback.
 
 Run the application again (or just reload the home page in the browser), and you will see the dynamic message with its unique ID. So, even though the resource is protected and you can't curl it directly, the browser was able to access the content. We have a secure single page application in less than a hundred lines of code!
 

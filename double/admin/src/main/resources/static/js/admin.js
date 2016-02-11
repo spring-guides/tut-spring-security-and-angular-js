@@ -1,50 +1,52 @@
 angular.module('admin', []).controller('home',
 
-function($scope, $http) {
-	
+function($http) {
+
+	var self = this;
+
 	var computeDefaultTemplate = function(user) {
-		$scope.template = user && user.roles && user.roles.indexOf("ROLE_WRITER")>0 ? "write.html" : "read.html";		
+		self.template = user && user.roles && user.roles.indexOf("ROLE_WRITER")>0 ? "write.html" : "read.html";		
 	}
 
 	$http.get('user').success(function(data) {
 		if (data.name) {
-			$scope.authenticated = true;
-			$scope.user = data;
+			self.authenticated = true;
+			self.user = data;
 			computeDefaultTemplate(data);
 			$http.get('/resource/').success(function(data) {
-				$scope.greeting = data;
+				self.greeting = data;
 			})			
 		} else {
-			$scope.authenticated = false;
+			self.authenticated = false;
 		}
-		$scope.error = null
+		self.error = null
 	}).error(function(response) {
 		if (response.status === 0) {
-			$scope.error = 'No connection. Verify application is running.';
+			self.error = 'No connection. Verify application is running.';
 		} else if (response.status == 401) {
-			$scope.error = 'Unauthorized.';
+			self.error = 'Unauthorized.';
 		} else if (response.status == 403) {
-			$scope.error = 'Forbidden.';
+			self.error = 'Forbidden.';
 		} else {
-			$scope.error = 'Unknown.';			
+			self.error = 'Unknown.';			
 		}
-		$scope.authenticated = false;
+		self.authenticated = false;
 	});
 
-	$scope.update = function() {
-		$http.post('/resource/', {content: $scope.greeting.content}).success(function(data) {
-			$scope.greeting = data;
+	self.update = function() {
+		$http.post('/resource/', {content: self.greeting.content}).success(function(data) {
+			self.greeting = data;
 		})
 	}
 
-	$scope.home = function() {
-		computeDefaultTemplate($scope.user);
+	self.home = function() {
+		computeDefaultTemplate(self.user);
 	}
 	
-	$scope.changes = function() {
-		$scope.template = "changes.html";
+	self.changes = function() {
+		self.template = "changes.html";
 		$http.get('/resource/changes').success(function(data) {
-			$scope.data = data;
+			self.data = data;
 		})
 	}
 	

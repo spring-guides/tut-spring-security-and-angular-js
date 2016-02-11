@@ -16,9 +16,10 @@ On the client side there isn't very much to do to move the resource to a differe
 ----
 angular.module('hello', [ 'ngRoute' ])
 ...
-.controller('home', function($scope, $http) {
+.controller('home', function($http) {
+    var self = this;
 	$http.get('/resource/').success(function(data) {
-		$scope.greeting = data;
+		self.greeting = data;
 	})
 })
 ...
@@ -31,9 +32,10 @@ All we need to do to this is change the URL. For example, if we are going to run
 ----
 angular.module('hello', [ 'ngRoute' ])
 ...
-.controller('home', function($scope, $http) {
+.controller('home', function($http) {
+    var self = this;
 	$http.get('http://localhost:9000/').success(function(data) {
-		$scope.greeting = data;
+		self.greeting = data;
 	})
 })
 ...
@@ -228,7 +230,8 @@ The only missing piece is the transport mechanism for the key to the data in the
 ----
 angular.module('hello', [ 'ngRoute' ])
 ...
-.controller('home', function($scope, $http) {
+.controller('home', function($http) {
+  var self = this;
   $http.get('token').success(function(token) {
     $http({
       url : 'http://localhost:9000',
@@ -237,7 +240,7 @@ angular.module('hello', [ 'ngRoute' ])
         'X-Auth-Token' : token.token
       }
     }).success(function(data) {
-      $scope.greeting = data;
+      self.greeting = data;
     });
   })
 });

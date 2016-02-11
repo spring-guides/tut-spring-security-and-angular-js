@@ -1,30 +1,32 @@
 angular.module('navigation', ['ngRoute', 'auth']).controller(
 		'navigation',
 
-		function($scope, $route, auth) {
+		function($route, auth) {
+			
+			var self = this;
 
-			$scope.credentials = {};
-
-			$scope.tab = function(route) {
+			self.credentials = {};
+			
+			self.tab = function(route) {
 				return $route.current && route === $route.current.controller;
 			};
 
-			$scope.authenticated = function() {
+			self.authenticated = function() {
 				return auth.authenticated;
 			}
 
-			$scope.login = function() {
-				auth.authenticate($scope.credentials, function(authenticated) {
+			self.login = function() {
+				auth.authenticate(self.credentials, function(authenticated) {
 					if (authenticated) {
 						console.log("Login succeeded")
-						$scope.error = false;
+						self.error = false;
 					} else {
 						console.log("Login failed")
-						$scope.error = true;
+						self.error = true;
 					}
 				})
 			};
 
-			$scope.logout = auth.clear;
+			self.logout = auth.clear;
 
 		});

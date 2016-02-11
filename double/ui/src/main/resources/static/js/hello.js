@@ -1,21 +1,23 @@
 angular.module('hello', []).controller('home',
 
-function($scope, $http) {
+function($http) {
 	
-	console.log('Loading')
+	var self = this;
+	
+	console.log('Loading');
 
 	$http.get('user').success(function(data) {
 		if (data.name) {
-			$scope.authenticated = true;
-			$scope.user = data.name
+			self.authenticated = true;
+			self.user = data.name
 			$http.get('/resource/').success(function(data) {
-				$scope.greeting = data;
+				self.greeting = data;
 			})
 		} else {
-			$scope.authenticated = false;
+			self.authenticated = false;
 		}
 	}).error(function() {
-		$scope.authenticated = false;
+		self.authenticated = false;
 	});
 
 });

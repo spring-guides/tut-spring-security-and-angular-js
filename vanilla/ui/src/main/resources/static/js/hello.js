@@ -67,12 +67,9 @@ function($rootScope, $http, $location, $route) {
 	};
 
 	self.logout = function() {
-		$http.post('logout', {}).success(function() {
+		$http.post('logout', {}).finally(function() {
 			$rootScope.authenticated = false;
 			$location.path("/");
-		}).error(function(data) {
-			console.log("Logout failed")
-			$rootScope.authenticated = false;
 		});
 	}
 

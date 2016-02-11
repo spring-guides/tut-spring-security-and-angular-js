@@ -47,11 +47,7 @@ function($http) {
 	};
 
 	self.logout = function() {
-		$http.post('logout', {}).success(function() {
-			self.authenticated = false;
-			self.admin = false;
-		}).error(function(data) {
-			console.log("Logout failed")
+		$http.post('logout', {}).finally(function() {
 			self.authenticated = false;
 			self.admin = false;
 		});

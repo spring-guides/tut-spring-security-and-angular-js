@@ -58,7 +58,7 @@ We only have to do 1 more thing (after adding `@EnableAuthorizationServer`):
 security.oauth2.client.clientId: acme
 security.oauth2.client.clientSecret: acmesecret
 security.oauth2.client.authorized-grant-types: authorization_code,refresh_token,password
-security.oauth2.client.scopes: openid
+security.oauth2.client.scope: openid
 ---
 
 This registers a client "acme" with a secret and some authorized grant types including "authorization_code".

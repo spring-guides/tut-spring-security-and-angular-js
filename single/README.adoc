@@ -63,15 +63,15 @@ Let's modify the "hello" application (in "src/main/resources/public/js/hello.js"
 angular.module('hello', [ 'ngRoute' ])
   .config(function($routeProvider, $httpProvider) {
 
-	$routeProvider.when('/', {
-		templateUrl : 'home.html',
-		controller : 'home',
-        controllerAs: 'controller'
-	}).when('/login', {
-		templateUrl : 'login.html',
-		controller : 'navigation',
-        controllerAs: 'controller'
-	}).otherwise('/');
+    $routeProvider.when('/', {
+      templateUrl : 'home.html',
+      controller : 'home',
+      controllerAs: 'controller'
+    }).when('/login', {
+      templateUrl : 'login.html',
+      controller : 'navigation',
+      controllerAs: 'controller'
+    }).otherwise('/');
 
     $httpProvider.defaults.headers.common["X-Requested-With"] = 'XMLHttpRequest';
 
@@ -111,11 +111,11 @@ The greeting content from the old home page can go in "home.html" (right next to
 ----
 <h1>Greeting</h1>
 <div ng-show="authenticated">
-	<p>The ID is {{controller.greeting.id}}</p>
-	<p>The content is {{controller.greeting.content}}</p>
+    <p>The ID is {{controller.greeting.id}}</p>
+    <p>The content is {{controller.greeting.content}}</p>
 </div>
 <div  ng-show="!authenticated">
-	<p>Login to see your greeting</p>
+    <p>Login to see your greeting</p>
 </div>
 ----
 
@@ -131,18 +131,18 @@ The login form goes in "login.html":
 [source,html]
 ----
 <div class="alert alert-danger" ng-show="controller.error">
-	There was a problem logging in. Please try again.
+    There was a problem logging in. Please try again.
 </div>
 <form role="form" ng-submit="controller.login()">
-	<div class="form-group">
-		<label for="username">Username:</label> <input type="text"
-			class="form-control" id="username" name="username" ng-model="controller.credentials.username"/>
-	</div>
-	<div class="form-group">
-		<label for="password">Password:</label> <input type="password"
-			class="form-control" id="password" name="password" ng-model="controller.credentials.password"/>
-	</div>
-	<button type="submit" class="btn btn-primary">Submit</button>
+    <div class="form-group">
+        <label for="username">Username:</label> <input type="text"
+            class="form-control" id="username" name="username" ng-model="controller.credentials.username"/>
+    </div>
+    <div class="form-group">
+        <label for="password">Password:</label> <input type="password"
+            class="form-control" id="password" name="password" ng-model="controller.credentials.password"/>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 ----
 

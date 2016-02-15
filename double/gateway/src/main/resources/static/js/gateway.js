@@ -23,7 +23,7 @@ function($http) {
 			if (data.name) {
 				self.authenticated = true;
 				self.user = data.name
-				self.admin = data && data.roles && data.roles.indexOf("ROLE_ADMIN")>0;
+				self.admin = data && data.roles && data.roles.indexOf("ROLE_ADMIN")>-1;
 			} else {
 				self.authenticated = false;
 				self.admin = false;

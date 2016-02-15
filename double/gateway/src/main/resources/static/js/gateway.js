@@ -4,7 +4,9 @@ angular.module('gateway', []).config(function($httpProvider) {
 
 }).controller('navigation',
 
-function($scope, $http) {
+function($http) {
+
+	var self = this;
 
 	var authenticate = function(credentials, callback) {
 
@@ -14,21 +16,21 @@ function($scope, $http) {
 							+ credentials.password)
 		} : {};
 
-		$scope.user = ''
+		self.user = ''
 		$http.get('user', {
 			headers : headers
 		}).success(function(data) {
 			if (data.name) {
-				$scope.authenticated = true;
-				$scope.user = data.name
-				$scope.admin = data && data.roles && data.roles.indexOf("ROLE_ADMIN")>0;
+				self.authenticated = true;
+				self.user = data.name
+				self.admin = data && data.roles && data.roles.indexOf("ROLE_ADMIN")>0;
 			} else {
-				$scope.authenticated = false;
-				$scope.admin = false;
+				self.authenticated = false;
+				self.admin = false;
 			}
 			callback && callback(true);
 		}).error(function() {
-			$scope.authenticated = false;
+			self.authenticated = false;
 			callback && callback(false);
 		});
 
@@ -36,22 +38,18 @@ function($scope, $http) {
 
 	authenticate();
 
-	$scope.credentials = {};
-	$scope.login = function() {
-		authenticate($scope.credentials, function(authenticated) {
-			$scope.authenticated = authenticated;
-			$scope.error = !authenticated;
+	self.credentials = {};
+	self.login = function() {
+		authenticate(self.credentials, function(authenticated) {
+			self.authenticated = authenticated;
+			self.error = !authenticated;
 		})
 	};
 
-	$scope.logout = function() {
-		$http.post('logout', {}).success(function() {
-			$scope.authenticated = false;
-			$scope.admin = false;
-		}).error(function(data) {
-			console.log("Logout failed")
-			$scope.authenticated = false;
-			$scope.admin = false;
+	self.logout = function() {
+		$http.post('logout', {}).finally(function() {
+			self.authenticated = false;
+			self.admin = false;
 		});
 	}
 

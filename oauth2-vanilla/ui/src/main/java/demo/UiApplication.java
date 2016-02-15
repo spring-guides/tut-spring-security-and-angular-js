@@ -1,7 +1,6 @@
 package demo;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -13,18 +12,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoRestTemplateCustomizer;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.WebUtils;
 
@@ -74,16 +68,4 @@ public class UiApplication extends WebSecurityConfigurerAdapter {
 		return repository;
 	}
 
-}
-
-// Remove this when upgrading to Spring Boot 1.3.1 (https://github.com/spring-projects/spring-boot/issues/4553)
-@Component
-@Order(Ordered.HIGHEST_PRECEDENCE)
-class WorkaroundRestTemplateCustomizer implements UserInfoRestTemplateCustomizer {
-
-	@Override
-	public void customize(OAuth2RestTemplate template) {
-		template.setInterceptors(new ArrayList<>(template.getInterceptors()));
-	}
-	
 }

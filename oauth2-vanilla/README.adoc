@@ -58,7 +58,7 @@ We only have to do 1 more thing (after adding `@EnableAuthorizationServer`):
 security.oauth2.client.clientId: acme
 security.oauth2.client.clientSecret: acmesecret
 security.oauth2.client.authorized-grant-types: authorization_code,refresh_token,password
-security.oauth2.client.scopes: openid
+security.oauth2.client.scope: openid
 ---
 
 This registers a client "acme" with a secret and some authorized grant types including "authorization_code".
@@ -319,7 +319,7 @@ There are some minor tweaks to the UI application on the front end that we still
 .index.html
 [source,html]
 ----
-<div ng-controller="navigation" class="container">
+<div ng-controller="navigation as nav" class="container">
   <ul class="nav nav-pills" role="tablist">
     ...
     <li><a href="#/login">login</a></li>
@@ -333,7 +333,7 @@ to a plain HTML link
 .index.html
 [source,html]
 ----
-<div ng-controller="navigation" class="container">
+<div ng-controller="navigation as nav" class="container">
   <ul class="nav nav-pills" role="tablist">
     ...
     <li><a href="login">login</a></li>
@@ -359,7 +359,9 @@ angular.module('hello', [ 'ngRoute' ]).config(function($routeProvider) {
 }). // ...
 .controller('navigation',
 
-function($rootScope, $scope, $http, $location, $route) {
+function($rootScope, $http, $location, $route) {
+
+  var self = this;
 
   $http.get('user').success(function(data) {
     if (data.name) {
@@ -371,14 +373,12 @@ function($rootScope, $scope, $http, $location, $route) {
     $rootScope.authenticated = false;
   });
 
-  $scope.credentials = {};
+  self.credentials = {};
 
-  $scope.logout = function() {
-    $http.post('logout', {}).success(function() {
+  self.logout = function() {
+    $http.post('logout', {}).finally(function() {
       $rootScope.authenticated = false;
       $location.path("/");
-    }).error(function(data) {
-      $rootScope.authenticated = false;
     });
   }
 

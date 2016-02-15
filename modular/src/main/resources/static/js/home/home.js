@@ -1,5 +1,6 @@
-angular.module('home', []).controller('home', function($scope, $http) {
+angular.module('home', []).controller('home', function($http) {
+	var self = this;
 	$http.get('/user/').success(function(data) {
-		$scope.user = data.name;
+		self.user = data.name;
 	});
 });

@@ -15,7 +15,6 @@ describe("App", function() {
 	describe("Default headers", function() {
 
 		it("include X-Requested-With", function() {
-			var $scope = {};
 			$httpBackend.expectGET('', function(headers) {
 				expect(headers['X-Requested-With']).toEqual('XMLHttpRequest');
 				return true;
@@ -29,16 +28,13 @@ describe("App", function() {
 	describe("Home Controller", function() {
 
 		it("says Hello Test when controller loads", function() {
-			var $scope = {};
 			$httpBackend.expectGET('/resource/').respond(200, {
 				id : 4321,
 				content : 'Hello Test'
 			});
-			var controller = $controller('home', {
-				$scope : $scope
-			});
+			var controller = $controller('home');
 			$httpBackend.flush();
-			expect($scope.greeting.content).toEqual('Hello Test');
+			expect(controller.greeting.content).toEqual('Hello Test');
 		});
 
 	});
@@ -46,14 +42,12 @@ describe("App", function() {
 	describe("Navigation Controller", function() {
 
 		var controller;
-		var $scope = {};
 		var $rootScope = {};
 
 		beforeEach(inject(function($injector) {
 			$httpBackend.expectGET('user').respond(401);
 			$httpBackend.expectGET('home.html').respond(200);
 			controller = $controller('navigation', {
-				$scope : $scope,
 				$rootScope : $rootScope
 			});
 			$httpBackend.flush();
@@ -73,11 +67,11 @@ describe("App", function() {
 				}).respond(200, {
 					name : 'user'
 				});
-				$scope.credentials = {
+				controller.credentials = {
 					username : 'user',
 					password : 'pwd'
 				};
-				$scope.login();
+				controller.login();
 				$httpBackend.flush();
 				expect($rootScope.authenticated).toEqual(true);
 			});
@@ -88,11 +82,11 @@ describe("App", function() {
 					return true;
 				}).respond(401);
 				$httpBackend.expectGET('login.html').respond(200);
-				$scope.credentials = {
+				controller.credentials = {
 					username : 'user',
 					password : 'foo'
 				};
-				$scope.login();
+				controller.login();
 				$httpBackend.flush();
 				expect($rootScope.authenticated).toEqual(false);
 			});
@@ -103,14 +97,14 @@ describe("App", function() {
 
 			it("successful logout", function() {
 				$httpBackend.expectPOST('logout').respond(200);
-				$scope.logout();
+				controller.logout();
 				$httpBackend.flush();
 				expect($rootScope.authenticated).toEqual(false);
 			});
 
 			it("unsuccessful logout", function() {
 				$httpBackend.expectPOST('logout').respond(400);
-				$scope.logout();
+				controller.logout();
 				$httpBackend.flush();
 				expect($rootScope.authenticated).toEqual(false);
 			});

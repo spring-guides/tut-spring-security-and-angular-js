@@ -160,20 +160,20 @@ Just as in the "basic" sample in <<_spring_and_angular_js_a_secure_single_page_a
 .index.html
 [source,html]
 ----
-<body ng-app="hello" ng-controller="navigation" ng-cloak
+<body ng-app="hello" ng-controller="navigation as nav" ng-cloak
 	class="ng-cloak">
   ...
-  <div class="container" ng-show="!authenticated">
-    <form role="form" ng-submit="login()">
+  <div class="container" ng-show="!nav.authenticated">
+    <form role="form" ng-submit="nav.login()">
       <div class="form-group">
         <label for="username">Username:</label> <input type="text"
           class="form-control" id="username" name="username"
-          ng-model="credentials.username" />
+          ng-model="nav.credentials.username" />
       </div>
       <div class="form-group">
         <label for="password">Password:</label> <input type="password"
           class="form-control" id="password" name="password"
-          ng-model="credentials.password" />
+          ng-model="nav.credentials.password" />
       </div>
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
@@ -186,7 +186,7 @@ Instead of the message rendering we will have a nice big navigation button:
 .index.html
 [source,html]
 ----
-<div class="container" ng-show="authenticated">
+<div class="container" ng-show="nav.authenticated">
   <a class="btn btn-primary" href="/ui/">Go To User Interface</a>
 </div>
 ----
@@ -201,24 +201,24 @@ To support the login form we need some JavaScript with a "navigation" controller
 [source,javascript]
 ----
 angular.module('gateway', []).controller('navigation',
-function($scope, $http) {
+function($http) {
 
   ...
   
   authenticate();
   
-  $scope.credentials = {};
+  self.credentials = {};
 
-$scope.login = function() {
-    authenticate($scope.credentials, function() {
-      if ($scope.authenticated) {
+  self.login = function() {
+    authenticate(self.credentials, function() {
+      if (self.authenticated) {
         console.log("Login succeeded")
-        $scope.error = false;
-        $scope.authenticated = true;
+        self.error = false;
+        self.authenticated = true;
       } else {
         console.log("Login failed")
-        $scope.error = true;
-        $scope.authenticated = false;
+        self.error = true;
+        self.authenticated = false;
       }
     })
   };
@@ -243,20 +243,20 @@ var authenticate = function(credentials, callback) {
     headers : headers
   }).success(function(data) {
     if (data.name) {
-      $scope.authenticated = true;
+      self.authenticated = true;
     } else {
-      $scope.authenticated = false;
+      self.authenticated = false;
     }
     callback && callback();
   }).error(function() {
-    $scope.authenticated = false;
+    self.authenticated = false;
     callback && callback();
   });
 
 }
 ----
 
-We can use the `$scope` to store the `authenticated` flag because there is only one controller in this simple application.
+We can use the `self` to store the `authenticated` flag because there is only one controller in this simple application.
 
 If we run this enhanced Gateway, instead of having to remember the URL for the UI we can just load the home page and follow links. Here's the home page for an authenticated user:
 
@@ -339,8 +339,8 @@ For the "READER" and "WRITER" roles the application itself is split, and since t
 ----
 <div class="container">
   <h1>Admin</h1>
-  <div ng-show="authenticated" ng-include="template"></div>
-  <div ng-show="!authenticated" ng-include="'unauthenticated.html'"></div>
+  <div ng-show="home.authenticated" ng-include="home.template"></div>
+  <div ng-show="!home.authenticated" ng-include="'unauthenticated.html'"></div>
 </div>
 ----
 
@@ -354,7 +354,7 @@ The `template` variable is initialized in our controller, first by defining a ut
 [source,javascript]
 ----
 var computeDefaultTemplate = function(user) {
-  $scope.template = user && user.roles
+  self.template = user && user.roles
       && user.roles.indexOf("ROLE_WRITER")>0 ? "write.html" : "read.html";		
 }
 ----
@@ -366,17 +366,17 @@ then by using the utility function when the controller loads:
 ----
 angular.module('admin', []).controller('home',
 
-function($scope, $http) {
+function($http) {
 	
   $http.get('user').success(function(data) {
     if (data.name) {
-      $scope.authenticated = true;
-      $scope.user = data;
+      self.authenticated = true;
+      self.user = data;
       computeDefaultTemplate(data);
     } else {
-      $scope.authenticated = false;
+      self.authenticated = false;
     }
-    $scope.error = null
+    self.error = null
   })
   ...
       
@@ -424,16 +424,16 @@ $http.get('user', {
   headers : headers
 }).success(function(data) {
   if (data.name) {
-    $scope.authenticated = true;
-    $scope.user = data.name
-    $scope.admin = data && data.roles && data.roles.indexOf("ROLE_ADMIN")>0;
+    self.authenticated = true;
+    self.user = data.name
+    self.admin = data && data.roles && data.roles.indexOf("ROLE_ADMIN")>0;
   } else {
-    $scope.authenticated = false;
-    $scope.admin = false;
+    self.authenticated = false;
+    self.admin = false;
   }
   callback && callback(true);
 }).error(function() {
-  $scope.authenticated = false;
+  self.authenticated = false;
   callback && callback(false);
 });
 ----
@@ -443,14 +443,10 @@ and we also need to reset the `admin` flag to `false` when a user logs out:
 .gateway.js
 [source,javascript]
 ----
-$scope.logout = function() {
-  $http.post('logout', {}).success(function() {
-    $scope.authenticated = false;
-    $scope.admin = false;
-  }).error(function(data) {
-    console.log("Logout failed")
-    $scope.authenticated = false;
-    $scope.admin = false;
+self.logout = function() {
+  $http.post('logout', {}).finally(function() {
+    self.authenticated = false;
+    self.admin = false;
   });
 }
 ----
@@ -460,11 +456,11 @@ and then in the HTML we can conditionally show a new link:
 .index.html
 [source,html]
 ----
-<div class="container" ng-show="authenticated">
+<div class="container" ng-show="nav.authenticated">
   <a class="btn btn-primary" href="/ui/">Go To User Interface</a>
 </div>
 <br/>
-<div class="container" ng-show="authenticated && admin">
+<div class="container" ng-show="nav.authenticated && admin">
   <a class="btn btn-primary" href="/admin/">Go To Admin Interface</a>
 </div>
 ----

@@ -29,11 +29,11 @@ The core of a single page application is a static "index.html". We already had a
 </head>
 
 <body ng-app="hello" ng-cloak class="ng-cloak">
-	<div ng-controller="navigation" class="container">
+	<div ng-controller="navigation as nav" class="container">
 		<ul class="nav nav-pills" role="tablist">
 			<li class="active"><a href="#/">home</a></li>
 			<li><a href="#/login">login</a></li>
-			<li ng-show="authenticated"><a href="" ng-click="logout()">logout</a></li>
+			<li ng-show="authenticated"><a href="" ng-click="nav.logout()">logout</a></li>
 		</ul>
 	</div>
 	<div ng-view class="container"></div>
@@ -63,20 +63,23 @@ Let's modify the "hello" application (in "src/main/resources/public/js/hello.js"
 angular.module('hello', [ 'ngRoute' ])
   .config(function($routeProvider, $httpProvider) {
 
-	$routeProvider.when('/', {
-		templateUrl : 'home.html',
-		controller : 'home'
-	}).when('/login', {
-		templateUrl : 'login.html',
-		controller : 'navigation'
-	}).otherwise('/');
+    $routeProvider.when('/', {
+      templateUrl : 'home.html',
+      controller : 'home',
+      controllerAs: 'controller'
+    }).when('/login', {
+      templateUrl : 'login.html',
+      controller : 'navigation',
+      controllerAs: 'controller'
+    }).otherwise('/');
 
     $httpProvider.defaults.headers.common["X-Requested-With"] = 'XMLHttpRequest';
 
   })
-  .controller('home', function($scope, $http) {
+  .controller('home', function($http) {
+    var self = this;
     $http.get('/resource/').success(function(data) {
-      $scope.greeting = data;
+      self.greeting = data;
     })
   })
   .controller('navigation', function() {});
@@ -108,13 +111,15 @@ The greeting content from the old home page can go in "home.html" (right next to
 ----
 <h1>Greeting</h1>
 <div ng-show="authenticated">
-	<p>The ID is {{greeting.id}}</p>
-	<p>The content is {{greeting.content}}</p>
+    <p>The ID is {{controller.greeting.id}}</p>
+    <p>The content is {{controller.greeting.content}}</p>
 </div>
 <div  ng-show="!authenticated">
-	<p>Login to see your greeting</p>
+    <p>Login to see your greeting</p>
 </div>
 ----
+
+Note that we are binding to the controller as "controller" because that is how it was declared in the route provider configuration.
 
 Since the user now has the choice whether to login or not (before it was all controlled by the browser), we need to distinguish in the UI between content that is secure and that which is not. We have anticipated this by adding references to an (as yet non-existent) `authenticated` variable.
 
@@ -125,23 +130,23 @@ The login form goes in "login.html":
 .login.html
 [source,html]
 ----
-<div class="alert alert-danger" ng-show="error">
-	There was a problem logging in. Please try again.
+<div class="alert alert-danger" ng-show="controller.error">
+    There was a problem logging in. Please try again.
 </div>
-<form role="form" ng-submit="login()">
-	<div class="form-group">
-		<label for="username">Username:</label> <input type="text"
-			class="form-control" id="username" name="username" ng-model="credentials.username"/>
-	</div>
-	<div class="form-group">
-		<label for="password">Password:</label> <input type="password"
-			class="form-control" id="password" name="password" ng-model="credentials.password"/>
-	</div>
-	<button type="submit" class="btn btn-primary">Submit</button>
+<form role="form" ng-submit="controller.login()">
+    <div class="form-group">
+        <label for="username">Username:</label> <input type="text"
+            class="form-control" id="username" name="username" ng-model="controller.credentials.username"/>
+    </div>
+    <div class="form-group">
+        <label for="password">Password:</label> <input type="password"
+            class="form-control" id="password" name="password" ng-model="controller.credentials.password"/>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 ----
 
-This is a very standard login form, with 2 inputs for username and password and a button for submitting the form via https://docs.angularjs.org/api/ng/directive/ngSubmit[`ng-submit`]. You don't need an action on the form tag, so it's probably better not to put one in at all. There is also an error message, shown only if the angular `$scope` contains an `error`. The form controls use https://docs.angularjs.org/api/ng/directive/ngModel[`ng-model`] to pass data between the HTML and the Angular controller, and in this case we are using a `credentials` object to hold the username and pasword. According to the routes we defined the login form is linked with the "navigation" controller, which is so far empty, so let's head over to that to fill in some gaps.
+This is a very standard login form, with 2 inputs for username and password and a button for submitting the form via https://docs.angularjs.org/api/ng/directive/ngSubmit[`ng-submit`]. You don't need an action on the form tag, so it's probably better not to put one in at all. There is also an error message, shown only if the angular model contains an `error`. The form controls use https://docs.angularjs.org/api/ng/directive/ngModel[`ng-model`] to pass data between the HTML and the Angular controller, and in this case we are using a `credentials` object to hold the username and pasword. According to the routes we defined the login form is linked with the "navigation" controller, which is so far empty, so let's head over to that to fill in some gaps.
 
 == The Authentication Process
 
@@ -157,7 +162,9 @@ To submit the form we need to define the `login()` function that we referenced a
 angular.module('hello', [ 'ngRoute' ]) // ... omitted code
 .controller('navigation',
 
-  function($rootScope, $scope, $http, $location) {
+  function($rootScope, $http, $location) {
+
+  var self = this
 
   var authenticate = function(credentials, callback) {
 
@@ -180,15 +187,15 @@ angular.module('hello', [ 'ngRoute' ]) // ... omitted code
   }
 
   authenticate();
-  $scope.credentials = {};
-  $scope.login = function() {
-      authenticate($scope.credentials, function() {
+  self.credentials = {};
+  self.login = function() {
+      authenticate(self.credentials, function() {
         if ($rootScope.authenticated) {
           $location.path("/");
-          $scope.error = false;
+          self.error = false;
         } else {
           $location.path("/login");
-          $scope.error = true;
+          self.error = true;
         }
       });
   };
@@ -263,11 +270,11 @@ The application is almost finished functionally. The last thing we need to do is
 .index.html
 [source,html]
 ----
-<div ng-controller="navigation" class="container">
+<div ng-controller="navigation as nav" class="container">
   <ul class="nav nav-pills" role="tablist">
     <li class="active"><a href="#/">home</a></li>
     <li><a href="#/login">login</a></li>
-    <li ng-show="authenticated"><a href="" ng-click="logout()">logout</a></li>
+    <li ng-show="authenticated"><a href="" ng-click="nav.logout()">logout</a></li>
   </ul>
 </div>
 ----
@@ -283,12 +290,10 @@ angular.module('hello', [ 'ngRoute' ]).
 
 ...
 
-$scope.logout = function() {
-  $http.post('logout', {}).success(function() {
+self.logout = function() {
+  $http.post('logout', {}).finally(function() {
     $rootScope.authenticated = false;
     $location.path("/");
-  }).error(function(data) {
-    $rootScope.authenticated = false;
   });
 }
 

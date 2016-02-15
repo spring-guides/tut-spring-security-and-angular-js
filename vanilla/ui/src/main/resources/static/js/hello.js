@@ -2,17 +2,21 @@ angular.module('hello', [ 'ngRoute' ]).config(function($routeProvider) {
 
 	$routeProvider.when('/', {
 		templateUrl : 'home.html',
-		controller : 'home'
+		controller : 'home',
+		controllerAs: 'controller'
 	}).when('/login', {
 		templateUrl : 'login.html',
-		controller : 'navigation'
+		controller : 'navigation',
+		controllerAs: 'controller'
 	}).otherwise('/');
 
 }).controller('navigation',
 
-function($rootScope, $scope, $http, $location, $route) {
+function($rootScope, $http, $location, $route) {
+	
+	var self = this;
 
-	$scope.tab = function(route) {
+	self.tab = function(route) {
 		return $route.current && route === $route.current.controller;
 	};
 
@@ -34,9 +38,9 @@ function($rootScope, $scope, $http, $location, $route) {
 
 	authenticate();
 
-	$scope.credentials = {};
-	$scope.login = function() {
-		$http.post('login', $.param($scope.credentials), {
+	self.credentials = {};
+	self.login = function() {
+		$http.post('login', $.param(self.credentials), {
 			headers : {
 				"content-type" : "application/x-www-form-urlencoded"
 			}
@@ -45,35 +49,33 @@ function($rootScope, $scope, $http, $location, $route) {
 				if ($rootScope.authenticated) {
 					console.log("Login succeeded")
 					$location.path("/");
-					$scope.error = false;
+					self.error = false;
 					$rootScope.authenticated = true;
 				} else {
 					console.log("Login failed with redirect")
 					$location.path("/login");
-					$scope.error = true;
+					self.error = true;
 					$rootScope.authenticated = false;
 				}
 			});
 		}).error(function(data) {
 			console.log("Login failed")
 			$location.path("/login");
-			$scope.error = true;
+			self.error = true;
 			$rootScope.authenticated = false;
 		})
 	};
 
-	$scope.logout = function() {
-		$http.post('logout', {}).success(function() {
+	self.logout = function() {
+		$http.post('logout', {}).finally(function() {
 			$rootScope.authenticated = false;
 			$location.path("/");
-		}).error(function(data) {
-			console.log("Logout failed")
-			$rootScope.authenticated = false;
 		});
 	}
 
-}).controller('home', function($scope, $http) {
+}).controller('home', function($http) {
+	var self = this;
 	$http.get('http://localhost:9000').success(function(data) {
-		$scope.greeting = data;
+		self.greeting = data;
 	})
 });

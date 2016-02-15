@@ -16,9 +16,10 @@ On the client side there isn't very much to do to move the resource to a differe
 ----
 angular.module('hello', [ 'ngRoute' ])
 ...
-.controller('home', function($scope, $http) {
+.controller('home', function($http) {
+    var self = this;
 	$http.get('/resource/').success(function(data) {
-		$scope.greeting = data;
+		self.greeting = data;
 	})
 })
 ...
@@ -31,9 +32,10 @@ All we need to do to this is change the URL. For example, if we are going to run
 ----
 angular.module('hello', [ 'ngRoute' ])
 ...
-.controller('home', function($scope, $http) {
+.controller('home', function($http) {
+    var self = this;
 	$http.get('http://localhost:9000/').success(function(data) {
-		$scope.greeting = data;
+		self.greeting = data;
 	})
 })
 ...
@@ -217,7 +219,7 @@ The `@EnableRedisHttpSession` annotation comes from Spring Session, and Spring B
 
 With that 1 line of code in place and a Redis server running on localhost you can run the UI application, login with some valid user credentials, and the session data (the authentication and CSRF token) will be stored in redis.
 
-TIP: if you don't have a redis server running locally you can easily spin one up with https://www.docker.com/[Docker] (on Windows or MacOS this requires a VM). There is a http://docs.docker.com/compose/[`docker-compose.yml`] file in the https://github.com/dsyer/spring-security-angular/tree/master/spring-session/docker-compose.yml[source code in Github] which you can run really easily on the command line with `docker-compose up`.
+TIP: if you don't have a redis server running locally you can easily spin one up with https://www.docker.com/[Docker] (on Windows or MacOS this requires a VM). There is a http://docs.docker.com/compose/[`docker-compose.yml`] file in the https://github.com/dsyer/spring-security-angular/tree/master/spring-session/docker-compose.yml[source code in Github] which you can run really easily on the command line with `docker-compose up`. If you do this in a VM the Redis server will be running on a different host than localhost, so you either need to tunnel it onto localhost, or configure the app to point at the correct `spring.redis.host` in your `application.properties`.
 
 == Sending a Custom Token from the UI
 
@@ -228,7 +230,8 @@ The only missing piece is the transport mechanism for the key to the data in the
 ----
 angular.module('hello', [ 'ngRoute' ])
 ...
-.controller('home', function($scope, $http) {
+.controller('home', function($http) {
+  var self = this;
   $http.get('token').success(function(token) {
     $http({
       url : 'http://localhost:9000',
@@ -237,7 +240,7 @@ angular.module('hello', [ 'ngRoute' ])
         'X-Auth-Token' : token.token
       }
     }).success(function(data) {
-      $scope.greeting = data;
+      self.greeting = data;
     });
   })
 });

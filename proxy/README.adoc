@@ -81,10 +81,11 @@ With those changes in place our application still works, but we haven't actually
 ----
 angular.module('hello', [ 'ngRoute' ])
 ...
-.controller('home', function($scope, $http) {
-	$http.get('http://localhost:9000/').success(function(data) {
-		$scope.greeting = data;
-	})
+.controller('home', function($http) {
+  var self = this;
+  $http.get('http://localhost:9000/').success(function(data) {
+    self.greeting = data;
+  })
 });
 ----
 
@@ -95,10 +96,11 @@ to a local resource:
 ----
 angular.module('hello', [ 'ngRoute' ])
 ...
-.controller('home', function($scope, $http) {
-	$http.get('resource/').success(function(data) {
-		$scope.greeting = data;
-	})
+.controller('home', function($http) {
+  var self = this;
+  $http.get('resource/').success(function(data) {
+    self.greeting = data;
+  })
 });
 ----
 

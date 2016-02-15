@@ -12,16 +12,13 @@ describe("App", function() {
 	});
 
 	it("says Hello Test when controller loads", function() {
-		var $scope = {};
 		$httpBackend.expectGET('resource/').respond(200, {
 			id : 4321,
 			content : 'Hello Test'
 		});
-		var controller = $controller('home', {
-			$scope : $scope
-		});
+		var controller = $controller('home');
 		$httpBackend.flush();
-		expect($scope.greeting.content).toEqual('Hello Test');
+		expect(controller.greeting.content).toEqual('Hello Test');
 	});
 
 })

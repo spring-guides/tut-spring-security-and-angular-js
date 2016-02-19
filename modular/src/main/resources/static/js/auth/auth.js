@@ -9,7 +9,11 @@ angular.module('auth', []).factory(
 					if (!auth.authenticated) {
 						$location.path(auth.loginPath);
 					}
-				}					
+				} else {
+					if (auth.authenticated) {
+						$location.path(auth.homePath);
+					}
+				}
 			}
 
 			var auth = {

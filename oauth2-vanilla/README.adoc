@@ -363,13 +363,13 @@ function($rootScope, $http, $location, $route) {
 
   var self = this;
 
-  $http.get('user').success(function(data) {
-    if (data.name) {
+  $http.get('user').then(function(response) {
+    if (response.data.name) {
       $rootScope.authenticated = true;
     } else {
       $rootScope.authenticated = false;
     }
-  }).error(function() {
+  }, function() {
     $rootScope.authenticated = false;
   });
 

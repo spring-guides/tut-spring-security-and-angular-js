@@ -32,14 +32,14 @@ angular.module('hello', [ 'ngRoute' ]).config(function($routeProvider, $httpProv
 
 				$http.get('user', {
 					headers : headers
-				}).success(function(data) {
-					if (data.name) {
+				}).then(function(response) {
+					if (response.data.name) {
 						$rootScope.authenticated = true;
 					} else {
 						$rootScope.authenticated = false;
 					}
 					callback && callback($rootScope.authenticated);
-				}).error(function() {
+				}, function() {
 					$rootScope.authenticated = false;
 					callback && callback(false);
 				});
@@ -74,7 +74,7 @@ angular.module('hello', [ 'ngRoute' ]).config(function($routeProvider, $httpProv
 
 		}).controller('home', function($http) {
 	var self = this;
-	$http.get('/resource/').success(function(data) {
-		self.greeting = data;
+	$http.get('/resource/').then(function(response) {
+		self.greeting = response.data;
 	})
 });

@@ -18,8 +18,8 @@ angular.module('hello', [ 'ngRoute' ])
 ...
 .controller('home', function($http) {
     var self = this;
-	$http.get('/resource/').success(function(data) {
-		self.greeting = data;
+	$http.get('/resource/').then(function(response) {
+		self.greeting = response.data;
 	})
 })
 ...
@@ -34,8 +34,8 @@ angular.module('hello', [ 'ngRoute' ])
 ...
 .controller('home', function($http) {
     var self = this;
-	$http.get('http://localhost:9000/').success(function(data) {
-		self.greeting = data;
+	$http.get('http://localhost:9000/').then(function(response) {
+		self.greeting = response.data;
 	})
 })
 ...
@@ -214,15 +214,15 @@ angular.module('hello', [ 'ngRoute' ])
 ...
 .controller('home', function($http) {
   var self = this;
-  $http.get('token').success(function(token) {
+  $http.get('token').then(function(response) {
     $http({
       url : 'http://localhost:9000',
       method : 'GET',
       headers : {
-        'X-Auth-Token' : token.token
+        'X-Auth-Token' : response.data.token
       }
-    }).success(function(data) {
-      self.greeting = data;
+    }).then(function(response) {
+      self.greeting = response.data;
     });
   })
 });
@@ -261,7 +261,7 @@ So the UI application is ready and will include the session ID in a header calle
 
 There is one tiny change to the resource server for it to be able to accept the custom header. The CORS configuration has to nominate that header as an allowed one from remote clients, e.g.
 
-.ResourceApplication.groovy
+.ResourceApplication.java
 [source,java]
 ----
 @RequestMapping("/")
@@ -270,6 +270,23 @@ There is one tiny change to the resource server for it to be able to accept the 
 public Message home() {
   return new Message("Hello World");
 }
+----
+
+The pre-flight check from the browser will now be handled by Spring MVC, but we need to tell Spring Security that it is allowed to let it through:
+
+.ResourceApplication.java
+[source,java]
+----
+public class ResourceApplication extends WebSecurityConfigurerAdapter {
+
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http.authorizeRequests()
+      .requestMatchers(request -> CorsUtils.isCorsRequest(request)).permitAll()
+      .anyRequest().authenticated();
+  }
+
+  ...
 ----
 
 All that remains is to pick up the custom token in the resource server and use it to authenticate our user. This turns out to be pretty straightforward because all we need to do is tell Spring Security where the session repository is, and where to look for the token (session ID) in an incoming request. First we need to add the Spring Session and Redis dependencies, and then we can set up the `Filter`:

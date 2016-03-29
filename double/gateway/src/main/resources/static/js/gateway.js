@@ -19,7 +19,8 @@ function($http) {
 		self.user = ''
 		$http.get('user', {
 			headers : headers
-		}).success(function(data) {
+		}).then(function(response) {
+			var data = response.data;
 			if (data.name) {
 				self.authenticated = true;
 				self.user = data.name
@@ -29,7 +30,7 @@ function($http) {
 				self.admin = false;
 			}
 			callback && callback(true);
-		}).error(function() {
+		}, function() {
 			self.authenticated = false;
 			callback && callback(false);
 		});

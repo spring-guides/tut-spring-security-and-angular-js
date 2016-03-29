@@ -6,17 +6,18 @@ function($http) {
 	
 	console.log('Loading');
 
-	$http.get('user').success(function(data) {
+	$http.get('user').then(function(response) {
+		var data = response.data;
 		if (data.name) {
 			self.authenticated = true;
 			self.user = data.name
-			$http.get('/resource/').success(function(data) {
-				self.greeting = data;
+			$http.get('/resource/').then(function(response) {
+				self.greeting = response.data;
 			})
 		} else {
 			self.authenticated = false;
 		}
-	}).error(function() {
+	}, function() {
 		self.authenticated = false;
 	});
 

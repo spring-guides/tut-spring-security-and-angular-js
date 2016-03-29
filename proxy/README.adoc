@@ -83,8 +83,8 @@ angular.module('hello', [ 'ngRoute' ])
 ...
 .controller('home', function($http) {
   var self = this;
-  $http.get('http://localhost:9000/').success(function(data) {
-    self.greeting = data;
+  $http.get('http://localhost:9000/').then(function(response) {
+    self.greeting = response.data;
   })
 });
 ----
@@ -98,8 +98,8 @@ angular.module('hello', [ 'ngRoute' ])
 ...
 .controller('home', function($http) {
   var self = this;
-  $http.get('resource/').success(function(data) {
-    self.greeting = data;
+  $http.get('resource/').then(function(response) {
+    self.greeting = response.data;
   })
 });
 ----
@@ -187,7 +187,7 @@ zuul:
 
 Then we can move on to the resource server. There are three small changes to make: one is adding `@EnableRedisHttpSession` to the `ResourceApplication`:
 
-.ResourceApplication.groovy
+.ResourceApplication.java
 [source,java]
 ----
 @SpringBootApplication
@@ -200,7 +200,7 @@ class ResourceApplication {
 
 another is to explicitly disable HTTP Basic in the resource server (to prevent the browser from popping up authentication dialogs):
 
-.ResourceApplication.groovy
+.ResourceApplication.java
 [source,java]
 ----
 @SpringBootApplication
@@ -212,8 +212,8 @@ class ResourceApplication extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-    http.httpBasic().disable()
-    http.authorizeRequests().anyRequest().authenticated()
+    http.httpBasic().disable();
+    http.authorizeRequests().anyRequest().authenticated();
   }
 
 }
@@ -232,7 +232,7 @@ and the last one is to explicitly ask for a non-stateless session creation polic
 security.sessions: NEVER
 ----
 
-As long as redis is still running in the background (use the https://github.com/dsyer/spring-security-angular/tree/master/proxy/fig.yml[`fig.yml`] if you like to start it) then the system will work. Load the homepage for the UI at http://localhost:8080[http://localhost:8080] and login and you will see the message from the backend rendered on the homepage.
+As long as redis is still running in the background (use the https://github.com/dsyer/spring-security-angular/tree/master/proxy/docker-compose.yml[`docker-compose.yml`] if you like to start it) then the system will work. Load the homepage for the UI at http://localhost:8080[http://localhost:8080] and login and you will see the message from the backend rendered on the homepage.
 
 == How Does it Work?
 
@@ -257,7 +257,7 @@ What is going on behind the scenes now? First we can look at the HTTP requests i
 
 That's identical to the sequence at the end of <<_the_login_page_angular_js_and_spring_security_part_ii,Part II>> except for the fact that the cookie names are slightly different ("SESSION" instead of "JSESSIONID") because we are using Spring Session. But the architecture is different and that last request to "/resource" is special because it was proxied to the resource server.
 
-We can see the reverse proxy in action by looking at the "/trace" endpoint in the UI server (from Spring Boot Actuator, which we added with the Spring Cloud dependencies). Go to http://localhost:8080/trace[http://localhost:8080/trace] in a new browser and scroll to the end (if you don't have one already get a JSON plugin for your browser to make it nice and readable). You will need to authenticate with HTTP Basic (browser popup), but the same credentials are valid as for your login form. At or near the end you should see a pair of requests something like this:
+We can see the reverse proxy in action by looking at the "/trace" endpoint in the UI server (from Spring Boot Actuator, which we added with the Spring Cloud dependencies). Go to http://localhost:8080/trace[http://localhost:8080/trace] in a new browser (if you don't have one already get a JSON plugin for your browser to make it nice and readable). You will need to authenticate with HTTP Basic (browser popup), but the same credentials are valid as for your login form. At or near the start you should see a pair of requests something like this:
 
 NOTE: Try to use a different browser so that there is no chance of authentication crossover (e.g. use Firefox if yoused Chrome for testing the UI) - it won't stop the app from working, but it will make the traces harder to read if they contain a mixture of authentication from the same browser.
 

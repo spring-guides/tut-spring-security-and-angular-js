@@ -8,19 +8,20 @@ function($http) {
 		self.template = user && user.roles && user.roles.indexOf("ROLE_WRITER")>0 ? "write.html" : "read.html";		
 	}
 
-	$http.get('user').success(function(data) {
+	$http.get('user').then(function(response) {
+		var data = response.data;
 		if (data.name) {
 			self.authenticated = true;
 			self.user = data;
 			computeDefaultTemplate(data);
-			$http.get('/resource/').success(function(data) {
-				self.greeting = data;
+			$http.get('/resource/').then(function(response) {
+				self.greeting = response.data;
 			})			
 		} else {
 			self.authenticated = false;
 		}
-		self.error = null
-	}).error(function(response) {
+		self.error = null;
+	}, function(response) {
 		if (response.status === 0) {
 			self.error = 'No connection. Verify application is running.';
 		} else if (response.status == 401) {
@@ -34,8 +35,8 @@ function($http) {
 	});
 
 	self.update = function() {
-		$http.post('/resource/', {content: self.greeting.content}).success(function(data) {
-			self.greeting = data;
+		$http.post('/resource/', {content: self.greeting.content}).then(function(response) {
+			self.greeting = response.data;
 		})
 	}
 
@@ -45,8 +46,8 @@ function($http) {
 	
 	self.changes = function() {
 		self.template = "changes.html";
-		$http.get('/resource/changes').success(function(data) {
-			self.data = data;
+		$http.get('/resource/changes').then(function(response) {
+			self.data = response.data;
 		})
 	}
 	

@@ -31,15 +31,15 @@ angular.module('auth', []).factory(
 
 					$http.get('user', {
 						headers : headers
-					}).success(function(data) {
-						if (data.name) {
+					}).then(function(response) {
+						if (response.data.name) {
 							auth.authenticated = true;
 						} else {
 							auth.authenticated = false;
 						}
 						callback && callback(auth.authenticated);
 						$location.path(auth.path==auth.loginPath ? auth.homePath : auth.path);
-					}).error(function() {
+					}, function() {
 						auth.authenticated = false;
 						callback && callback(false);
 					});
@@ -49,9 +49,9 @@ angular.module('auth', []).factory(
 				clear : function() {
 					$location.path(auth.loginPath);
 					auth.authenticated = false;
-					$http.post(auth.logoutPath, {}).success(function() {
+					$http.post(auth.logoutPath, {}).then(function() {
 						console.log("Logout succeeded");
-					}).error(function(data) {
+					}, function() {
 						console.log("Logout failed");
 					});
 				},

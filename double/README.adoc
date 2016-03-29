@@ -241,14 +241,14 @@ var authenticate = function(credentials, callback) {
 
   $http.get('user', {
     headers : headers
-  }).success(function(data) {
-    if (data.name) {
+  }).then(function(response) {
+    if (response.data.name) {
       self.authenticated = true;
     } else {
       self.authenticated = false;
     }
     callback && callback();
-  }).error(function() {
+  }, function() {
     self.authenticated = false;
     callback && callback();
   });
@@ -368,7 +368,8 @@ angular.module('admin', []).controller('home',
 
 function($http) {
 	
-  $http.get('user').success(function(data) {
+  $http.get('user').then(function(response) {
+    var data = response.data;
     if (data.name) {
       self.authenticated = true;
       self.user = data;
@@ -422,7 +423,8 @@ We are going to use the roles to make access decisions in the Gateway as well (s
 ----
 $http.get('user', {
   headers : headers
-}).success(function(data) {
+}).then(function(response) {
+  var data = response.data;
   if (data.name) {
     self.authenticated = true;
     self.user = data.name
@@ -432,7 +434,7 @@ $http.get('user', {
     self.admin = false;
   }
   callback && callback(true);
-}).error(function() {
+}, function() {
   self.authenticated = false;
   callback && callback(false);
 });

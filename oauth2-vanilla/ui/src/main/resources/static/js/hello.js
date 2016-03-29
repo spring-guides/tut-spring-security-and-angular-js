@@ -16,13 +16,13 @@ function($rootScope, $http, $location, $route) {
 		return $route.current && route === $route.current.controller;
 	};
 
-	$http.get('user').success(function(data) {
-		if (data.name) {
+	$http.get('user').then(function(response) {
+		if (response.data.name) {
 			$rootScope.authenticated = true;
 		} else {
 			$rootScope.authenticated = false;
 		}
-	}).error(function() {
+	}, function() {
 		$rootScope.authenticated = false;
 	});
 
@@ -37,7 +37,7 @@ function($rootScope, $http, $location, $route) {
 
 }).controller('home', function($http) {
 	var self = this;
-	$http.get('resource/').success(function(data) {
-		self.greeting = data;
+	$http.get('resource/').then(function(response) {
+		self.greeting = response.data;
 	})
 });

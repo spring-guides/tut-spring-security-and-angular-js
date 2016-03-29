@@ -22,14 +22,14 @@ function($rootScope, $http, $location, $route) {
 
 	var authenticate = function(callback) {
 
-		$http.get('user').success(function(data) {
-			if (data.name) {
+		$http.get('user').then(function(response) {
+			if (response.data.name) {
 				$rootScope.authenticated = true;
 			} else {
 				$rootScope.authenticated = false;
 			}
 			callback && callback();
-		}).error(function() {
+		}, function() {
 			$rootScope.authenticated = false;
 			callback && callback();
 		});
@@ -44,7 +44,7 @@ function($rootScope, $http, $location, $route) {
 			headers : {
 				"content-type" : "application/x-www-form-urlencoded"
 			}
-		}).success(function(data) {
+		}).then(function() {
 			authenticate(function() {
 				if ($rootScope.authenticated) {
 					console.log("Login succeeded")
@@ -58,7 +58,7 @@ function($rootScope, $http, $location, $route) {
 					$rootScope.authenticated = false;
 				}
 			});
-		}).error(function(data) {
+		}, function() {
 			console.log("Login failed")
 			$location.path("/login");
 			self.error = true;
@@ -75,7 +75,7 @@ function($rootScope, $http, $location, $route) {
 
 }).controller('home', function($http) {
 	var self = this;
-	$http.get('http://localhost:9000').success(function(data) {
-		self.greeting = data;
+	$http.get('http://localhost:9000').then(function(response) {
+		self.greeting = response.data;
 	})
 });

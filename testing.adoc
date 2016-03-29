@@ -15,8 +15,8 @@ Our "home" controller in the "basic" application is very simple, so it won't tak
 
 ```javascript
 angular.module('hello', []).controller('home', function($scope, $http) {
-  $http.get('resource/').success(function(data) {
-    $scope.greeting = data;
+  $http.get('resource/').then(function(response) {
+    $scope.greeting = response.data;
   })
 });
 ```

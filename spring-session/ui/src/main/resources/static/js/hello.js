@@ -32,14 +32,14 @@ function($rootScope, $http, $location, $route) {
 
 		$http.get('user', {
 			headers : headers
-		}).success(function(data) {
-			if (data.name) {
+		}).then(function(response) {
+			if (response.data.name) {
 				$rootScope.authenticated = true;
 			} else {
 				$rootScope.authenticated = false;
 			}
 			callback && callback();
-		}).error(function() {
+		}, function() {
 			$rootScope.authenticated = false;
 			callback && callback();
 		});
@@ -74,15 +74,15 @@ function($rootScope, $http, $location, $route) {
 
 }).controller('home', function($http) {
 	var self = this;
-	$http.get('token').success(function(token) {
+	$http.get('token').then(function(response) {
 		$http({
 			url : 'http://localhost:9000',
 			method : 'GET',
 			headers : {
-				'X-Auth-Token' : token.token
+				'X-Auth-Token' : response.data.token
 			}
-		}).success(function(data) {
-			self.greeting = data;
+		}).then(function(response) {
+			self.greeting = response.data;
 		});
 	})
 });

@@ -1,6 +1,6 @@
 angular.module('home', []).controller('home', function($http) {
 	var self = this;
-	$http.get('/user/').success(function(data) {
-		self.user = data.name;
+	$http.get('/user/').then(function(response) {
+		self.user = response.data.name;
 	});
 });

@@ -72,8 +72,8 @@ For example, here's the `home.js`:
 ----
 angular.module('home', []).controller('home', function($http) {
   var self = this;
-  $http.get('/user/').success(function(data) {
-    self.user = data.name;
+  $http.get('/user/').then(function(response) {
+    self.user = response.data.name;
   });
 });
 ----
@@ -286,15 +286,15 @@ angular.module('auth', []).factory(
 
           $http.get('user', {
             headers : headers
-          }).success(function(data) {
-            if (data.name) {
+          }).then(function(response) {
+            if (response.data.name) {
               auth.authenticated = true;
             } else {
               auth.authenticated = false;
             }
             $location.path(auth.homePath);
             callback && callback(auth.authenticated);
-          }).error(function() {
+          }, function() {
             auth.authenticated = false;
             callback && callback(false);
           });
@@ -413,10 +413,10 @@ authenticate : function(credentials, callback) {
  ...
  $http.get('user', {
   headers : headers
-  }).success(function(data) {
+  }).then(function(response) {
       ...
       $location.path(auth.path==auth.loginPath ? auth.homePath : auth.path);
-  }).error(...);
+  }, function() { ... });
 
 },
 ----

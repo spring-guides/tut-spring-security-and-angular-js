@@ -35,7 +35,7 @@ import org.springframework.web.util.WebUtils;
 public class UiApplication {
 
 	// Match everything without a suffix (so not a static resource)
-	@RequestMapping(value = "/{[path:[^\\.]*}")
+	@RequestMapping(value = "/{path:[^\\.]*}")
 	public String redirect() {
 		// Forward to home page so that route is preserved.
 		return "forward:/";

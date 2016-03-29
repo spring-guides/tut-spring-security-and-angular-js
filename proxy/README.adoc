@@ -174,7 +174,18 @@ public class UiApplication {
 }
 ----
 
-and then the resource server. There are three small changes to make: one is adding `@EnableRedisHttpSession` to the `ResourceApplication`:
+and also declaring explicitly that we want all headers to be forwarded (i.e. none are "sensitive"):
+
+.application.yml
+[source,properties]
+----
+zuul:
+  routes:
+    resource:
+      sensitive-headers:
+----
+
+Then we can move on to the resource server. There are three small changes to make: one is adding `@EnableRedisHttpSession` to the `ResourceApplication`:
 
 .ResourceApplication.groovy
 [source,java]

@@ -7,8 +7,10 @@ zuul:
   routes:
     ui:
       url: http://localhost:8081
+      sensitive-headers:
     admin:
       url: http://localhost:8082
+      sensitive-headers:
     resource:
       url: http://localhost:9000
-      
+      sensitive-headers:

@@ -21,8 +21,7 @@ public class ResourceApplication extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests().requestMatchers(request -> CorsUtils.isCorsRequest(request)).permitAll().anyRequest()
-				.authenticated();
+		http.authorizeRequests().requestMatchers(CorsUtils::isCorsRequest).permitAll().anyRequest().authenticated();
 	}
 
 	@RequestMapping("/")

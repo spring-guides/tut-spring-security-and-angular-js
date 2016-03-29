@@ -282,12 +282,14 @@ public class ResourceApplication extends WebSecurityConfigurerAdapter {
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http.authorizeRequests()
-      .requestMatchers(request -> CorsUtils.isCorsRequest(request)).permitAll()
+      .requestMatchers(CorsUtils::isCorsRequest).permitAll()
       .anyRequest().authenticated();
   }
 
   ...
 ----
+
+NOTE: It is a little bit of a risk to `permitAll()` access like this: there might be a handler that inadvertently sends sensitive data because it is not aware that the request is pre-flight. Spring MVC mitigates the risk (at the time of writing at least) by sending a 403 if it detects a pre-flight request that has no declared handler.
 
 All that remains is to pick up the custom token in the resource server and use it to authenticate our user. This turns out to be pretty straightforward because all we need to do is tell Spring Security where the session repository is, and where to look for the token (session ID) in an incoming request. First we need to add the Spring Session and Redis dependencies, and then we can set up the `Filter`:
 

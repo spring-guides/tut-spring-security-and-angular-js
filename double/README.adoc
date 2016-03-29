@@ -38,22 +38,6 @@ In this architecture the backend is very similar to the https://github.com/dsyer
 </dependency>
 ----
 
-and add the `@EnableRedisHttpSession` annotation to the main application class:
-
-.UiApplication.java
-[source,java]
-----
-@SpringBootApplication
-@EnableRedisHttpSession
-public class UiApplication {
-
-public static void main(String[] args) {
-    SpringApplication.run(UiApplication.class, args);
-  }
-
-}
-----
-
 Since this is now a UI there is no need for the "/resource" endpoint. When you have done that you will have a very simple Angular application (the same as in the "basic" sample), which simplifies testing and reasoning about its behaviour greatly.
 
 Lastly, we want this server to run as a backend, so we'll give it a non-default port to listen on (in `application.properties`):
@@ -69,7 +53,7 @@ If that's the _whole_ content `application.properties` then the application will
 
 == The Resource Server
 
-The Resource server is easy to generate from one of our existing samples. It is the same as the "spring-session" Resource server in <<_the_resource_server_angular_js_and_spring_security_part_iii,Part III>>: just a "/resource" endpoint and `@EnableRedisHttpSession` to get the distributed session data. We want this server to have a non-default port to listen on, and we want to be able to look up authentication in the session so we need this (in `application.properties`):
+The Resource server is easy to generate from one of our existing samples. It is the same as the "spring-session" Resource server in <<_the_resource_server_angular_js_and_spring_security_part_iii,Part III>>: just a "/resource" endpoint Spring Session to get the distributed session data. We want this server to have a non-default port to listen on, and we want to be able to look up authentication in the session so we need this (in `application.properties`):
 
 .application.properties
 [source,properties]
@@ -94,24 +78,7 @@ $ curl https://cloud-start.spring.io/starter.tgz -d style=web \
 
 You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line. There is a version https://github.com/dsyer/spring-security-angular/tree/master/double/gateway[in github] if you want to go from there, but it has a few extra features that we don't need yet.
 
-Starting from the blank Initializr application, we add the Spring Session dependency (like in the UI above), and the `@EnableRedisHttpSession` annotation:
-
-.GatewayApplication.java
-[source,java]
-----
-@SpringBootApplication
-@EnableRedisHttpSession
-@EnableZuulProxy
-public class GatewayApplication {
-
-public static void main(String[] args) {
-    SpringApplication.run(GatewayApplication.class, args);
-  }
-
-}
-----
-
-The Gateway is ready to run, but it doesn't yet know about our backend services, so let's just set that up in its `application.yml` (renaming from `application.properties` if you did the curl thing above):
+Starting from the blank Initializr application, we add the Spring Session dependency (like in the UI above). The Gateway is ready to run, but it doesn't yet know about our backend services, so let's just set that up in its `application.yml` (renaming from `application.properties` if you did the curl thing above):
 
 .application.yml
 [source]
@@ -393,7 +360,6 @@ To support this function on the backend we need an endpoint, e.g. in our main ap
 ----
 @SpringBootApplication
 @RestController
-@EnableRedisHttpSession
 public class AdminApplication {
 
   @RequestMapping("/user")

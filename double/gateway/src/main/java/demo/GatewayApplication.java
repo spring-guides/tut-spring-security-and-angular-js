@@ -29,7 +29,6 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.session.SessionManagementFilter;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -40,7 +39,6 @@ import org.springframework.web.util.WebUtils;
 @ComponentScan
 @EnableAutoConfiguration
 @Controller
-@EnableRedisHttpSession
 @EnableZuulProxy
 public class GatewayApplication {
 

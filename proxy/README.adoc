@@ -158,23 +158,7 @@ We can use the same mechanism to share authentication (and CSRF) state as we did
 </dependency>
 ----
 
-but this time the configuration is much simpler because we can just add the same `Filter` declaration to both. First the UI server (adding `@EnableRedisHttpSession`):
-
-.UiApplication.java
-[source,java]
-----
-@SpringBootApplication
-@RestController
-@EnableZuulProxy
-@EnableRedisHttpSession
-public class UiApplication {
-
-  ...
-
-}
-----
-
-and also declaring explicitly that we want all headers to be forwarded (i.e. none are "sensitive"):
+but this time the configuration is much simpler because we can just add the same `Filter` declaration to both. First the UI server, declaring explicitly that we want all headers to be forwarded (i.e. none are "sensitive"):
 
 .application.yml
 [source,properties]
@@ -185,27 +169,13 @@ zuul:
       sensitive-headers:
 ----
 
-Then we can move on to the resource server. There are three small changes to make: one is adding `@EnableRedisHttpSession` to the `ResourceApplication`:
+Then we can move on to the resource server. There are two small changes to make: one is to explicitly disable HTTP Basic in the resource server (to prevent the browser from popping up authentication dialogs):
 
 .ResourceApplication.java
 [source,java]
 ----
 @SpringBootApplication
 @RestController
-@EnableRedisHttpSession
-class ResourceApplication {
-  ...
-}
-----
-
-another is to explicitly disable HTTP Basic in the resource server (to prevent the browser from popping up authentication dialogs):
-
-.ResourceApplication.java
-[source,java]
-----
-@SpringBootApplication
-@RestController
-@EnableRedisHttpSession
 class ResourceApplication extends WebSecurityConfigurerAdapter {
 
   ...
@@ -224,7 +194,7 @@ ____
 Aside: an alternative, which would also prevent the authentication dialog, would be to keep HTTP Basic but change the 401 challenge to something other than "Basic". You can do that with a one-line implementation of `AuthenticationEntryPoint` in the `HttpSecurity` configuration callback.
 ____
 
-and the last one is to explicitly ask for a non-stateless session creation policy in `application.properties`:
+and the other is to explicitly ask for a non-stateless session creation policy in `application.properties`:
 
 .application.properties
 [source,properties]

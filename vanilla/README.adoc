@@ -178,26 +178,7 @@ In the UI application we need to add some dependencies to our https://github.com
 </dependency>
 ----
 
-and then add `@EnableRedisHttpSession` to your main application:
-
-.UiApplication.java
-[source,java]
-----
-@SpringBootApplication
-@RestController
-@EnableRedisHttpSession
-public class UiApplication {
-
-  public static void main(String[] args) {
-    SpringApplication.run(UiApplication.class, args);
-  }
-
-  ...
-
-}
-----
-
-The `@EnableRedisHttpSession` annotation comes from Spring Session, and Spring Boot supplies a redis connection (a URL and credentials can be configured using environment variables or configuration files).
+Spring Boot and Spring Session work together to connect to Redis and store session data centrally.
 
 With that 1 line of code in place and a Redis server running on localhost you can run the UI application, login with some valid user credentials, and the session data (the authentication and CSRF token) will be stored in redis.
 
@@ -237,7 +218,6 @@ Instead of going directly to "http://localhost:9000[http://localhost:9000]" we h
 ----
 @SpringBootApplication
 @RestController
-@EnableRedisHttpSession
 public class UiApplication {
 
   public static void main(String[] args) {
@@ -298,7 +278,6 @@ All that remains is to pick up the custom token in the resource server and use i
 ----
 @SpringBootApplication
 @RestController
-@EnableRedisHttpSession
 class ResourceApplication {
 
   ...

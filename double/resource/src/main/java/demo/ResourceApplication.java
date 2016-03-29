@@ -11,15 +11,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
-@RestController
-@EnableRedisHttpSession
+@RestController	
 public class ResourceApplication extends WebSecurityConfigurerAdapter {
 
 	private String message = "Hello World";

@@ -53,8 +53,8 @@ All we need to make this work is the right stuff on the classpath. For that purp
   <dependencies>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-parent</artifactId>
-      <version>1.0.0.BUILD-SNAPSHOT</version>
+      <artifactId>spring-cloud-dependencies</artifactId>
+      <version>Brixton.RC1</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>

@@ -21,16 +21,9 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-starter-parent</artifactId>
-				<version>1.3.3.RELEASE</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
 				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-starter-parent</artifactId>
-				<version>Brixton.M3</version>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>Brixton.RC1</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

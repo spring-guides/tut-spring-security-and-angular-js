@@ -4,14 +4,13 @@ spring:
   aop:
     proxy-target-class: true
 
-
 security:
   user:
     password: none
   oauth2:
     client:
-      accessTokenUri: http://localhost:9999/uaa/oauth/token
-      userAuthorizationUri: http://localhost:9999/uaa/oauth/authorize
+      accessTokenUri: http://localhost:8080/uaa/oauth/token
+      userAuthorizationUri: http://localhost:8080/uaa/oauth/authorize
       clientId: acme
       clientSecret: acmesecret
     resource:
@@ -29,6 +28,11 @@ zuul:
     user:
       path: /user/**
       url: http://localhost:9999/uaa/user
+    auth:
+      path: /uaa/**
+      strip-prefix: false
+      sensitive-headers:
+      url: http://localhost:9999
 
 logging:
   level:

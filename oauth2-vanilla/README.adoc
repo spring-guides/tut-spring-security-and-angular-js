@@ -277,11 +277,10 @@ public class UiApplication extends WebSecurityConfigurerAdapter {
     public void configure(HttpSecurity http) throws Exception {
       http.authorizeRequests().antMatchers("/index.html", "/home.html", "/")
           .permitAll().anyRequest().authenticated().and().csrf()
-          .csrfTokenRepository(csrfTokenRepository()).and()
-          .addFilterAfter(csrfHeaderFilter(), CsrfFilter.class);
+          .csrf()
+            .csrfTokenRepository(new CookieCsrfTokenRepository());
     }
     
-    ... // the csrf*() methods are the same as the old WebSecurityConfigurerAdapter
 }
 ----
 

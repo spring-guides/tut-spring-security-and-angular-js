@@ -327,35 +327,7 @@ Transfer-Encoding: chunked
 
 That's good because it means that Spring Security's built-in CSRF protection has kicked in to prevent us from shooting ourselves in the foot. All it wants is a token sent to it in a header called "X-CSRF". The value of the CSRF token was available server side in the `HttpRequest` attributes from the initial request that loaded the home page. To get it to the client we could render it using a dynamic HTML page on the server, or expose it via a custom endpoint, or else we could send it as a cookie. The last choice is the best because Angular has https://docs.angularjs.org/api/ng/service/$http[built in support for CSRF] (which it calls "XSRF") based on cookies.
 
-So on the server we need a custom filter that will send the cookie. Angular wants the cookie name to be "XSRF-TOKEN" and Spring Security provides it as a request attribute, so we just need to transfer the value from a request attribute to a cookie:
-
-.CsrfHeaderFilter.java
-[source,java]
-----
-public class CsrfHeaderFilter extends OncePerRequestFilter {
-  @Override
-  protected void doFilterInternal(HttpServletRequest request,
-      HttpServletResponse response, FilterChain filterChain)
-      throws ServletException, IOException {
-    CsrfToken csrf = (CsrfToken) request.getAttribute(CsrfToken.class
-        .getName());
-    if (csrf != null) {
-      Cookie cookie = WebUtils.getCookie(request, "XSRF-TOKEN");
-      String token = csrf.getToken();
-      if (cookie==null || token!=null && !token.equals(cookie.getValue())) {
-        cookie = new Cookie("XSRF-TOKEN", token);
-        cookie.setPath("/");
-        response.addCookie(cookie);
-      }
-    }
-    filterChain.doFilter(request, response);
-  }
-}
-----
-
-To finish the job and make it completely generic we should be careful to set the cookie path to the context path of the application (instead of hard-coded to "/"), but this is good enough for the application we are working on. 
-
-We need to install this filter in the application somewhere, and it needs to go after the Spring Security `CsrfFilter` so that the request attribute is available. Since we have Spring Security protecting these resources there's no better place than in the Spring Security filter chain, e.g. extending the `SecurityConfiguration` above:
+So on the server we need a custom filter that will send the cookie. Angular wants the cookie name to be "XSRF-TOKEN" and Spring Security provides it as a request attribute by default, so we just need to transfer the value from a request attribute to a cookie. Fortunately, Spring Security (since 4.1.0) provides a special `CsrfTokenRepository` that does precisely this:
 
 .SecurityConfiguration.java
 [source,java]
@@ -370,28 +342,9 @@ protected static class SecurityConfiguration extends WebSecurityConfigurerAdapte
       .authorizeRequests()
         .antMatchers("/index.html", "/home.html", "/login.html", "/").permitAll().anyRequest()
         .authenticated().and()
-      .addFilterAfter(new CsrfHeaderFilter(), CsrfFilter.class);
+      .csrf()
+        .csrfTokenRepository(new CookieCsrfTokenRepository());
   }
-}
-----
-
-The other thing we have to do on the server is tell Spring Security to expect the CSRF token in the format that Angular wants to send it back (a header called "X-XRSF-TOKEN" instead of the default "X-CSRF-TOKEN"). We do this by customizing the CSRF filter:
-
-.SecurityConfiguration.java
-[source,java]
-----
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-  http
-    .httpBasic().and()
-    ...
-    .csrf().csrfTokenRepository(csrfTokenRepository());
-}
-
-private CsrfTokenRepository csrfTokenRepository() {
-  HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
-  repository.setHeaderName("X-XSRF-TOKEN");
-  return repository;
 }
 ----
 

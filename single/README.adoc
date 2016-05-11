@@ -357,7 +357,7 @@ To finish the job and make it completely generic we should be careful to set the
 
 We need to install this filter in the application somewhere, and it needs to go after the Spring Security `CsrfFilter` so that the request attribute is available. Since we have Spring Security protecting these resources there's no better place than in the Spring Security filter chain, e.g. extending the `SecurityConfiguration` above:
 
-.SecurityConfiguration.java
+.UiApplication.java
 [source,java]
 ----
 @Configuration

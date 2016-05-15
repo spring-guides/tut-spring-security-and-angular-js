@@ -79,7 +79,7 @@ Once that is done your application will be loadable in a browser. On the command
 
 [source]
 ----
-$ mvn spring-boot:run --server.port=9000
+$ mvn spring-boot:run -Dserver.port=9000
 ----
 
 and go to a browser at http://localhost:9000[http://localhost:9000] and you should see JSON with a greeting. You can bake in the port change in `application.properties` (in"src/main/resources"):

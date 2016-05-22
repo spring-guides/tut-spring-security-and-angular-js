@@ -306,7 +306,7 @@ It sends an HTTP POST to "/logout" which we now need to implement on the server.
 
 == CSRF Protection
 
-The application is almost ready to use, and in fact if you run it you will find that everything we built so far actually works except the logout link. Try using it annd look at the responses in the browser and you will see why:
+The application is almost ready to use, and in fact if you run it you will find that everything we built so far actually works except the logout link. Try using it and look at the responses in the browser and you will see why:
 
 [source]
 ----

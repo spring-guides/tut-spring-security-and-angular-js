@@ -56,20 +56,20 @@ You can then import that project (it's a normal Maven Java project by default) i
 
 Just add a `@RequestMapping` to the https://github.com/dsyer/spring-security-angular/blob/master/vanilla/resource/src/main/groovy/demo/ResourceApplication.groovy[main application class], copying the implementation from the https://github.com/dsyer/spring-security-angular/blob/master/single/src/main/java/demo/UiApplication.java[old UI]:
 
-.ResourceApplication.groovy
+.ResourceApplication.java
 [source,java]
 ----
 @SpringBootApplication
 @RestController
 class ResourceApplication {
 	
-  @RequestMapping('/')
-  def home() {
-    [id: UUID.randomUUID().toString(), content: 'Hello World']
-  }comm
+  @RequestMapping("/")
+  public Message home() {
+    return new Message("Hello World");
+  }
 
-  static void main(String[] args) {
-    SpringApplication.run ResourceApplication, args
+  public static void main(String[] args) {
+    SpringApplication.run(ResourceApplication.class, args);
   }
 
 }
@@ -98,7 +98,7 @@ The browser tries to negotiate with our resource server to find out if it is all
 
 To fix that we need to support the CORS protocol which involves a "pre-flight" OPTIONS request and some headers to list the allowed behaviour of the caller. Spring 4.2 has some nice https://jira.spring.io/browse/SPR-9278[fine-grained CORS support], so we can just add an annotation to our controller mapping, for example:
 
-.ResourceApplication.groovy
+.ResourceApplication.java
 [source,java]
 ----
 @RequestMapping("/")
@@ -273,7 +273,7 @@ NOTE: It is a little bit of a risk to `permitAll()` access like this: there migh
 
 All that remains is to pick up the custom token in the resource server and use it to authenticate our user. This turns out to be pretty straightforward because all we need to do is tell Spring Security where the session repository is, and where to look for the token (session ID) in an incoming request. First we need to add the Spring Session and Redis dependencies, and then we can set up the `Filter`:
 
-.ResourceApplication.groovy
+.ResourceApplication.java
 [source,java]
 ----
 @SpringBootApplication
@@ -284,7 +284,7 @@ class ResourceApplication {
   
   @Bean
   HeaderHttpSessionStrategy sessionStrategy() {
-    new HeaderHttpSessionStrategy();
+    return new HeaderHttpSessionStrategy();
   }
 
 }

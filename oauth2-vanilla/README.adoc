@@ -134,9 +134,9 @@ with this:
 </dependency>
 ----
 
-and then remove the session `Filter` from the https://github.com/dsyer/spring-security-angular/blob/master/vanilla-oauth2/resource/src/main/groovy/demo/ResourceApplication.groovy[main application class], replacing it with the convenient `@EnableResourceServer` annotation (from Spring Security OAuth2):
+and then remove the session `Filter` from the https://github.com/dsyer/spring-security-angular/blob/master/vanilla-oauth2/resource/src/main/java/demo/ResourceApplication.java[main application class], replacing it with the convenient `@EnableResourceServer` annotation (from Spring Security OAuth2):
 
-.ResourceApplication.groovy
+.ResourceApplication.java
 [source,java]
 ----
 @SpringBootApplication
@@ -144,13 +144,13 @@ and then remove the session `Filter` from the https://github.com/dsyer/spring-se
 @EnableResourceServer
 class ResourceApplication {
 
-  @RequestMapping('/')
-  def home() {
-    [id: UUID.randomUUID().toString(), content: 'Hello World']
+  @RequestMapping("/")
+  public Message home() {
+    return new Message("Hello World");
   }
 
-  static void main(String[] args) {
-    SpringApplication.run ResourceApplication, args
+  public static void main(String[] args) {
+    SpringApplication.run(ResourceApplication.class, args);
   }
 }
 

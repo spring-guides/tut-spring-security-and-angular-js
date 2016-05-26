@@ -54,7 +54,7 @@ All we need to make this work is the right stuff on the classpath. For that purp
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-dependencies</artifactId>
-      <version>Brixton.RC1</version>
+      <version>Brixton.RELEASE</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>

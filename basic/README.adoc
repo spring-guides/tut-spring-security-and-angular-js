@@ -151,14 +151,6 @@ To create static resources at build time we add some magic to the Maven `pom.xml
 [source,xml]
 ----
 <build>
-  <resources>
-    <resource>
-      <directory>${project.basedir}/src/main/resources</directory>
-    </resource>
-    <resource>
-      <directory>${project.build.directory}/generated-resources</directory>
-    </resource>
-  </resources>
   <plugins>
     <plugin>
       <groupId>org.springframework.boot</groupId>
@@ -201,8 +193,8 @@ To create static resources at build time we add some magic to the Maven `pom.xml
       </executions>
       <configuration>
         <wroManagerFactory>ro.isdc.wro.maven.plugin.manager.factory.ConfigurableWroManagerFactory</wroManagerFactory>
-        <cssDestinationFolder>${project.build.directory}/generated-resources/static/css</cssDestinationFolder>
-        <jsDestinationFolder>${project.build.directory}/generated-resources/static/js</jsDestinationFolder>
+        <cssDestinationFolder>${project.build.directory}/classes/static/css</cssDestinationFolder>
+        <jsDestinationFolder>${project.build.directory}/classes/static/js</jsDestinationFolder>
         <wroFile>${project.build.directory}/wro/wro.xml</wroFile>
         <extraConfigFile>${basedir}/src/main/wro/wro.properties</extraConfigFile>
         <contextFolder>${basedir}/src/main/wro</contextFolder>
@@ -235,7 +227,7 @@ You can copy that verbatim into your POM, or just scan it if you are following a
 
 * Twitter Bootstrap has a dependency on jQuery, so we include that as well. An Angular JS application that didn't use Bootstrap wouldn't need that since Angular has its own version of the features it needs from jQuery.
 
-* The generated resources will go in "target/generated-resources", and because that is declared in the `&lt;resources/&gt;` section, they will be packaged in the output JAR from the project, and available on the classpath in the IDE (as long as we are using Maven tooling, e.g. m2e in Eclipse).
+* The generated resources will go in "target/classes", so they will be packaged in the output JAR from the project, and also available on the classpath in the IDE (as long as we are using Maven tooling, e.g. m2e in Eclipse).
 
 * The wro4j-maven-plugin has some Eclipse integration features and you can install it from the Eclipse Marketplace (try it later if this is your first time - it's not needed to complete the application). If you do that then Eclipse will watch the source files and re-generate the outputs if they change. If you run in debug mode then changes are immediately re-loadable in a browser.
 

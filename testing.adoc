@@ -219,7 +219,7 @@ The default settings for this plugin won't work with the static resource layout 
     <additionalContexts>
       <context>
         <contextRoot>/lib</contextRoot>
-        <directory>${project.build.directory}/generated-resources/static/js</directory>
+        <directory>${project.build.directory}/classes/static/js</directory>
       </context>
     </additionalContexts>
     <preloadSources>
@@ -228,28 +228,14 @@ The default settings for this plugin won't work with the static resource layout 
     </preloadSources>
     <jsSrcDir>${project.basedir}/src/main/resources/static/js</jsSrcDir>
     <jsTestSrcDir>${project.basedir}/src/test/resources/static/js</jsTestSrcDir>
-    <webDriverClassName>org.openqa.selenium.phantomjs.PhantomJSDriver</webDriverClassName>
+    <phantomjs>
+      <version>2.1.1</version>
+    </phantomjs>
   </configuration>
 </plugin>
 ----
 
-Notice that the `webDriverClassName` is specified as `PhantomJSDriver`, which means you need `phantomjs` to be on your `PATH` at runtime. This works out of the box in https://travis-ci.org[Travis CI], and requires a simple installation in Linux, MacOS and Windows - you can http://phantomjs.org/download.html[download binaries] or use a package manager, like `apt-get` on Ubuntu for instance. In principle, any Selenium web driver can be used here (and the default is `HtmlUnitDriver`), but PhantomJS is probably the best one to use for an Angular application.
-
-We also need to make the Angular library available to the plugin so it can load that "angular-mocks.js" dependency:
-
-[source,xml]
-----
-<plugin>
-  ...
-  <dependencies>
-    <dependency>
-      <groupId>org.webjars</groupId>
-      <artifactId>angularjs</artifactId>
-      <version>1.3.8</version>
-    </dependency>
-  </dependencies>
-</plugin>
-----
+The default Selenium web driver is `phantomjs`, which will be downloaded for you if you are on a supported platform, or else it needs to be on your `PATH` at runtime. This works out of the box in https://travis-ci.org[Travis CI], for instance. In principle, any driver can be used here, but PhantomJS is probably the best one to use for an Angular application.
 
 That's it. All boilerplate again (so it can go in a parent pom if you want to share the code between multiple projects). Just run it on the command line:
 

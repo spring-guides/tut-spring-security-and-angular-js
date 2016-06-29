@@ -134,7 +134,7 @@
 					<additionalContexts>
 						<context>
 							<contextRoot>/lib</contextRoot>
-							<directory>${project.build.directory}/generated-resources/static/js</directory>
+							<directory>${project.build.directory}/classes/static/js</directory>
 						</context>
 					</additionalContexts>
 					<preloadSources>
@@ -143,15 +143,10 @@
 					</preloadSources>
 					<jsSrcDir>${project.basedir}/src/main/resources/static/js</jsSrcDir>
 					<jsTestSrcDir>${project.basedir}/src/test/resources/static/js</jsTestSrcDir>
-					<webDriverClassName>org.openqa.selenium.phantomjs.PhantomJSDriver</webDriverClassName>
+					<phantomjs>
+						<version>2.1.1</version>
+					</phantomjs>
 				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>org.webjars</groupId>
-						<artifactId>angularjs</artifactId>
-						<version>1.3.8</version>
-					</dependency>
-				</dependencies>
 			</plugin>
 		</plugins>
 	</build>

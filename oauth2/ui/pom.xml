@@ -21,6 +21,13 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-bom</artifactId>
+				<version>${spring-security.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
 				<version>Brixton.RELEASE</version>
@@ -71,6 +78,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<wro4j.version>1.7.9</wro4j.version>
 		<java.version>1.8</java.version>
+		<spring-security.version>4.1.0.BUILD-SNAPSHOT</spring-security.version>
 	</properties>
 
 	<build>

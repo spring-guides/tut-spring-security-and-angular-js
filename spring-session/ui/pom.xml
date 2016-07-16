@@ -51,7 +51,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<wro4j.version>1.7.9</wro4j.version>
 		<java.version>1.8</java.version>
-		<spring-security.version>4.1.0.BUILD-SNAPSHOT</spring-security.version>
+		<spring-security.version>4.1.1.RELEASE</spring-security.version>
 	</properties>
 
 	<build>

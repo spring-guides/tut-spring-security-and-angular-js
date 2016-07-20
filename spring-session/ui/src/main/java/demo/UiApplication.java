@@ -40,7 +40,7 @@ public class UiApplication {
 					.antMatchers("/index.html", "/home.html", "/login.html", "/").permitAll()
 					.anyRequest().authenticated().and()
 				.csrf()
-					.csrfTokenRepository(new CookieCsrfTokenRepository());
+					.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
 			// @formatter:on
 		}
 	}

@@ -75,7 +75,7 @@ public class GatewayApplication {
 					.anyRequest().authenticated()
 					.and()
 				.csrf()
-					.csrfTokenRepository(new CookieCsrfTokenRepository());
+					.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
 			// @formatter:on
 		}
 	}

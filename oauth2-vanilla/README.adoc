@@ -276,9 +276,9 @@ public class UiApplication extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(HttpSecurity http) throws Exception {
       http.authorizeRequests().antMatchers("/index.html", "/home.html", "/")
-          .permitAll().anyRequest().authenticated().and().csrf()
+          .permitAll().anyRequest().authenticated().and()
           .csrf()
-            .csrfTokenRepository(new CookieCsrfTokenRepository());
+            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
     }
     
 }

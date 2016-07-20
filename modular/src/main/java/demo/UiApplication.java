@@ -60,7 +60,7 @@ public class UiApplication {
 					.anyRequest().authenticated()
 					.and()
 				.csrf()
-					.csrfTokenRepository(new CookieCsrfTokenRepository());
+					.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
 			// @formatter:on
 		}
 	}

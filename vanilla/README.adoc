@@ -301,7 +301,7 @@ security:
   sessions: NEVER
 ----
 
-This says to Spring Security "never create a session, but use one if it is there" (it will be already be there because of the authentication in the UI).
+This says to Spring Security "never create a session, but use one if it is there" (it will already be there because of the authentication in the UI).
 
 Re-launch the resource server and open the UI up in a new browser window.
 

@@ -11,7 +11,7 @@ Spring has always been a popular technology for building the backend features (e
 
 == Create a New Project
 
-We are going to step through creating this application in some detail, so that anyone who isn't completely au fait with Spring and Angular can follow what is happening. If you prefer to cut to this chase, you can link:#how-does-it-work[skip to the end] where the application is working, and see how it all fits together. There are various options for creating a new project:
+We are going to step through creating this application in some detail, so that anyone who isn't completely au fait with Spring and Angular can follow what is happening. If you prefer to cut through this chase, you can link:#how-does-it-work[skip to the end] where the application is working, and see how it all fits together. There are various options for creating a new project:
 
 * link:#using-curl[Using curl on the command line]
 * link:#using-spring-boot-cli[Using Spring Boot CLI]

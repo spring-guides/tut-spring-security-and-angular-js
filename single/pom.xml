@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.3.5.RELEASE</version>
+		<version>1.4.0.RELEASE</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 
@@ -55,7 +55,6 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<wro4j.version>1.7.9</wro4j.version>
 		<java.version>1.8</java.version>
-		<spring-security.version>4.1.1.RELEASE</spring-security.version>
 	</properties>
 
 	<build>

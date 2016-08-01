@@ -11,7 +11,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.TestRestTemplate;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -32,7 +32,7 @@ public class ApplicationTests {
 	@Value("${local.server.port}")
 	private int port;
 
-	private RestTemplate template = new TestRestTemplate();
+	private TestRestTemplate template = new TestRestTemplate();
 
 	@Test
 	public void homePageLoads() {

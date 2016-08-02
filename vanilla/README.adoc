@@ -49,10 +49,10 @@ The https://github.com/dsyer/spring-security-angular/blob/master/vanilla/ui/src/
 ----
 $ mkdir resource && cd resource
 $ curl https://start.spring.io/starter.tgz -d style=web \
--d name=resource -d language=groovy | tar -xzvf - 
+-d name=resource | tar -xzvf - 
 ----
 
-You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line. We are using Groovy because we can, but please feel free to use Java if you prefer. There isn't going to be much code anyway.
+You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line.
 
 Just add a `@RequestMapping` to the https://github.com/dsyer/spring-security-angular/blob/master/vanilla/resource/src/main/groovy/demo/ResourceApplication.groovy[main application class], copying the implementation from the https://github.com/dsyer/spring-security-angular/blob/master/single/src/main/java/demo/UiApplication.java[old UI]:
 
@@ -117,7 +117,7 @@ Great! We have a working application with a new architecture. The only problem i
 
 === Adding Spring Security
 
-We can also look at how to add security to the resource server as a filter layer, like in the UI server. This is perhaps more conventional, and is certainly the best option in most PaaS environments (since they don't usually make private networks available to applications). The first step is really easy: just add Spring Security to the classpath in the Maven POM:
+We can also look at how to add security to the resource server as a filter layer, like in the UI server. The first step is really easy: just add Spring Security to the classpath in the Maven POM:
 
 .pom.xml
 [source,xml]
@@ -261,15 +261,14 @@ public class ResourceApplication extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-    http.authorizeRequests()
-      .requestMatchers(CorsUtils::isCorsRequest).permitAll()
+    http.cors().and().authorizeRequests()
       .anyRequest().authenticated();
   }
 
   ...
 ----
 
-NOTE: It is a little bit of a risk to `permitAll()` access like this: there might be a handler that inadvertently sends sensitive data because it is not aware that the request is pre-flight. Spring MVC mitigates the risk (at the time of writing at least) by sending a 403 if it detects a pre-flight request that has no declared handler.
+NOTE: There is no need to `permitAll()` access to all resources, and there might be a handler that inadvertently sends sensitive data because it is not aware that the request is pre-flight. The `cors()` configuration utility mitigates this by handling all pre-flight requests in the filter layer.
 
 All that remains is to pick up the custom token in the resource server and use it to authenticate our user. This turns out to be pretty straightforward because all we need to do is tell Spring Security where the session repository is, and where to look for the token (session ID) in an incoming request. First we need to add the Spring Session and Redis dependencies, and then we can set up the `Filter`:
 

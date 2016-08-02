@@ -11,7 +11,6 @@ import org.springframework.session.web.http.HeaderHttpSessionStrategy;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.cors.CorsUtils;
 
 @SpringBootApplication
 @RestController
@@ -19,7 +18,7 @@ public class ResourceApplication extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests().requestMatchers(CorsUtils::isCorsRequest).permitAll().anyRequest().authenticated();
+		http.cors().and().authorizeRequests().anyRequest().authenticated();
 	}
 
 	@RequestMapping("/")

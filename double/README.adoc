@@ -62,6 +62,17 @@ server.port: 9000
 security.sessions: NEVER
 ----
 
+We are going to be POSTing changes to our message resource, which is a new feature in this tutorial. It means that we are going to need CSRF protection in the backend, and we need to do the usual trick to make Spring Security play nicely with Angular:
+
+[source,java,indent=0]
+----
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http.csrf()
+				.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+	}
+----
+
 The completed sample is https://github.com/dsyer/spring-security-angular/tree/master/double/resource[here in github] if you want to take a peek.
 
 == The Gateway
@@ -87,7 +98,7 @@ zuul:
   routes:
     ui:
       url: http://localhost:8081
-    resource:
+   resource:
       url: http://localhost:9000
 security:
   user:

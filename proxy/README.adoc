@@ -15,7 +15,7 @@ If you were following along in the code, you will know that the application impl
 
 === Declarative Reverse Proxy in One Line
 
-To turn it into an API Gateawy, the UI server needs one small tweak. Somewhere in the Spring configuration we need to add an `@EnableZuulProxy` annotation, e.g. in the main (only) https://github.com/dsyer/spring-security-angular/blob/master/proxy/ui/src/main/java/demo/UiApplication.java[application class]:
+To turn it into an API Gateway, the UI server needs one small tweak. Somewhere in the Spring configuration we need to add an `@EnableZuulProxy` annotation, e.g. in the main (only) https://github.com/dsyer/spring-security-angular/blob/master/proxy/ui/src/main/java/demo/UiApplication.java[application class]:
 
 .UiApplication.java
 [source,java]

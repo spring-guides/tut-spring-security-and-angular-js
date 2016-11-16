@@ -97,7 +97,7 @@ In order to use the "ngRoute" module, we need to add a line to the "wro.xml" con
 <groups xmlns="http://www.isdc.ro/wro">
   <group name="angular-bootstrap">
     ...
-    <js>webjar:angularjs/1.3.8/angular-route.min.js</js>
+    <js>webjar:angularjs/1.4.9/angular-route.min.js</js>
    </group>
 </groups>
 ----

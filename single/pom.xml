@@ -40,13 +40,13 @@
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>angularjs</artifactId>
-			<version>1.4.3</version>
+			<version>1.4.9</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>jasmine</artifactId>
-			<version>2.0.0</version>
+			<version>2.4.1</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -87,24 +87,24 @@
 					<dependency>
 						<groupId>org.webjars</groupId>
 						<artifactId>jquery</artifactId>
-						<version>2.2.1</version>
+						<version>2.2.4</version>
 					</dependency>
 					<dependency>
 						<groupId>org.webjars</groupId>
 						<artifactId>angularjs</artifactId>
-						<version>1.4.3</version>
+						<version>1.4.9</version>
 					</dependency>
 					<dependency>
 						<groupId>org.webjars</groupId>
 						<artifactId>bootstrap</artifactId>
-						<version>3.3.6</version>
+						<version>3.3.7</version>
 					</dependency>
 				</dependencies>
 			</plugin>
 			<plugin>
 				<groupId>com.github.searls</groupId>
 				<artifactId>jasmine-maven-plugin</artifactId>
-				<version>2.1</version>
+				<version>2.2</version>
 				<executions>
 					<execution>
 						<goals>
@@ -121,7 +121,7 @@
 					</additionalContexts>
 					<preloadSources>
 						<source>/lib/angular-bootstrap.js</source>
-						<source>/webjars/angularjs/1.4.3/angular-mocks.js</source>
+						<source>/webjars/angularjs/1.4.9/angular-mocks.js</source>
 					</preloadSources>
 					<jsSrcDir>${project.basedir}/src/main/resources/static/js</jsSrcDir>
 					<jsTestSrcDir>${project.basedir}/src/test/resources/static/js</jsTestSrcDir>

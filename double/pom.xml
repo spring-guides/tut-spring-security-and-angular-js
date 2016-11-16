@@ -6,7 +6,7 @@
 	<artifactId>pairs-double</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>Spring Pairs Sample Doble</name> 
+	<name>Spring Security Angular Sample Double</name> 
 
 	<modules>
 		<module>gateway</module>

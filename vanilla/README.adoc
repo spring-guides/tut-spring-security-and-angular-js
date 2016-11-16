@@ -54,7 +54,7 @@ $ curl https://start.spring.io/starter.tgz -d style=web \
 
 You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line.
 
-Just add a `@RequestMapping` to the https://github.com/dsyer/spring-security-angular/blob/master/vanilla/resource/src/main/groovy/demo/ResourceApplication.groovy[main application class], copying the implementation from the https://github.com/dsyer/spring-security-angular/blob/master/single/src/main/java/demo/UiApplication.java[old UI]:
+Just add a `@RequestMapping` to the https://github.com/dsyer/spring-security-angular/blob/master/vanilla/resource/src/main/java/demo/ResourceApplication.java[main application class], copying the implementation from the https://github.com/dsyer/spring-security-angular/blob/master/single/src/main/java/demo/UiApplication.java[old UI]:
 
 .ResourceApplication.java
 [source,java]
@@ -72,6 +72,15 @@ class ResourceApplication {
     SpringApplication.run(ResourceApplication.class, args);
   }
 
+}
+
+class Message {
+  private String id = UUID.randomUUID().toString();
+  private String content;
+  public Message(String content) {
+    this.content = content;
+  }
+  // ... getters and setters and default constructor
 }
 ----
 

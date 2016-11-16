@@ -51,7 +51,6 @@ public class UiApplication {
 	}
 
 	@RequestMapping("/token")
-	@ResponseBody
 	public Map<String,String> token(HttpSession session) {
 		return Collections.singletonMap("token", session.getId());
 	}

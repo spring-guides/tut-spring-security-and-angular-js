@@ -1,0 +1,69 @@
+redis:
+  image: redis
+  ports:
+    - "6379:6379"
+
+ui:
+  image: maven:3.2-jdk-8
+  links:
+    - redis
+  expose:
+    - "8081"
+  volumes:
+    - ./ui:/usr/src/mymaven
+    - ./m2cache:/root/.m2
+  working_dir: /usr/src/mymaven
+  environment:
+    - SPRING_REDIS_HOST=redis
+  command: mvn spring-boot:run
+
+admin:
+  image: maven:3.2-jdk-8
+  links:
+    - redis
+  expose:
+    - "8082"
+  volumes:
+    - ./admin:/usr/src/mymaven
+    - ./m2cache:/root/.m2
+  working_dir: /usr/src/mymaven
+  environment:
+    - SPRING_REDIS_HOST=redis
+  command: mvn spring-boot:run
+
+resource:
+  image: maven:3.2-jdk-8
+  links:
+    - redis
+  expose:
+    - "9090"
+  volumes:
+    - ./resource:/usr/src/mymaven
+    - ./m2cache:/root/.m2
+  working_dir: /usr/src/mymaven
+  environment:
+    - SERVER_ADDRESS=0.0.0.0
+    - SPRING_REDIS_HOST=redis
+  command: mvn spring-boot:run
+
+gateway:
+  image: maven:3.2-jdk-8
+  links:
+    - redis
+    - admin
+    - ui
+    - resource
+  ports:
+    - "8080:8080"
+  expose:
+    - "8080"
+  volumes:
+    - ./gateway:/usr/src/mymaven
+    - ./m2cache:/root/.m2
+  working_dir: /usr/src/mymaven
+  environment:
+    - ZUUL_ROUTES_UI_URL=http://ui:8081
+    - ZUUL_ROUTES_ADMIN_URL=http://admin:8082
+    - ZUUL_ROUTES_RESOURCE_URL=http://resource:9000
+    - SPRING_REDIS_HOST=redis
+  command: mvn spring-boot:run

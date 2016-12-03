@@ -448,9 +448,9 @@ Run all the apps and go to http://localhost:8080 to see the result. Everything s
 
 == Run all apps within Docker
 
-Running Redis within Docker is fine. We add now also the other apps to a docker-compose File (use the https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/double/docker-compose-all.yml[`docker-compose-all.yml`]). Each app will run in its own container. Exposing just the port 8080 to the host will add additional security.
+Running Redis within Docker is fine. We add now also the other apps to a docker-compose File (use the https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/double/docker-compose-all.yml[`docker-compose-all.yml`]). Each app will run in its own container. Exposing just the port 8080 to the host will give us additional security.
 
-The host names have to be changed to Docker container name. This can be done by setting these OS Environment variables. They will overwrite the settings in your `application.yml` file:
+All host names have to be changed to Docker container names. This can be done by setting these OS Environment variables. They will overwrite the settings in your `application.yml` files:
 
  SPRING_REDIS_HOST
  SERVER_ADDRESS
@@ -464,7 +464,6 @@ All links between the apps need to be defined. To speed up the build, it is reco
 [source,yaml]
 ----
 ...
-
 ui:
   image: maven:3.2-jdk-8
   links:
@@ -478,11 +477,10 @@ ui:
   environment:
     - SPRING_REDIS_HOST=redis
   command: mvn spring-boot:run
-
 ...
 ----
 
-Add a temporary directory `m2cache` for the container shared Maven cache (as defined in the docker-compose file), start all containers and open the gateway app in the browser http://<docker-machine-ip>:8080/ .
+Add a temporary directory for a container-shared-Maven-cache (`m2cache` as defined in the docker-compose file), start all containers and open the gateway app in your browser http://<docker-machine-ip>:8080/ .
 
 [source]
 ----

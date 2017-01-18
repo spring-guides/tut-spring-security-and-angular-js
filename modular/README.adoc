@@ -125,7 +125,7 @@ In this series you have Spring Boot, so of course you have server-side logic, an
 
 [source,java]
 ----
-@RequestMapping(value = "/{[path:[^\\.]*}")
+@RequestMapping(value = "/{path:[^\\.]*}")
 public String redirect() {
   return "forward:/";
 }

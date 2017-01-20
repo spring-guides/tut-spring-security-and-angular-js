@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
 @RestController
-@EnableRedisHttpSession
 public class UiApplication {
 
 	@RequestMapping("/user")

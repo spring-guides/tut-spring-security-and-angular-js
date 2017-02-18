@@ -1,10 +1,10 @@
 <groups xmlns="http://www.isdc.ro/wro">
   <group name="admin-assets">
-	<css>webjar:bootstrap/3.3.7-1/less/bootstrap.less</css>   
+    <css>webjar:bootstrap/@bootstrap.version@/less/bootstrap.less</css>
     <css>file:@project.basedir@/src/main/wro/main.less</css>
-    <js>webjar:jquery/2.2.4/jquery.min.js</js>
-    <js>webjar:angularjs/1.4.9/angular.min.js</js>
-    <js>webjar:angularjs/1.4.9/angular-route.min.js</js>
-    <js>webjar:angularjs/1.4.9/angular-cookies.min.js</js>
+    <js>webjar:jquery/@jquery.version@/jquery.min.js</js>
+    <js>webjar:angularjs/@angularjs.version@/angular.min.js</js>
+    <js>webjar:angularjs/@angularjs.version@/angular-route.min.js</js>
+    <js>webjar:angularjs/@angularjs.version@/angular-cookies.min.js</js>
    </group>
 </groups>

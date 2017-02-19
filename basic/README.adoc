@@ -29,7 +29,7 @@ The easiest way to create a new project to get started is via the https://start.
 ----
 $ mkdir ui && cd ui
 $ curl https://start.spring.io/starter.tgz -d style=web \
--d style=security -d name=ui | tar -xzvf - 
+-d style=security -d name=ui | tar -xzvf -
 ----
 
 You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line. Then jump to the link:#add-a-home-page[next section].
@@ -170,27 +170,27 @@ To create static resources at build time we add some magic to the Maven `pom.xml
       </executions>
       <configuration>
         <wroManagerFactory>ro.isdc.wro.maven.plugin.manager.factory.ConfigurableWroManagerFactory</wroManagerFactory>
-        <cssDestinationFolder>${project.build.directory}/classes/static/css</cssDestinationFolder>
-        <jsDestinationFolder>${project.build.directory}/classes/static/js</jsDestinationFolder>
-        <wroFile>${basedir}/src/main/wro/wro.xml</wroFile>
-        <extraConfigFile>${basedir}/src/main/wro/wro.properties</extraConfigFile>
-        <contextFolder>${basedir}/src/main/wro</contextFolder>
+        <cssDestinationFolder>${project.build.directory}/generated-resources/static/css</cssDestinationFolder>
+        <jsDestinationFolder>${project.build.directory}/generated-resources/static/js</jsDestinationFolder>
+        <wroFile>${project.build.directory}/wro/wro.xml</wroFile>
+        <extraConfigFile>${project.build.directory}/wro/wro.properties</extraConfigFile>
+        <contextFolder>${project.build.directory}/wro</contextFolder>
       </configuration>
       <dependencies>
         <dependency>
           <groupId>org.webjars</groupId>
           <artifactId>jquery</artifactId>
-          <version>2.2.4</version>
+          <version>${jquery.version}</version>
         </dependency>
         <dependency>
           <groupId>org.webjars</groupId>
           <artifactId>angularjs</artifactId>
-          <version>1.4.9</version>
+          <version>${angularjs.version}</version>
         </dependency>
         <dependency>
           <groupId>org.webjars</groupId>
           <artifactId>bootstrap</artifactId>
-          <version>3.3.7</version>
+          <version>${bootstrap.version}</version>
         </dependency>
       </dependencies>
     </plugin>
@@ -232,9 +232,9 @@ postProcessors=less4j,jsMin
 ----
 <groups xmlns="http://www.isdc.ro/wro">
   <group name="angular-bootstrap">
-  <css>webjar:bootstrap/3.3.7/less/bootstrap.less</css>   
+  <css>webjar:bootstrap/3.3.7/less/bootstrap.less</css>
     <css>file:./src/main/wro/main.less</css>
-    <js>webjar:jquery/2.2.4/jquery.min.js</js>
+    <js>webjar:jquery/${jquery.version}/jquery.min.js</js>
     <js>webjar:angularjs/1.4.9/angular.min.js</js>
   </group>
 </groups>

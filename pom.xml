@@ -19,8 +19,8 @@
 		<module>double</module>
 		<module>modular</module>
 	</modules>
-	
-    <build>
+
+	<build>
       <plugins>
       </plugins>
     </build>

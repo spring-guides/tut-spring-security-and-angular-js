@@ -137,7 +137,7 @@ $ java -jar target/*.jar
 
 == Front End Assets
 
-Entry-level tutorials on Angular and other front end technologies often just include the library assets directly from the internet (e.g. https://docs.angularjs.org/misc/downloading[the Angular JS website] itself recommends downloading from https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js[Google CDN]). Instead of doing that we are going to generate the "angular-bootstrap.js" asset by concatenating several files from such libraries. This is not strictly necessary to get the application working, but it _is_ best practice for a production application to consolidate scripts to avoid chatter between the browser and the server (or content delivery network). Since we aren't modifying or customizing the CSS stylesheets it is also unecessary to generate the "angular-bootstrap.css", and we could just use static assets from Google CDN for that as well. However, in a real application we almost certainly would want to modify the stylesheets and we wouldn't want to edit the CSS sources by hand, so we would use a higher level tool (e.g. http://lesscss.org/[Less] or http://sass-lang.com/[Sass]), so we are going to use one too.
+Entry-level tutorials on Angular and other front end technologies often just include the library assets directly from the internet (e.g. https://docs.angularjs.org/misc/downloading[the Angular JS website] itself recommends downloading from https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.min.js[Google CDN]). Instead of doing that we are going to generate the "angular-bootstrap.js" asset by concatenating several files from such libraries. This is not strictly necessary to get the application working, but it _is_ best practice for a production application to consolidate scripts to avoid chatter between the browser and the server (or content delivery network). Since we aren't modifying or customizing the CSS stylesheets it is also unecessary to generate the "angular-bootstrap.css", and we could just use static assets from Google CDN for that as well. However, in a real application we almost certainly would want to modify the stylesheets and we wouldn't want to edit the CSS sources by hand, so we would use a higher level tool (e.g. http://lesscss.org/[Less] or http://sass-lang.com/[Sass]), so we are going to use one too.
 
 There are many different ways of doing this, but for the purposes of this section, we are going to use http://alexo.github.io/wro4j/[wro4j], which is a Java-based toolchain for preprocessing and packaging front end assets. It can be used as a JIT (Just in Time) `Filter` in any Servlet application, but it also has good support for build tools like Maven and Eclipse, and that is how we are going to use it. So we are going to build static resource files and bundle them in our application JAR.
 
@@ -232,11 +232,13 @@ postProcessors=less4j,jsMin
 ----
 <groups xmlns="http://www.isdc.ro/wro">
   <group name="angular-bootstrap">
-  <css>webjar:bootstrap/3.3.7/less/bootstrap.less</css>
-    <css>file:./src/main/wro/main.less</css>
-    <js>webjar:jquery/${jquery.version}/jquery.min.js</js>
-    <js>webjar:angularjs/1.4.9/angular.min.js</js>
-  </group>
+	<css>webjar:bootstrap/@bootstrap.version@/less/bootstrap.less</css>
+    <css>file:@project.basedir@/src/main/wro/main.less</css>
+    <js>webjar:jquery/@jquery.version@/jquery.min.js</js>
+    <js>webjar:angularjs/@angularjs.version@/angular.min.js</js>
+    <js>webjar:angularjs/@angularjs.version@/angular-route.min.js</js>
+    <js>webjar:angularjs/@angularjs.version@/angular-cookies.min.js</js>
+   </group>
 </groups>
 ----
 +

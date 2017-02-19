@@ -228,7 +228,7 @@ $ curl -H "Authorization: Bearer $TOKEN" localhost:9999/uaa/user
 
 == The UI Server
 
-The final piece of this application we need to complete is the UI server, extracting the authentication part and delegating to the authorization server. So, as with link:#changing-the-resource-server[the resource server], we first need to remove the Spring Session and Redis dependencies and replace them with Spring OAuth2.
+The final piece of this application we need to complete is the UI server, extracting the authentication part and delegating to the authorization server. So, as with link:#changing-the-resource-server[the resource server], we first need to remove the Spring Session and Redis dependencies and replace them with Spring OAuth2. Because we are using Zuul in the UI layer we actually use `spring-cloud-starter-oauth2` instead of `spring-security-oauth2` directly (this sets up some autoconfiguration for relaying tokens through the proxy).
 
 Once that is done we can remove the session filter and the "/user" endpoint as well, and set up the application to redirect to the authorization server (using the `@EnableOAuth2Sso` annotation):
 

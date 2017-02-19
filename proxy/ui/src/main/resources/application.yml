@@ -1,6 +1,9 @@
 security:
   user:
     password: password
+spring:
+  session:
+    store-type: redis
 zuul:
   routes:
     resource:

@@ -3,6 +3,9 @@ logging:
     org.springframework.security: DEBUG
 security:
   sessions: ALWAYS
+spring:
+  session:
+    store-type: redis
 zuul:
   routes:
     ui:

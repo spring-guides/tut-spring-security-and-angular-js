@@ -311,6 +311,20 @@ authorization server locations. There is also a `userInfoUri` (just
 like in the resource server) so that the user can be authenticated in
 the UI app itself.
 
+NOTE: If you want to make the UI application be able to refresh expired
+access tokens automatically, you have to get an `OAuth2RestOperations`
+injected into the Zuul filter that does the relay. You can do this
+by just creating a bean of that type (check the `OAuth2TokenRelayFilter` 
+for details):
+[source,java]
+----
+@Bean
+protected OAuth2RestTemplate OAuth2RestTemplate(
+    OAuth2ProtectedResourceDetails resource, OAuth2ClientContext context) {
+  return new OAuth2RestTemplate(resource, context);
+}
+----
+
 === In the Client
 
 There are some minor tweaks to the UI application on the front end that we still need to make to trigger the redirect to the authorization server. The first is in the navigation bar in "index.html" where the "login" link changes from an Angular route:

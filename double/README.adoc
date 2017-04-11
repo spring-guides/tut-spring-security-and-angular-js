@@ -446,6 +446,48 @@ and then in the HTML we can conditionally show a new link:
 
 Run all the apps and go to http://localhost:8080 to see the result. Everything should be working fine, and the UI should change depending on the currently authenticated user.
 
+== Run all apps within Docker
+
+Running Redis within Docker is fine. We add now also the other apps to a docker-compose File (use the https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/double/docker-compose-all.yml[`docker-compose-all.yml`]). Each app will run in its own container. Exposing just the port 8080 to the host will give us additional security.
+
+All host names have to be changed to Docker container names. This can be done by setting these OS Environment variables. They will overwrite the settings in your `application.yml` files:
+
+ SPRING_REDIS_HOST
+ SERVER_ADDRESS
+ ZUUL_ROUTES_UI_URL
+ ZUUL_ROUTES_ADMIN_URL
+ ZUUL_ROUTES_RESOURCE_URL
+
+All links between the apps need to be defined. To speed up the build, it is recommended to share the Maven cache between all apps using Docker volumes:
+
+.docker-compose-all.yml
+[source,yaml]
+----
+...
+ui:
+  image: maven:3.2-jdk-8
+  links:
+    - redis
+  expose:
+    - "8081"
+  volumes:
+    - ./ui:/usr/src/mymaven
+    - ./m2cache:/root/.m2
+  working_dir: /usr/src/mymaven
+  environment:
+    - SPRING_REDIS_HOST=redis
+  command: mvn spring-boot:run
+...
+----
+
+Add a temporary directory for a container-shared-Maven-cache (`m2cache` as defined in the docker-compose file), start all containers and open the gateway app in your browser http://<docker-machine-ip>:8080/ .
+
+[source]
+----
+$ mkdir m2cache
+$ docker-compose -f docker-compose-all.yml up
+----
+
 == Why are we Here?
 
 Now we have a nice little system with 2 independent user interfaces and a backend Resource server, all protected by the same authentication in a Gateway. The fact that the Gateway acts as a micro-proxy makes the implementation of the backend security concerns extremely simple, and they are free to concentrate on their own business concerns. The use of Spring Session has (again) avoided a huge amount of hassle and potential errors.

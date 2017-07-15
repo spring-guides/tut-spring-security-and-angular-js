@@ -162,29 +162,37 @@ To submit the form we need to define the `login()` function that we referenced a
 angular.module('hello', [ 'ngRoute' ]) // ... omitted code
 .controller('navigation',
 
-  function($rootScope, $http, $location) {
+    function($rootScope, $http, $location, $route) {
 
-  var self = this
+        var self = this;
 
-  var authenticate = function(credentials, callback) {
+        self.tab = function(route) {
+            return $route.current && route === $route.current.controller;
+        };
 
-    var headers = credentials ? {authorization : "Basic "
-        + btoa(credentials.username + ":" + credentials.password)
-    } : {};
+        var authenticate = function(credentials, callback) {
 
-    $http.get('user', {headers : headers}).then(function(response) {
-      if (response.data.name) {
-        $rootScope.authenticated = true;
-      } else {
-        $rootScope.authenticated = false;
-      }
-      callback && callback();
-    }, function() {
-      $rootScope.authenticated = false;
-      callback && callback();
-    });
+            var headers = credentials ? {
+                authorization : "Basic "
+                + btoa(credentials.username + ":"
+                    + credentials.password)
+            } : {};
 
-  }
+            $http.get('user', {
+                headers : headers
+            }).then(function(response) {
+                if (response.data.name) {
+                    $rootScope.authenticated = true;
+                } else {
+                    $rootScope.authenticated = false;
+                }
+                callback && callback($rootScope.authenticated);
+            }, function() {
+                $rootScope.authenticated = false;
+                callback && callback(false);
+            });
+
+        };
 
   authenticate();
   self.credentials = {};

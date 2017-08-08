@@ -1,5 +1,6 @@
 package demo;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -29,6 +30,14 @@ public class ApplicationTests {
 	}
 
 	@Test
+	public void jsPageLoads() {
+		ResponseEntity<String> response = template.getForEntity("http://localhost:"
+				+ port + "/js/hello.js", String.class);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertThat(response.getBody()).contains("$routeProvider");
+	}
+
+	@Test
 	public void userEndpointProtected() {
 		ResponseEntity<String> response = template.getForEntity("http://localhost:"
 				+ port + "/user", String.class);
@@ -48,6 +57,15 @@ public class ApplicationTests {
 		ResponseEntity<String> response = template.getForEntity("http://localhost:" + port
 				+ "/user", String.class);
 		assertEquals(HttpStatus.OK, response.getStatusCode());
+	}
+
+	@Test
+	public void redirectHome() {
+		TestRestTemplate template = new TestRestTemplate("user", "password");
+		ResponseEntity<String> response = template.getForEntity("http://localhost:" + port
+				+ "/home", String.class);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertThat(response.getBody()).contains("<html>");
 	}
 
 }

@@ -289,7 +289,7 @@ go into their own method, and there is no need for `formLogin()` any more.
 
 There are also some mandatory external configuration properties for the
 `@EnableOAuth2Sso` annotation to be able to contact and authenticate with
-thr right authorization server. So we need this in `application.yml`:
+the right authorization server. So we need this in `application.yml`:
 
 .application.yml
 [source,yaml]

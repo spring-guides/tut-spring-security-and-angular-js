@@ -35,6 +35,9 @@ function($rootScope, $http, $location, $route) {
 		$http.post('logout', {}).finally(function() {
 			$rootScope.authenticated = false;
 			$location.path("/");
+			$http.post('http://localhost:9999/uaa/logout', {}, {withCredentials:true}).finally(function() {
+				console.log('Logged out');
+			})
 		});
 	}
 

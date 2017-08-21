@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,10 +23,14 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
@@ -64,10 +69,28 @@ public class AuthserverApplication extends WebMvcConfigurerAdapter {
 			http
 				.formLogin().loginPage("/login").permitAll()
 			.and()
-				.requestMatchers().antMatchers("/login", "/oauth/authorize", "/oauth/confirm_access")
+				.cors().configurationSource(configurationSource())
 			.and()
-				.authorizeRequests().anyRequest().authenticated();
-			// @formatter:on
+				.requestMatchers().antMatchers("/logout", "/login", "/oauth/authorize", "/oauth/confirm_access")
+			.and()
+				.authorizeRequests().anyRequest().authenticated()
+			.and()
+				.csrf()
+					.ignoringAntMatchers("/logout/**")
+					.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+	// @formatter:on
+		}
+
+		private CorsConfigurationSource configurationSource() {
+			UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+			CorsConfiguration config = new CorsConfiguration();
+			config.addAllowedOrigin("*");
+			config.setAllowCredentials(true);
+			config.addAllowedHeader("X-Requested-With");
+			config.addAllowedHeader("Content-Type");
+			config.addAllowedMethod(HttpMethod.POST);
+			source.registerCorsConfiguration("/logout", config);
+			return source;
 		}
 
 		@Override
@@ -99,6 +122,7 @@ public class AuthserverApplication extends WebMvcConfigurerAdapter {
 			clients.inMemory()
 					.withClient("acme")
 					.secret("acmesecret")
+					.autoApprove(true)
 					.authorizedGrantTypes("authorization_code", "refresh_token",
 							"password").scopes("openid");
 		}
@@ -118,4 +142,5 @@ public class AuthserverApplication extends WebMvcConfigurerAdapter {
 		}
 
 	}
+
 }

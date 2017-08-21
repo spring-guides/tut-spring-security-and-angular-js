@@ -16,6 +16,7 @@
 		<module>proxy</module>
 		<module>oauth2-vanilla</module>
 		<module>oauth2</module>
+		<module>oauth2-logout</module>
 		<module>double</module>
 		<module>modular</module>
 	</modules>

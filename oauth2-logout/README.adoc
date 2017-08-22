@@ -1,6 +1,10 @@
 = Logout from an OAuth2 Client Application
 
-Three patterns:
+Many people who implement OAuth2 single sign on find that they have a puzzle to solve at the other end of the user's session: how to logout "cleanly"? The reason it's a puzzle is that there isn't a single correct way to do it, and the solution you choose will be conditioned by the user experience you are looking for, and also the amount of complexity you are willing to take on. The reasons for the complexity stem from the fact that there are potentially multiple browser sessions in the system, all with different backend servers, so when a user logs out from one of them, what should happen to the others?
+
+== Logout Patterns
+
+There are, broadly speaking, three patterns for logout from a UI app that is authenticated as an OAuth2 client:
 
 1. External Authserver (EA, the original sample). The user perceives the authserver as a 3rd party (e.g. using Facebook or Google to authenticate). You don't want to log out of the authserver when the app session ends. You do want approval for all grants.
 
@@ -8,18 +12,41 @@ Three patterns:
 
 3. Single Logout (SL). One authserver and multiple UI apps all with their own authentication, and when the user logs out of one, you want them all to follow suit. Likely to fail with a naive implementation because of network partitions - you basically need globally consistent storage.
 
-Sometime, even if you have an external authserver, you want to control the authentication and add an internal layer of access control (e.g. scopes or roles that the authserver doesn't support). Then it's a good idea to use the EA for authentication, but have an internal authserver that can add the additional details you need to the tokens. The `auth-server` sample from this https://github.com/spring-guides/tut-spring-boot-oauth2[OAuth2 Tutorial] shows you how to do that in a very simple way. You can then apply the GIA or SL patterns to the system that includes the internal authserver.
+Sometimes, even if you have an external authserver, you want to control the authentication and add an internal layer of access control (e.g. scopes or roles that the authserver doesn't support). Then it's a good idea to use the EA for authentication, but have an internal authserver that can add the additional details you need to the tokens. The `auth-server` sample from this https://github.com/spring-guides/tut-spring-boot-oauth2[OAuth2 Tutorial] shows you how to do that in a very simple way. You can then apply the GIA or SL patterns to the system that includes the internal authserver.
 
 Options if you don't want EA:
 
 * Log out from authserver as well as UI app in browser client. Simple approach and works with some careful CRSF and CORS configuration. No SL.
 
-* Logout from authserver as soon as a token is available. Hard because you don't have the session cookie in the gateway. There is an https://github.com/spring-projects/spring-security-oauth/issues/140[feature request in Spring OAuth] which shows an interesting approach: invalidate the session in the authserver as soon as an auth code is generated. No SL.
+* Logout from authserver as soon as a token is available. Hard from the gateway, where the token is acquired, because you don't have the session cookie for the authserver there. There is a https://github.com/spring-projects/spring-security-oauth/issues/140[feature request in Spring OAuth] which shows an interesting approach: invalidate the session in the authserver as soon as an auth code is generated. The Github issue contains an aspect that implements the session invalidation, but it's easier to do as a `HandlerInterceptor`. No SL.
 
-* Proxy authserver through same gateway as UI and hope that one cookie is enough to manage the state for the whole system. Doesn't work because unless there is a shared session, which defeats the object to some extent (otherwise there is no session storage for the authserver). SL only if the session is shared between all apps.
+* Proxy authserver through the same gateway as UI and hope that one cookie is enough to manage the state for the whole system. Doesn't work because unless there is a shared session, which defeats the object to some extent (otherwise there is no session storage for the authserver). SL only if the session is shared between all apps.
 
 * Cookie relay in gateway. You are using the gateway as the source of truth for authentication, and the authserver has all the state it needs because the gateway manages the cookie instead of the browser. The browser never has a cookie from more than one server. No SL.
 
-* Use token as global authentication and invalidate it when user logs out of UI app. Downside: requires tokens to be invalidated by client apps, which isn't really what they were designed to do. SL possible, but usual constraints apply.
+* Use the token as global authentication and invalidate it when user logs out of the UI app. Downside: requires tokens to be invalidated by client apps, which isn't really what they were designed to do. SL possible, but usual constraints apply.
 
 Note that where SL is hard or impossible, it might be better to put all the UIs behind a single gateway anyway. Then you can use SIA, which is easier, to control logout from your whole estate.
+
+The easiest two solutions, which apply nicely in the GIA pattern can be implemented in the tutorial sample as follows (take the `oauth2` sample and work from there).
+
+== Logout of Both Servers from Browser
+
+It's quite easy to add a couple of lines of code to the browser client that logout from the authserver as soon as the UI app is logged out. E.g.
+
+```javascript
+$http.post('logout', {}).finally(function() {
+  $rootScope.authenticated = false;
+  $location.path("/");
+  $http.post('http://localhost:9999/uaa/logout', {}, {withCredentials:true}).finally(function() {
+	console.log('Logged out');
+    })
+  });
+}
+```
+
+In this sample we hardcoded the authserver logout endpoint URL into the JavaScript, but it would be easy to externalize that if you needed to. It has to be a POST directly to the authserver because we want the session cookie to go along too so it can be invalidated in the server. The XHR request will only go out from the browser with a cookie attached if we specifically ask for `withCredentials:true`.
+
+Conversely, on the server we need some CORS configuration because the request is coming from a different domain. 
+
+== Invalidate Session in Authserver

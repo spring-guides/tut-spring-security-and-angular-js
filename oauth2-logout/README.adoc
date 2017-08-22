@@ -1,11 +1,25 @@
-= OAuth2 Logout
+= Logout from an OAuth2 Client Application
 
-Options:
+Three patterns:
 
-* External authserver. You don't want to log out. You do want approval for all grants.
+1. External Authserver (EA, the original sample). The user perceives the authserver as a 3rd party (e.g. using Facebook or Google to authenticate). You don't want to log out of the authserver when the app session ends. You do want approval for all grants.
 
-* Log out from authserver as well as UI app in client. Works with some careful CRSF and CORS configuration but thee are some limitations when using more than one UI app.
+2. Gateway and Internal Authserver (GIA). You only need to log out of 2 apps, and they are part of the same system, as perceived by the user. Usually you want to autoapprove all grants.
 
-* Proxy authserver through same gateway as UI. Doesn't work because there is no session storage for the authserver (so actually works but only with a shared session, which defeats the object).
+3. Single Logout (SL). One authserver and multiple UI apps all with their own authentication, and when the user logs out of one, you want them all to follow suit. Likely to fail with a naive implementation because of network partitions - you basically need globally consistent storage.
 
-* Poll authserver from UI apps, and logout when no remote authentication can be obtained.
+Sometime, even if you have an external authserver, you want to control the authentication and add an internal layer of access control (e.g. scopes or roles that the authserver doesn't support). Then it's a good idea to use the EA for authentication, but have an internal authserver that can add the additional details you need to the tokens. The `auth-server` sample from this https://github.com/spring-guides/tut-spring-boot-oauth2[OAuth2 Tutorial] shows you how to do that in a very simple way. You can then apply the GIA or SL patterns to the system that includes the internal authserver.
+
+Options if you don't want EA:
+
+* Log out from authserver as well as UI app in browser client. Simple approach and works with some careful CRSF and CORS configuration. No SL.
+
+* Logout from authserver as soon as a token is available. Hard because you don't have the session cookie in the gateway. There is an https://github.com/spring-projects/spring-security-oauth/issues/140[feature request in Spring OAuth] which shows an interesting approach: invalidate the session in the authserver as soon as an auth code is generated. No SL.
+
+* Proxy authserver through same gateway as UI and hope that one cookie is enough to manage the state for the whole system. Doesn't work because unless there is a shared session, which defeats the object to some extent (otherwise there is no session storage for the authserver). SL only if the session is shared between all apps.
+
+* Cookie relay in gateway. You are using the gateway as the source of truth for authentication, and the authserver has all the state it needs because the gateway manages the cookie instead of the browser. The browser never has a cookie from more than one server. No SL.
+
+* Use token as global authentication and invalidate it when user logs out of UI app. Downside: requires tokens to be invalidated by client apps, which isn't really what they were designed to do. SL possible, but usual constraints apply.
+
+Note that where SL is hard or impossible, it might be better to put all the UIs behind a single gateway anyway. Then you can use SIA, which is easier, to control logout from your whole estate.

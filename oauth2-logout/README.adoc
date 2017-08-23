@@ -135,7 +135,7 @@ public void configure(AuthorizationServerEndpointsConfigurer endpoints)
 
 This interceptor looks for a `RedirectView`, which is a signal that the user is being redirected back to the client app, and checks if the location contains an auth code or an error. You could add "token=" if you were using implicit grants as well.
 
-With this simple change, as soon as you authenticate, the session in the authserver is already dead, so there's no need to try and manage it from the client. When you log out of the UI app, and then log back in, the authserver doesn't recognize you and prompts for credentials. This pattern is the one implemented by the `oauth2-logout` sample in the https://github.com/spring-guides/tut-spring-boot-oauth2[source code] for this tutorial.
+With this simple change, as soon as you authenticate, the session in the authserver is already dead, so there's no need to try and manage it from the client. When you log out of the UI app, and then log back in, the authserver doesn't recognize you and prompts for credentials. This pattern is the one implemented by the `oauth2-logout` sample in the https://github.com/dsyer/spring-security-angular/tree/master/oauth2-logout[source code] for this tutorial.
 
 == Conclusion
 

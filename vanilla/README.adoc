@@ -183,7 +183,7 @@ In the UI application we need to add some dependencies to our https://github.com
 </dependency>
 <dependency>
   <groupId>org.springframework.boot</groupId>
-  <artifactId>spring-boot-starter-redis</artifactId>
+  <artifactId>spring-boot-starter-data-redis</artifactId>
 </dependency>
 ----
 

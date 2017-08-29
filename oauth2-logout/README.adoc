@@ -29,6 +29,10 @@ Here are some options if you don't want EA:
 
 * Use the token as global authentication and invalidate it when user logs out of the UI app. Downside: requires tokens to be invalidated by client apps, which isn't really what they were designed to do. SL possible, but usual constraints apply.
 
+* Create and manage a global session token (in addition to the user token) in the authserver. This is the approach taken by http://openid.net[OpenId Connect], and it does provide some options for SL, at the cost of some extra machinery. Note that all of the logout specs are still in draft form. Here are some links to the specs: http://openid.net/specs/openid-connect-session-1_0.html[Session Management], 
+http://openid.net/specs/openid-connect-frontchannel-1_0.html[Front Channel Logout], and
+http://openid.net/specs/openid-connect-backchannel-1_0.html[Back Channel Logout].
+
 Note that where SL is hard or impossible, it might be better to put all the UIs behind a single gateway anyway. Then you can use GIA, which is easier, to control logout from your whole estate.
 
 The easiest two options, which apply nicely in the GIA pattern can be implemented in the tutorial sample as follows (take the `oauth2` sample and work from there).

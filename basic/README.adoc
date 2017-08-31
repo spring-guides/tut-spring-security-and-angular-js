@@ -229,6 +229,13 @@ To create static resources at build time we add some magic to the Maven `pom.xml
 </build>
 ----
 
+The versions in the sample app are currently:
+
+[source,xml]
+----
+include::pom.xml[tags=versions,indent=0]
+----
+
 You can copy that verbatim into your POM, or just scan it if you are following along from the https://github.com/dsyer/spring-security-angular/tree/master/basic/pom.xml#L43[source in Github]. The main points are:
 
 * We are including some webjars libraries as dependencies (jquery and bootstrap for CSS and styling, and Angular JS for business logic). Some of the static resources in those jar files will be included in our generated "angular-bootstrap.*" files, but the jars themselves don't need to be packaged with the application.

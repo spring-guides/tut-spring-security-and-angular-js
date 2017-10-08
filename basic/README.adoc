@@ -126,6 +126,8 @@ You can copy that verbatim into your POM, or just scan it if you are following a
 
 If you run the app now, you should see the CSS take effect and all the assets will load successfully, but the business logic and navigation is still missing.
 
+Aside: Webjars are probably not the tool of choice for hard-core front end developers - they would probably be using a node-based toolchain. These are definitely excellent tools, and covered in great detail all over the internet, so please feel free to use them if you prefer. If you just put the outputs from those toolchains in "src/main/resources/static" then it will all work. Spring developers with no experience in front-end development find webjars comfortable because they know how to use Java-based tooling.
+
 == Create the Angular Application
 
 Let's create the "hello" application (in "src/main/resources/static/js/hello.js" so that the `&lt;script/&gt;` at the bottom of our "index.html" finds it in the right place).

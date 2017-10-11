@@ -34,7 +34,7 @@ var HomeComponent = ng.core.Component({
 var LoginComponent = ng.core.Component({
     templateUrl : 'login.html'
 }).Class({
-    constructor : [AppService, ng.http.Http, ng.router.Router, function(app, http, router) {
+    constructor : [AppService, ng.router.Router, function(app, router) {
         var self = this;
         this.credentials = {username:'', password:''};
         this.login = function() {
@@ -43,7 +43,6 @@ var LoginComponent = ng.core.Component({
             });
             return false;
         };
-        this.authenticated = function() { return app.authenticated; };
     }]
 });
 
@@ -51,18 +50,17 @@ var AppComponent = ng.core.Component({
         templateUrl: 'app.html',
         selector: 'app',
         providers: [AppService]
-    }).Class({constructor : [AppService, ng.http.Http, ng.router.Router, function(app, http, router){
-
-        this.logout = function() {
-            http.post('logout', {}).subscribe(function() {
-                app.authenticated = false;
-                router.navigateByUrl('/login')
-            });
-        }
-
-        app.authenticate();
-    }]
-});
+    }).Class({
+        constructor : [AppService, ng.http.Http, ng.router.Router, function(app, http, router){
+            app.authenticate();
+            this.logout = function() {
+                http.post('logout', {}).subscribe(function() {
+                    app.authenticated = false;
+                    router.navigateByUrl('/login')
+                });
+            }
+        }]
+    });
 
 var RequestOptionsService = ng.core.Class({
     extends: ng.http.BaseRequestOptions,

@@ -14,93 +14,154 @@ The core of a single page application is a static "index.html". We already had a
 .index.html
 [source,html]
 ----
-<!doctype html>
-<html>
-<head>
-<title>Hello AngularJS</title>
-<link
-	href="css/angular-bootstrap.css"
-	rel="stylesheet">
-<style type="text/css">
-[ng\:cloak], [ng-cloak], .ng-cloak {
-	display: none !important;
-}
-</style>
-</head>
-
-<body ng-app="hello" ng-cloak class="ng-cloak">
-	<div ng-controller="navigation as nav" class="container">
-		<ul class="nav nav-pills" role="tablist">
-			<li class="active"><a href="#/">home</a></li>
-			<li><a href="#/login">login</a></li>
-			<li ng-show="authenticated"><a href="" ng-click="nav.logout()">logout</a></li>
-		</ul>
-	</div>
-	<div ng-view class="container"></div>
-	<script src="js/angular-bootstrap.js" type="text/javascript"></script>
+...
+<body>
+    <app/>
+    <script type="text/javascript" src="webjars/core-js/client/shim.min.js"></script>
+    ...
 	<script src="js/hello.js"></script>
 </body>
 </html>
 ----
 
-It's not much different than the original in fact. Salient features:
+It's not much different than the original in fact, but we replaced the `<html/>` body content (everything except the scripts) with a single `<app/>`.
 
-* There is a `&lt;ul&gt;` for the navigation bar. All the links come straight back to the home page, but in a way that Angular will recognize once we get it set up with "routes".
-
-* All the content is going to be added as "partials" in the `&lt;div&gt;` labelled "ng-view".
-
-* The "ng-cloak" has been moved up to the body because we want to hide the whole page until Angular can work out which bits to render. Otherwise the menus and content can "flicker" as they are moved around when the page loads.
-
-* As in the <<_spring_and_angular_js_a_secure_single_page_application,first section>>, the front end assets "angular-bootstrap.css" and "angular-bootstrap.js" are generated from JAR libraries at build time.
-
-== Add Navigation to the Angular Application
-
-Let's modify the "hello" application (in "src/main/resources/public/js/hello.js") to add some navigation features. We can start by adding some configuration for routes, so that the links in the home page actually do something. E.g.
+The `<app/>` selector, in turn, needs to be wired up to a component in the Angular app, containing both the navigation elements and the main body content. It's going to be a little bit more sophisticated than out basic `AppComponent` but it has some of the same features. Here's the implementation:
 
 .hello.js
 [source,javascript]
 ----
-angular.module('hello', [ 'ngRoute' ])
-  .config(function($routeProvider, $httpProvider) {
+var AppComponent = ng.core.Component({
+        templateUrl: 'app.html',
+        selector: 'app',
+        providers: [AppService]
+    }).Class({constructor : [AppService, ng.http.Http, ng.router.Router, function(app, http, router){
 
-    $routeProvider.when('/', {
-      templateUrl : 'home.html',
-      controller : 'home',
-      controllerAs: 'controller'
-    }).when('/login', {
-      templateUrl : 'login.html',
-      controller : 'navigation',
-      controllerAs: 'controller'
-    }).otherwise('/');
+        this.logout = function() {
+            http.post('logout', {}).subscribe(function() {
+                app.authenticated = false;
+                router.navigateByUrl('/login')
+            });
+        }
 
-    $httpProvider.defaults.headers.common["X-Requested-With"] = 'XMLHttpRequest';
-
-  })
-  .controller('home', function($http) {
-    var self = this;
-    $http.get('/resource/').then(function(response) {
-      self.greeting = response.data;
-    })
-  })
-  .controller('navigation', function() {});
+        app.authenticate();
+    }]
+});
 ----
 
-We added a dependency on an Angular module called https://docs.angularjs.org/api/ngRoute["ngRoute"] and this allowed us to inject a magic `$routeProvider` into the config function (Angular does dependency injection by naming convention, and recognizes the names of your function parameters). The `$routeProvider` is then used inside the function to set up links to "/" (the "home" controller) and "/login" (the "login" controller). The "templateUrls" are relative paths from the root of the routes (i.e. "/") to "partial" views that will be used to render the model created by each controller.
+Salient features:
 
-The custom "X-Requested-With" is a conventional header sent by browser clients, and it used to be the default in Angular but they https://github.com/angular/angular.js/issues/1004[took it out in 1.3.0]. Spring Security responds to it by not sending a "WWW-Authenticate" header in a 401 response, and thus the browser will not pop up an authentication dialog (which is desirable in our app since we want to control the authentication).
+* There is some more dependency injection, as well as the `http` service we are injecting a custom service called `app` (that will be used to centralize authentication information), and the Angular `router`.
 
-In order to use the "ngRoute" module, we need to add a line to the "wro.xml" configuration that builds the static assets (in "src/main/wro"):
+* There is a logout function exposed as a property of the component, which we can use later to send a logout request to the backend. If successful it sets a flag in the `app` service, and sends the user back to the login screen.
 
-.wro.xml
+* We are using `templateUrl` to externalize the template HTML into a separate file.
+
+* The `authenticate()` function is called when the controller is loaded to see if the user is actually already authenticated (e.g. if he had refreshed the browser in the middle of a session). We need the `authenticate()` function to make a remote call because the actual authentication is done by the server, and we don't want to trust the browser to keep track of it.
+
+Here is the `app.html`:
+
+.app.html
+[source,html]
+----
+include::src/main/resources/static/app.html[indent=0]
+----
+
+
+* There is a `&lt;ul&gt;` for the navigation bar. There are 2 "navigation" links using the Angular router, and one calling the `logout()` function from the `AppComponent` above.
+
+* All the main content is going to be added as "partials" in the directive `<router-outlet>` (defined in Angular Router).
+
+The `app` service that we injected above looks needs a boolean flag so we can tell if the user is currently authenticated, and a function `authenticate()` that can be used to authenticate with the back end server, or just to query it for the user details:
+
+.hello.js
+[source,javascript]
+----
+var AppService = ng.core.Injectable({}).Class({constructor: [ng.http.Http, function(http) {
+
+    var self = this;
+    this.authenticated = false;
+    this.authenticate = function(credentials, callback) {
+
+        var headers = credentials ? {
+            authorization : "Basic " + btoa(credentials.username + ":" + credentials.password)
+        } : {};
+        http.get('user', {headers: headers}).subscribe(function(response) {
+            if (response.json().name) {
+                self.authenticated = true;
+            } else {
+                self.authenticated = false;
+            }
+            callback && callback();
+        });
+
+    }
+
+}]})
+----
+
+The `authenticated` flag is simple. The `authenticate()` function sends HTTP Basic authentication credentials if they are provided, and otherwise not. It also has an optional `callback` argument that we can use to execute some code if the authentication is successful.
+
+== Front End Assets for Router and Form Binding
+
+As in the <<_spring_and_angular_js_a_secure_single_page_application,first section>>, the front end assets are added as webjars. We do the same here, and for this sample we need a couple of new ones:
+
+.index.html
+[source,html]
+----
+<html>
+...
+<body>
+  <app/>
+  ...
+  <script type="text/javascript" src="webjars/angular__router/bundles/router.umd.js"></script>
+  <script type="text/javascript" src="webjars/angular__forms/bundles/forms.umd.js"></script>
+  <script type="text/javascript" src="js/hello.js"></script>
+</body>
+</html>
+----
+
+with corresponding entries in the `pom.xml`:
+
+.pom.xml
 [source,xml]
 ----
-<groups xmlns="http://www.isdc.ro/wro">
-  <group name="angular-bootstrap">
-    ...
-    <js>webjar:angularjs/1.4.9/angular-route.min.js</js>
-   </group>
-</groups>
+<dependency>
+  <groupId>org.webjars.npm</groupId>
+  <artifactId>angular__forms</artifactId>
+  <version>${angular.version}</version>
+</dependency>
+<dependency>
+  <groupId>org.webjars.npm</groupId>
+  <artifactId>angular__router</artifactId>
+  <version>${angular.version}</version>
+</dependency>
 ----
+
+== Add Navigation to the Angular Application
+
+Let's modify the application (in "src/main/resources/public/js/hello.js") to add some navigation features. We can start by adding some configuration for routes, so that the links in the home page actually do something. E.g.
+
+.hello.js
+[source,javascript]
+----
+var routes = [
+    { path: '', pathMatch: 'full', redirectTo: 'home'},
+    { path: 'home', component: HomeComponent},
+    { path: 'login', component: LoginComponent}
+];
+
+var AppModule = ng.core.NgModule({
+    imports: [ng.platformBrowser.BrowserModule, ng.http.HttpModule,
+            ng.router.RouterModule.forRoot(routes), ng.forms.FormsModule],
+    declarations: [HomeComponent, LoginComponent, AppComponent],
+    bootstrap: [AppComponent]
+  }).Class({constructor : function(){}});
+----
+
+We added a dependency on an Angular module called https://angular.io/guide/router["RouterModule"] and this allowed us to inject a magic `router` into the constructor of the `AppComponent`. The `routes` are used inside the imports of the `AppModule` to set up links to "/" (the "home" controller) and "/login" (the "login" controller).
+
+We also sneaked the `FormsModule` in there, because it will be needed later for binding data to a form that we want to submit when the user logs in.
 
 === The Greeting
 
@@ -109,19 +170,27 @@ The greeting content from the old home page can go in "home.html" (right next to
 .home.html
 [source,html]
 ----
-<h1>Greeting</h1>
-<div ng-show="authenticated">
-    <p>The ID is {{controller.greeting.id}}</p>
-    <p>The content is {{controller.greeting.content}}</p>
-</div>
-<div  ng-show="!authenticated">
-    <p>Login to see your greeting</p>
-</div>
+include::src/main/resources/static/home.html[indent=0]
 ----
 
-Note that we are binding to the controller as "controller" because that is how it was declared in the route provider configuration.
+Since the user now has the choice whether to login or not (before it was all controlled by the browser), we need to distinguish in the UI between content that is secure and that which is not. We have anticipated this by adding references to an (as yet non-existent) `authenticated()` function.
 
-Since the user now has the choice whether to login or not (before it was all controlled by the browser), we need to distinguish in the UI between content that is secure and that which is not. We have anticipated this by adding references to an (as yet non-existent) `authenticated` variable.
+The `HomeComponent` has to fetch the greeting, and also provide the `authenticated()` utility function that pulls the flag out of the `AppService`:
+
+.hello.js
+[source,javascript]
+----
+var HomeComponent = ng.core.Component({
+    templateUrl : 'home.html'
+}).Class({
+    constructor : [AppService, ng.http.Http, function(app, http) {
+        var self = this;
+        this.greeting = {id:'', msg:''};
+        http.get('resource').map(response => response.json()).subscribe(data => self.greeting = data);
+        this.authenticated = function() { return app.authenticated; };
+    }]
+});
+----
 
 === The Login Form
 
@@ -130,23 +199,10 @@ The login form goes in "login.html":
 .login.html
 [source,html]
 ----
-<div class="alert alert-danger" ng-show="controller.error">
-    There was a problem logging in. Please try again.
-</div>
-<form role="form" ng-submit="controller.login()">
-    <div class="form-group">
-        <label for="username">Username:</label> <input type="text"
-            class="form-control" id="username" name="username" ng-model="controller.credentials.username"/>
-    </div>
-    <div class="form-group">
-        <label for="password">Password:</label> <input type="password"
-            class="form-control" id="password" name="password" ng-model="controller.credentials.password"/>
-    </div>
-    <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+include::src/main/resources/static/login.html[indent=0]
 ----
 
-This is a very standard login form, with 2 inputs for username and password and a button for submitting the form via https://docs.angularjs.org/api/ng/directive/ngSubmit[`ng-submit`]. You don't need an action on the form tag, so it's probably better not to put one in at all. There is also an error message, shown only if the angular model contains an `error`. The form controls use https://docs.angularjs.org/api/ng/directive/ngModel[`ng-model`] to pass data between the HTML and the Angular controller, and in this case we are using a `credentials` object to hold the username and pasword. According to the routes we defined the login form is linked with the "navigation" controller, which is so far empty, so let's head over to that to fill in some gaps.
+This is a very standard login form, with 2 inputs for username and password and a button for submitting the form via an Angular event handler `(submit)`. You don't need an action on the form tag, so it's probably better not to put one in at all. There is also an error message, shown only if the angular model contains an `error`. The form controls use `ngModel` from https://angular.io/guide/reactive-forms[Angular Forms] to pass data between the HTML and the Angular controller, and in this case we are using a `credentials` object to hold the username and pasword.
 
 == The Authentication Process
 
@@ -156,53 +212,28 @@ To support the login form we just added we need to add some more features. On th
 
 To submit the form we need to define the `login()` function that we referenced already in the form via `ng-submit`, and the `credentials` object that we referenced via `ng-model`. Let's flesh out the "navigation" controller in "hello.js" (omitting the routes config and the "home" controller):
 
+We also need a `LoginComponent` to handle the form submission via a `login()` function that we referenced in the `login.html`:
+
 .hello.js
 [source,javascript]
 ----
-angular.module('hello', [ 'ngRoute' ]) // ... omitted code
-.controller('navigation',
-
-  function($rootScope, $http, $location) {
-
-  var self = this
-
-  var authenticate = function(credentials, callback) {
-
-    var headers = credentials ? {authorization : "Basic "
-        + btoa(credentials.username + ":" + credentials.password)
-    } : {};
-
-    $http.get('user', {headers : headers}).then(function(response) {
-      if (response.data.name) {
-        $rootScope.authenticated = true;
-      } else {
-        $rootScope.authenticated = false;
-      }
-      callback && callback();
-    }, function() {
-      $rootScope.authenticated = false;
-      callback && callback();
-    });
-
-  }
-
-  authenticate();
-  self.credentials = {};
-  self.login = function() {
-      authenticate(self.credentials, function() {
-        if ($rootScope.authenticated) {
-          $location.path("/");
-          self.error = false;
-        } else {
-          $location.path("/login");
-          self.error = true;
-        }
-      });
-  };
+var LoginComponent = ng.core.Component({
+    templateUrl : 'login.html'
+}).Class({
+    constructor : [AppService, ng.router.Router, function(app, router) {
+        var self = this;
+        this.credentials = {username:'', password:''};
+        this.login = function() {
+            app.authenticate(self.credentials, function() {
+                router.navigateByUrl('/')
+            });
+            return false;
+        };
+    }]
 });
 ----
 
-All of the code in the "navigation" controller will be executed when the page loads because the `&lt;div&gt;` containing the menu bar is visible and is decorated with `ng-controller=&quot;navigation&quot;`. In addition to initializing the `credentials` object, it defines 2 functions, the `login()` that we need in the form, and a local helper function `authenticate()` which tries to load a "user" resource from the backend. The `authenticate()` function is called when the controller is loaded to see if the user is actually already authenticated (e.g. if he had refreshed the browser in the middle of a session). We need the `authenticate()` function to make a remote call because the actual authentication is done by the server, and we don't want to trust the browser to keep track of it.
+All of the code in the "navigation" controller will be executed when the page loads because the `&lt;div&gt;` containing the menu bar is visible and is decorated with `ng-controller=&quot;navigation&quot;`. In addition to initializing the `credentials` object, it defines 2 functions, the `login()` that we need in the form, and a local helper function `authenticate()` which tries to load a "user" resource from the backend. 
 
 The `authenticate()` function sets an application-wide flag called `authenticated` which we have already used in our "home.html" to control which parts of the page are rendered. We do this using https://docs.angularjs.org/api/ng/service/$rootScope[`$rootScope`] because it's convenient and easy to follow, and we need to share the `authenticated` flag between the "navigation" and the "home" controllers. Angular experts might prefer to share data through a shared user-defined service (but it ends up being the same mechanism).
 
@@ -253,7 +284,7 @@ public class UiApplication {
         .httpBasic()
       .and()
         .authorizeRequests()
-          .antMatchers("/index.html", "/home.html", "/login.html", "/").permitAll()
+          .antMatchers("/index.html", "/home.html", "/login.html", "/", "/home", "/login").permitAll()
           .anyRequest().authenticated();
     }
   }
@@ -263,46 +294,47 @@ public class UiApplication {
 
 This is a standard Spring Boot application with Spring Security customization, just allowing anonymous access to the static (HTML) resources (the CSS and JS resources are already accessible by default). The HTML resources need to be available to anonymous users, not just ignored by Spring Security, for reasons that will become clear.
 
-== Logout
+== Adding Default HTTP Request Headers
 
-The application is almost finished functionally. The last thing we need to do is implement the logout feature that we sketched in the home page. Here's a reminder what the navigation bar looks like:
+If you run the app at this point you will find that the browser pops up a Basic authentication dialogue (for user and password). It does this because it sees a 401 reponse from the XHR requests to `/user` and `/resource` with a "WWW-Authenticate" header. The way to suppress this popup is to suppress the header, which is coming from Spring Security. And the way to suppress the reponse header is to send a special, conventional request header "X-Requested-With=XMLHttpRequest". It used to be the default in Angular but they https://github.com/angular/angular.js/issues/1004[took it out in 1.3.0]. So here's how to set default headers in an Angular XHR request.
 
-.index.html
-[source,html]
-----
-<div ng-controller="navigation as nav" class="container">
-  <ul class="nav nav-pills" role="tablist">
-    <li class="active"><a href="#/">home</a></li>
-    <li><a href="#/login">login</a></li>
-    <li ng-show="authenticated"><a href="" ng-click="nav.logout()">logout</a></li>
-  </ul>
-</div>
-----
-
-If the user is authenticated then we show a "logout" link and hook it to a `logout()` function in the "navigation" controller. The implementation of the function is relatively simple:
+First extend the default `RequestOptions` provided by the Angular HTTP module:
 
 .hello.js
 [source,javascript]
 ----
-angular.module('hello', [ 'ngRoute' ]). 
-// ...
-.controller('navigation', function(...) {
-
-...
-
-self.logout = function() {
-  $http.post('logout', {}).finally(function() {
-    $rootScope.authenticated = false;
-    $location.path("/");
-  });
-}
-
-...
-
+var RequestOptionsService = ng.core.Class({
+    extends: ng.http.BaseRequestOptions,
+    constructor : function() {},
+    merge: function(opts) {
+        opts.headers = new ng.http.Headers(opts.headers ? opts.headers : {});
+        opts.headers.set('X-Requested-With', 'XMLHttpRequest');
+        return opts.merge(opts);
+    }
 });
 ----
 
-It sends an HTTP POST to "/logout" which we now need to implement on the server. This is straightforward because it is added for us already by Spring Security (i.e. we don't need to do anything for this simple use case). For more control over the behaviour of logout you could use the `HttpSecurity` callbacks in your `WebSecurityAdapter` to, for instance execute some business logic after logout.
+The syntax here is dense (it is actually a lot nicer in TypeScript), but boilerplate. The `extends` property of the `Class` is its base class, and in addition to the constructor, all we really need to do is override the `merge()` function which is always called by Angular and can be used to add additional headers. The base class has a `merge` that does some useful validation of the arguments passed to the `http` service, so we re-use that by calling `opts.merge(opts)` at the end there.
+
+To install this new `RequestOptions` factory we need to declare it in the `providers` of the `AppModule`:
+
+
+.hello.js
+[source,javascript]
+----
+var AppModule = ng.core.NgModule({
+    imports: [ng.platformBrowser.BrowserModule, ng.http.HttpModule,
+            ng.router.RouterModule.forRoot(routes), ng.forms.FormsModule],
+    declarations: [HomeComponent, LoginComponent, AppComponent],
+    providers : [{ provide: ng.http.RequestOptions, useClass: RequestOptionsService }],
+    bootstrap: [AppComponent]
+  }).Class({constructor : function(){}});
+
+----
+
+== Logout
+
+The application is almost finished functionally. The last thing we need to do is implement the logout feature that we sketched in the home page. If the user is authenticated then we show a "logout" link and hook it to a `logout()` function in the `AppComponent`. Remember, it sends an HTTP POST to "/logout" which we now need to implement on the server. This is straightforward because it is added for us already by Spring Security (i.e. we don't need to do anything for this simple use case). For more control over the behaviour of logout you could use the `HttpSecurity` callbacks in your `WebSecurityAdapter` to, for instance execute some business logic after logout.
 
 == CSRF Protection
 
@@ -325,7 +357,7 @@ Transfer-Encoding: chunked
 {"timestamp":1420467113764,"status":403,"error":"Forbidden","message":"Expected CSRF token not found. Has your session expired?","path":"/login"}
 ----
 
-That's good because it means that Spring Security's built-in CSRF protection has kicked in to prevent us from shooting ourselves in the foot. All it wants is a token sent to it in a header called "X-CSRF". The value of the CSRF token was available server side in the `HttpRequest` attributes from the initial request that loaded the home page. To get it to the client we could render it using a dynamic HTML page on the server, or expose it via a custom endpoint, or else we could send it as a cookie. The last choice is the best because Angular has https://docs.angularjs.org/api/ng/service/$http[built in support for CSRF] (which it calls "XSRF") based on cookies.
+That's good because it means that Spring Security's built-in CSRF protection has kicked in to prevent us from shooting ourselves in the foot. All it wants is a token sent to it in a header called "X-CSRF". The value of the CSRF token was available server side in the `HttpRequest` attributes from the initial request that loaded the home page. To get it to the client we could render it using a dynamic HTML page on the server, or expose it via a custom endpoint, or else we could send it as a cookie. The last choice is the best because Angular has https://angular.io/guide/http#security-xsrf-protection[built in support for CSRF] (which it calls "XSRF") based on cookies.
 
 So on the server we need a custom filter that will send the cookie. Angular wants the cookie name to be "XSRF-TOKEN" and Spring Security provides it as a request attribute by default, so we just need to transfer the value from a request attribute to a cookie. Fortunately, Spring Security (since 4.1.0) provides a special `CsrfTokenRepository` that does precisely this:
 
@@ -338,11 +370,8 @@ protected static class SecurityConfiguration extends WebSecurityConfigurerAdapte
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http
-      .httpBasic().and()
-      .authorizeRequests()
-        .antMatchers("/index.html", "/home.html", "/login.html", "/").permitAll().anyRequest()
-        .authenticated().and()
-      .csrf()
+      ...
+      .and().csrf()
         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
   }
 }
@@ -358,14 +387,15 @@ The interactions between the browser and the backend can be seen in your browser
 |Verb |Path |Status |Response
 
 |GET |/ |200 |index.html
-|GET |/css/angular-bootstrap.css |200 |Twitter bootstrap CSS
-|GET |/js/angular-bootstrap.js |200 |Bootstrap and Angular JS
+|GET |/css/** |200 |Twitter bootstrap CSS
+|GET |/webjars/** |200 |Bootstrap and Angular
 |GET |/js/hello.js |200 |Application logic
 |GET |/user |401 |Unauthorized (ignored)
 |GET |/home.html |200 |Home page
-|GET |/resource |401 |Unauthorized (ignored)
+|GET |/app.html |200 |Home page
 |GET |/login.html |200 |Angular login form partial
 |GET |/user |401 |Unauthorized (ignored)
+|GET |/resource |401 |Unauthorized (ignored)
 |GET |/user |200 |Send credentials and get JSON
 |GET |/resource |200 |JSON greeting
 |===

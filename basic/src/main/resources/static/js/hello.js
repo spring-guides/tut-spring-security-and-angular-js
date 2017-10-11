@@ -1,5 +1,5 @@
 var AppComponent = ng.core.Component({
-    selector : 'hello',
+    selector : 'app',
     template : '<p>The ID is {{greeting.id}}</p><p>The content is {{greeting.content}}</p>'
 }).Class({
     constructor : [ng.http.Http, function(http) {

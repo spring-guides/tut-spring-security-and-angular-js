@@ -103,7 +103,6 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
-		<wro4j.version>1.8.0</wro4j.version>
 		<!-- tag::versions[] -->
 		<angular.version>4.4.4</angular.version>
 		<bootstrap.version>3.3.7-1</bootstrap.version>

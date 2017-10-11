@@ -1,80 +1,83 @@
-angular.module('hello', [ 'ngRoute' ]).config(function($routeProvider, $httpProvider) {
+var AppService = ng.core.Injectable({}).Class({constructor: [ng.http.Http, function(http) {
 
-	$routeProvider.when('/', {
-		templateUrl : 'home.html',
-		controller : 'home',
-		controllerAs: 'controller'
-	}).when('/login', {
-		templateUrl : 'login.html',
-		controller : 'navigation',
-		controllerAs: 'controller'
-	}).otherwise('/');
+    var self = this;
+    this.authenticated = false;
+    this.authenticate = function(credentials, callback) {
 
-	$httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        var headers = credentials ? {
+            authorization : "Basic " + btoa(credentials.username + ":" + credentials.password)
+        } : {};
+        headers['X-Requested-With'] = 'XMLHttpRequest';
+        http.get('user', {headers: headers}).subscribe(function(response) {
+            if (response.json().name) {
+                self.authenticated = true;
+            } else {
+                self.authenticated = false;
+            }
+            callback && callback();
+        });
 
-}).controller('navigation',
+    }
 
-		function($rootScope, $http, $location, $route) {
-			
-			var self = this;
+}]})
 
-			self.tab = function(route) {
-				return $route.current && route === $route.current.controller;
-			};
+var HomeComponent = ng.core.Component({
+    templateUrl : 'home.html'
+}).Class({
+    constructor : [AppService, ng.http.Http, function(app, http) {
+        var self = this;
+        this.greeting = {id:'', msg:''};
+        http.get('resource', {headers: {'X-Requested-With': 'XMLHttpRequest'}}).map(response => response.json()).subscribe(data => self.greeting = data);
+        this.authenticated = function() { return app.authenticated; };
+    }]
+});
 
-			var authenticate = function(credentials, callback) {
+var LoginComponent = ng.core.Component({
+    templateUrl : 'login.html'
+}).Class({
+    constructor : [AppService, ng.http.Http, ng.router.Router, function(app, http, router) {
+        var self = this;
+        this.credentials = {username:'', password:''};
+        this.login = function() {
+            app.authenticate(self.credentials, function() {
+                router.navigateByUrl('/')
+            });
+            return false;
+        };
+        this.authenticated = function() { return app.authenticated; };
+    }]
+});
 
-				var headers = credentials ? {
-					authorization : "Basic "
-							+ btoa(credentials.username + ":"
-									+ credentials.password)
-				} : {};
+var AppComponent = ng.core.Component({
+        templateUrl: 'app.html',
+        selector: 'app',
+        providers: [AppService]
+    }).Class({constructor : [AppService, ng.http.Http, ng.router.Router, function(app, http, router){
 
-				$http.get('user', {
-					headers : headers
-				}).then(function(response) {
-					if (response.data.name) {
-						$rootScope.authenticated = true;
-					} else {
-						$rootScope.authenticated = false;
-					}
-					callback && callback($rootScope.authenticated);
-				}, function() {
-					$rootScope.authenticated = false;
-					callback && callback(false);
-				});
+        this.logout = function() {
+            http.post('logout', {}).subscribe(function() {
+                app.authenticated = false;
+                router.navigateByUrl('/login')
+            });
+        }
 
-			}
+        app.authenticate();
+    }]
+});
 
-			authenticate();
+var routes = [
+    { path: '', pathMatch: 'full', redirectTo: 'home'},
+    { path: 'home', component: HomeComponent},
+    { path: 'login', component: LoginComponent}
+];
 
-			self.credentials = {};
-			self.login = function() {
-				authenticate(self.credentials, function(authenticated) {
-					if (authenticated) {
-						console.log("Login succeeded")
-						$location.path("/");
-						self.error = false;
-						$rootScope.authenticated = true;
-					} else {
-						console.log("Login failed")
-						$location.path("/login");
-						self.error = true;
-						$rootScope.authenticated = false;
-					}
-				})
-			};
+var AppModule = ng.core.NgModule({
+    imports: [ng.platformBrowser.BrowserModule, ng.http.HttpModule,
+            ng.router.RouterModule.forRoot(routes), ng.forms.FormsModule],
+    declarations: [HomeComponent, LoginComponent, AppComponent],
+    bootstrap: [AppComponent]
+  }).Class({constructor : function(){}});
 
-			self.logout = function() {
-				$http.post('logout', {}).finally(function() {
-					$rootScope.authenticated = false;
-					$location.path("/");
-				});
-			}
-
-		}).controller('home', function($http) {
-	var self = this;
-	$http.get('/resource/').then(function(response) {
-		self.greeting = response.data;
-	})
+document.addEventListener('DOMContentLoaded', function() {
+    ng.platformBrowserDynamic.platformBrowserDynamic().bootstrapModule(AppModule);
 });

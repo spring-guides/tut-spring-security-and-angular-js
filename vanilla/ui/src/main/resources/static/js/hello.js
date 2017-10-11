@@ -1,81 +1,81 @@
-angular.module('hello', [ 'ngRoute' ]).config(function($routeProvider) {
+var AppService = ng.core.Injectable({}).Class({constructor: function() {
+    this.authenticated = false;
+}})
 
-	$routeProvider.when('/', {
-		templateUrl : 'home.html',
-		controller : 'home',
-		controllerAs: 'controller'
-	}).when('/login', {
-		templateUrl : 'login.html',
-		controller : 'navigation',
-		controllerAs: 'controller'
-	}).otherwise('/');
+var HomeComponent = ng.core.Component({
+    templateUrl : 'home.html'
+}).Class({
+    constructor : [AppService, ng.http.Http, function(app, http) {
+        var self = this;
+        this.greeting = {id:'', msg:''};
+        http.get('http://localhost:9000').map(response => response.json()).subscribe(data => self.greeting = data);
+        this.authenticated = function() { return app.authenticated; };
+    }]
+});
 
-}).controller('navigation',
+var LoginComponent = ng.core.Component({
+    templateUrl : 'login.html'
+}).Class({
+    constructor : [AppService, ng.http.Http, ng.router.Router, function(app, http, router) {
+        var self = this;
+        this.credentials = {username:'', password:''};
+        this.login = function() {
+            http.post('login', $.param(self.credentials), {
+                headers : {
+                  "content-type" : "application/x-www-form-urlencoded"
+                }}).subscribe(function() {
+                app.authenticated = true;
+                router.navigateByUrl('/')
+            });
+            return false;
+        };
+        this.authenticated = function() { return app.authenticated; };
+    }]
+});
 
-function($rootScope, $http, $location, $route) {
-	
-	var self = this;
+var AppComponent = ng.core.Component({
+        templateUrl: 'app.html',
+        selector: 'app',
+        providers: [AppService]
+    }).Class({constructor : [AppService, ng.http.Http, ng.router.Router, function(app, http, router){
 
-	self.tab = function(route) {
-		return $route.current && route === $route.current.controller;
-	};
+        var authenticate = function(callback) {
 
-	var authenticate = function(callback) {
+            http.get('user').subscribe(function(response) {
+                if (response.json().name) {
+                    app.authenticated = true;
+                } else {
+                    app.authenticated = false;
+                }
+                callback && callback();
+            });
 
-		$http.get('user').then(function(response) {
-			if (response.data.name) {
-				$rootScope.authenticated = true;
-			} else {
-				$rootScope.authenticated = false;
-			}
-			callback && callback();
-		}, function() {
-			$rootScope.authenticated = false;
-			callback && callback();
-		});
+        }
 
-	}
+        this.logout = function() {
+            http.post('logout', {}).subscribe(function() {
+                app.authenticated = false;
+                router.navigateByUrl('/login')
+            });
+        }
 
-	authenticate();
+        authenticate();
+    }]
+});
 
-	self.credentials = {};
-	self.login = function() {
-		$http.post('login', $.param(self.credentials), {
-			headers : {
-				"content-type" : "application/x-www-form-urlencoded"
-			}
-		}).then(function() {
-			authenticate(function() {
-				if ($rootScope.authenticated) {
-					console.log("Login succeeded")
-					$location.path("/");
-					self.error = false;
-					$rootScope.authenticated = true;
-				} else {
-					console.log("Login failed with redirect")
-					$location.path("/login");
-					self.error = true;
-					$rootScope.authenticated = false;
-				}
-			});
-		}, function() {
-			console.log("Login failed")
-			$location.path("/login");
-			self.error = true;
-			$rootScope.authenticated = false;
-		})
-	};
+var routes = [
+    { path: '', pathMatch: 'full', redirectTo: 'home'},
+    { path: 'home', component: HomeComponent},
+    { path: 'login', component: LoginComponent}
+];
 
-	self.logout = function() {
-		$http.post('logout', {}).finally(function() {
-			$rootScope.authenticated = false;
-			$location.path("/");
-		});
-	}
+var AppModule = ng.core.NgModule({
+    imports: [ng.platformBrowser.BrowserModule, ng.http.HttpModule,
+            ng.router.RouterModule.forRoot(routes), ng.forms.FormsModule],
+    declarations: [HomeComponent, LoginComponent, AppComponent],
+    bootstrap: [AppComponent]
+  }).Class({constructor : function(){}});
 
-}).controller('home', function($http) {
-	var self = this;
-	$http.get('http://localhost:9000').then(function(response) {
-		self.greeting = response.data;
-	})
+document.addEventListener('DOMContentLoaded', function() {
+    ng.platformBrowserDynamic.platformBrowserDynamic().bootstrapModule(AppModule);
 });

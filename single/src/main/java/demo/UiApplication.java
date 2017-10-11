@@ -22,11 +22,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class UiApplication {
 
-    @GetMapping(value = "/{path:[^\\.]*}")
-    public String redirect() {
-        return "forward:/";
-    }
-
     @GetMapping("/user")
     @ResponseBody
     public Principal user(Principal user) {
@@ -40,6 +35,11 @@ public class UiApplication {
         model.put("id", UUID.randomUUID().toString());
         model.put("content", "Hello World");
         return model;
+    }
+
+    @GetMapping(value = "/{path:[^\\.]*}")
+    public String redirect() {
+        return "forward:/";
     }
 
     public static void main(String[] args) {

@@ -7,7 +7,6 @@ var AppService = ng.core.Injectable({}).Class({constructor: [ng.http.Http, funct
         var headers = credentials ? {
             authorization : "Basic " + btoa(credentials.username + ":" + credentials.password)
         } : {};
-        headers['X-Requested-With'] = 'XMLHttpRequest';
         http.get('user', {headers: headers}).subscribe(function(response) {
             if (response.json().name) {
                 self.authenticated = true;
@@ -27,7 +26,7 @@ var HomeComponent = ng.core.Component({
     constructor : [AppService, ng.http.Http, function(app, http) {
         var self = this;
         this.greeting = {id:'', msg:''};
-        http.get('resource', {headers: {'X-Requested-With': 'XMLHttpRequest'}}).map(response => response.json()).subscribe(data => self.greeting = data);
+        http.get('resource').map(response => response.json()).subscribe(data => self.greeting = data);
         this.authenticated = function() { return app.authenticated; };
     }]
 });
@@ -65,6 +64,16 @@ var AppComponent = ng.core.Component({
     }]
 });
 
+var RequestOptionsService = ng.core.Class({
+    extends: ng.http.BaseRequestOptions,
+    constructor : function() {},
+    merge: function(opts) {
+        opts.headers = new ng.http.Headers(opts.headers ? opts.headers : {});
+        opts.headers.set('X-Requested-With', 'XMLHttpRequest');
+        return opts.merge(opts);
+    }
+});
+
 var routes = [
     { path: '', pathMatch: 'full', redirectTo: 'home'},
     { path: 'home', component: HomeComponent},
@@ -75,6 +84,7 @@ var AppModule = ng.core.NgModule({
     imports: [ng.platformBrowser.BrowserModule, ng.http.HttpModule,
             ng.router.RouterModule.forRoot(routes), ng.forms.FormsModule],
     declarations: [HomeComponent, LoginComponent, AppComponent],
+    providers : [{ provide: ng.http.RequestOptions, useClass: RequestOptionsService }],
     bootstrap: [AppComponent]
   }).Class({constructor : function(){}});
 

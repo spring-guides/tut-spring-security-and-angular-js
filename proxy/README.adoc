@@ -1,7 +1,7 @@
 [[_the_api_gateway_pattern_angular_js_and_spring_security_part_iv]]
 = The API Gateway
 
-In this section we continue <<_the_resource_server_angular_js_and_spring_security_part_iii,our discussion>> of how to use http://projects.spring.io/spring-security[Spring Security] with http://angularjs.org[Angular JS] in a "single page application". Here we show how to build an API Gateway to control the authentication and access to the backend resources using http://projects.spring.io/spring-cloud/[Spring Cloud]. This is the fourth in a series of sections, and you can catch up on the basic building blocks of the application or build it from scratch by reading the <<_spring_and_angular_js_a_secure_single_page_application,first section>>, or you can just go straight to the https://github.com/dsyer/spring-security-angular/tree/master/proxy[source code in Github]. In the <<_the_resource_server_angular_js_and_spring_security_part_iii,last section>> we built a simple distributed application that used https://github.com/spring-projects/spring-session/[Spring Session] to authenticate the backend resources. In this one we make the UI server into a reverse proxy to the backend resource server, fixing the issues with the last implementation (technical complexity introduced by custom token authentication), and giving us a lot of new options for controlling access from the browser client.
+In this section we continue <<_the_resource_server_angular_js_and_spring_security_part_iii,our discussion>> of how to use http://projects.spring.io/spring-security[Spring Security] with http://angular.io[Angular] in a "single page application". Here we show how to build an API Gateway to control the authentication and access to the backend resources using http://projects.spring.io/spring-cloud/[Spring Cloud]. This is the fourth in a series of sections, and you can catch up on the basic building blocks of the application or build it from scratch by reading the <<_spring_and_angular_js_a_secure_single_page_application,first section>>, or you can just go straight to the https://github.com/dsyer/spring-security-angular/tree/master/proxy[source code in Github]. In the <<_the_resource_server_angular_js_and_spring_security_part_iii,last section>> we built a simple distributed application that used https://github.com/spring-projects/spring-session/[Spring Session] to authenticate the backend resources. In this one we make the UI server into a reverse proxy to the backend resource server, fixing the issues with the last implementation (technical complexity introduced by custom token authentication), and giving us a lot of new options for controlling access from the browser client.
 
 ____
 Reminder: if you are working through this section with the sample application, be sure to clear your browser cache of cookies and HTTP Basic credentials. In Chrome the best way to do that for a single server is to open a new incognito window.
@@ -11,11 +11,11 @@ ____
 
 An API Gateway is a single point of entry (and control) for front end clients, which could be browser based (like the examples in this section) or mobile. The client only has to know the URL of one server, and the backend can be refactored at will with no change, which is a significant advantage. There are other advantages in terms of centralization and control: rate limiting, authentication, auditing and logging. And implementing a simple reverse proxy is really simple with http://projects.spring.io/spring-cloud/[Spring Cloud].
 
-If you were following along in the code, you will know that the application implementation at the end of the <<_the_resource_server_angular_js_and_spring_security_part_iii,last section>> was a bit complicated, so it's not a great place to iterate away from. There was, however, a halfway point which we could start from more easily, where the backend resource wasn't yet secured with Spring Security. The source code for this is a separate project https://github.com/dsyer/spring-security-angular/tree/master/vanilla[in Github] so we are going to start from there. It has a UI server and a resource server and they are talking to each other. The resource server doesn't have Spring Security yet so we can get the system working first and then add that layer.
+If you were following along in the code, you will know that the application implementation at the end of the <<_the_resource_server_angular_js_and_spring_security_part_iii,last section>> was a bit complicated, so it's not a great place to iterate away from. There was, however, a halfway point which we could start from more easily, where the backend resource wasn't yet secured with Spring Security. The source code for this is a separate project https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/vanilla[in Github] so we are going to start from there. It has a UI server and a resource server and they are talking to each other. The resource server doesn't have Spring Security yet so we can get the system working first and then add that layer.
 
 === Declarative Reverse Proxy in One Line
 
-To turn it into an API Gateway, the UI server needs one small tweak. Somewhere in the Spring configuration we need to add an `@EnableZuulProxy` annotation, e.g. in the main (only) https://github.com/dsyer/spring-security-angular/blob/master/proxy/ui/src/main/java/demo/UiApplication.java[application class]:
+To turn it into an API Gateway, the UI server needs one small tweak. Somewhere in the Spring configuration we need to add an `@EnableZuulProxy` annotation, e.g. in the main (only) https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/proxy/ui/src/main/java/demo/UiApplication.java[application class]:
 
 .UiApplication.java
 [source,java]
@@ -28,7 +28,7 @@ public class UiApplication {
 }
 ----
 
-and in an external configuration file we need to map a local resource in the UI server to a remote one in the https://github.com/dsyer/spring-security-angular/blob/master/proxy/ui/src/main/resources/application.yml[external configuration] ("application.yml"):
+and in an external configuration file we need to map a local resource in the UI server to a remote one in the https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/proxy/ui/src/main/resources/application.yml[external configuration] ("application.yml"):
 
 .application.yml
 [source,yaml]
@@ -54,7 +54,7 @@ All we need to make this work is the right stuff on the classpath. For that purp
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-dependencies</artifactId>
-      <version>Camden.SR2</version>
+      <version>Dalston.SR4</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>
@@ -74,33 +74,21 @@ Note the use of the "spring-cloud-starter-zuul" - it's a starter POM just like t
 
 === Consuming the Proxy in the Client
 
-With those changes in place our application still works, but we haven't actually used the new proxy yet until we modify the client. Fortunately that's trivial. We just need to go from this implementation of the "home" controller:
+With those changes in place our application still works, but we haven't actually used the new proxy yet until we modify the client. Fortunately that's trivial. We just need to revert the change we made going from the "single" to the "vanilla" samples in <<_the_resource_server_angular_js_and_spring_security_part_iii,the last section>>:
 
 .hello.js
 [source,javascript]
 ----
-angular.module('hello', [ 'ngRoute' ])
-...
-.controller('home', function($http) {
-  var self = this;
-  $http.get('http://localhost:9000/').then(function(response) {
-    self.greeting = response.data;
-  })
-});
-----
-
-to a local resource:
-
-.hello.js
-[source,javascript]
-----
-angular.module('hello', [ 'ngRoute' ])
-...
-.controller('home', function($http) {
-  var self = this;
-  $http.get('resource/').then(function(response) {
-    self.greeting = response.data;
-  })
+var HomeComponent = ng.core.Component({
+    templateUrl : 'home.html'
+}).Class({
+    constructor : [AppService, ng.http.Http, function(app, http) {
+        var self = this;
+        this.greeting = {id:'', msg:''};
+        http.get('resource')
+            .subscribe(response => self.greeting = response.json());
+        this.authenticated = function() { return app.authenticated; };
+    }]
 });
 ----
 
@@ -128,7 +116,7 @@ ____
 Wow, that was easy! Do that with a network address that's only visible in your data center and you have a security solution that works for all resource servers and all user desktops.
 ____
 
-Suppose that we decide we do need security at the software level (quite likely for a number of reasons). That's not going to be a problem, because all we need to do is add Spring Security as a dependency (in the https://github.com/dsyer/spring-security-angular/blob/master/proxy/resource/pom.xml[resource server POM]):
+Suppose that we decide we do need security at the software level (quite likely for a number of reasons). That's not going to be a problem, because all we need to do is add Spring Security as a dependency (in the https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/proxy/resource/pom.xml[resource server POM]):
 
 .pom.xml
 [source,xml]
@@ -202,7 +190,7 @@ and the other is to explicitly ask for a non-stateless session creation policy i
 security.sessions: NEVER
 ----
 
-As long as redis is still running in the background (use the https://github.com/dsyer/spring-security-angular/tree/master/proxy/docker-compose.yml[`docker-compose.yml`] if you like to start it) then the system will work. Load the homepage for the UI at http://localhost:8080[http://localhost:8080] and login and you will see the message from the backend rendered on the homepage.
+As long as redis is still running in the background (use the https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/proxy/docker-compose.yml[`docker-compose.yml`] if you like to start it) then the system will work. Load the homepage for the UI at http://localhost:8080[http://localhost:8080] and login and you will see the message from the backend rendered on the homepage.
 
 == How Does it Work?
 
@@ -212,15 +200,12 @@ What is going on behind the scenes now? First we can look at the HTTP requests i
 |Verb |Path |Status |Response
 
 |GET |/ |200 |index.html
-|GET |/css/angular-bootstrap.css |200 |Twitter bootstrap CSS
-|GET |/js/angular-bootstrap.js |200 |Bootstrap and Angular JS
+|GET |/webjars/** |200 |Bootstrap and Angular JS
 |GET |/js/hello.js |200 |Application logic
-|GET |/user |302 |Redirect to login page
-|GET |/login |200 |Whitelabel login page (ignored)
-|GET |/resource |302 |Redirect to login page
-|GET |/login |200 |Whitelabel login page (ignored)
+|GET |/app.html |200 |Angular template for main layout
 |GET |/login.html |200 |Angular login form partial
-|POST |/login |302 |Redirect to home page (ignored)
+|GET |/user |401 |Unauthenticated access to user
+|GET |/resource |401 |Unauthenticated access to resource
 |GET |/user |200 |JSON authenticated user
 |GET |/resource |200 |(Proxied) JSON greeting
 |===

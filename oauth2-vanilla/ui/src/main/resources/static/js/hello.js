@@ -1,43 +1,38 @@
-angular.module('hello', [ 'ngRoute' ]).config(function($routeProvider) {
+var AppComponent = ng.core.Component({
+    selector : 'app',
+    templateUrl : 'app.html'
+}).Class({
+    constructor : [ng.http.Http, function(http) {
+        var self = this;
+        this.greeting = {id:'', msg:''};
+        this.authenticated = false;
+        this.authenticate = function() {
 
-	$routeProvider.when('/', {
-		templateUrl : 'home.html',
-		controller : 'home',
-		controllerAs : 'controller'
-	}).otherwise('/');
+            http.get('user').subscribe(function(response) {
+                if (response.json().name) {
+                    self.authenticated = true;
+                    http.get('resource').subscribe(response => self.greeting =response.json());
+                } else {
+                    self.authenticated = false;
+                }
+            }, function() {self.authenticated = false;});
 
-}).controller('navigation',
+        }
+        this.logout = function() {
+            http.post('logout', {}).subscribe(function() {
+                self.authenticated = false;
+            });
+        };
+        this.authenticate();
+    }]
+});
 
-function($rootScope, $http, $location, $route) {
+var AppModule = ng.core.NgModule({
+    imports: [ng.platformBrowser.BrowserModule, ng.http.HttpModule],
+    declarations: [AppComponent],
+    bootstrap: [AppComponent]
+  }).Class({constructor : function(){}})
 
-	var self = this;
-
-	self.tab = function(route) {
-		return $route.current && route === $route.current.controller;
-	};
-
-	$http.get('user').then(function(response) {
-		if (response.data.name) {
-			$rootScope.authenticated = true;
-		} else {
-			$rootScope.authenticated = false;
-		}
-	}, function() {
-		$rootScope.authenticated = false;
-	});
-
-	self.credentials = {};
-
-	self.logout = function() {
-		$http.post('logout', {}).finally(function() {
-			$rootScope.authenticated = false;
-			$location.path("/");
-		});
-	}
-
-}).controller('home', function($http) {
-	var self = this;
-	$http.get('resource/').then(function(response) {
-		self.greeting = response.data;
-	})
+document.addEventListener('DOMContentLoaded', function() {
+    ng.platformBrowserDynamic.platformBrowserDynamic().bootstrapModule(AppModule);
 });

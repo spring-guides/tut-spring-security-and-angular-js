@@ -1,88 +1,96 @@
-angular.module('hello', [ 'ngRoute' ]).config(function($routeProvider, $httpProvider) {
+var AppService = ng.core.Injectable({}).Class({constructor: [ng.http.Http, function(http) {
 
-	$routeProvider.when('/', {
-		templateUrl : 'home.html',
-		controller : 'home',
-		controllerAs : 'controller'
-	}).when('/login', {
-		templateUrl : 'login.html',
-		controller : 'navigation',
-		controllerAs : 'controller'
-	}).otherwise('/');
+    var self = this;
+    this.authenticated = false;
+    this.authenticate = function(credentials, callback) {
 
-	$httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        var headers = credentials ? {
+            authorization : "Basic " + btoa(credentials.username + ":" + credentials.password)
+        } : {};
+        http.get('user', {headers: headers}).subscribe(function(response) {
+            if (response.json().name) {
+                self.authenticated = true;
+            } else {
+                self.authenticated = false;
+            }
+            callback && callback();
+        });
 
-}).controller('navigation',
+    }
 
-function($rootScope, $http, $location, $route) {
-	
-	var self = this;
+}]})
 
-	self.tab = function(route) {
-		return $route.current && route === $route.current.controller;
-	};
+var HomeComponent = ng.core.Component({
+    templateUrl : 'home.html'
+}).Class({
+    constructor : [AppService, ng.http.Http, function(app, http) {
+        var self = this;
+        this.greeting = {id:'', msg:''};
+        http.get('token').subscribe(response => {
+            var token = response.json().token;
+            http.get('http://localhost:9000', {
+                headers: {'X-Auth-Token': token}
+            }).subscribe(response => self.greeting =response.json());
+        })
+        this.authenticated = function() { return app.authenticated; };
+    }]
+});
 
-	var authenticate = function(credentials, callback) {
+var LoginComponent = ng.core.Component({
+    templateUrl : 'login.html'
+}).Class({
+    constructor : [AppService, ng.router.Router, function(app, router) {
+        var self = this;
+        this.credentials = {username:'', password:''};
+        this.login = function() {
+            app.authenticate(self.credentials, function() {
+                router.navigateByUrl('/')
+            });
+            return false;
+        };
+    }]
+});
 
-		var headers = credentials ? {
-			authorization : "Basic "
-					+ btoa(credentials.username + ":"
-							+ credentials.password)
-		} : {};
+var AppComponent = ng.core.Component({
+        templateUrl: 'app.html',
+        selector: 'app',
+        providers: [AppService]
+    }).Class({
+        constructor : [AppService, ng.http.Http, ng.router.Router, function(app, http, router){
+            app.authenticate();
+            this.logout = function() {
+                http.post('logout', {}).subscribe(function() {
+                    app.authenticated = false;
+                    router.navigateByUrl('/login')
+                });
+            }
+        }]
+    });
 
-		$http.get('user', {
-			headers : headers
-		}).then(function(response) {
-			if (response.data.name) {
-				$rootScope.authenticated = true;
-			} else {
-				$rootScope.authenticated = false;
-			}
-			callback && callback();
-		}, function() {
-			$rootScope.authenticated = false;
-			callback && callback();
-		});
+var RequestOptionsService = ng.core.Class({
+    extends: ng.http.BaseRequestOptions,
+    constructor : function() {},
+    merge: function(opts) {
+        opts.headers = new ng.http.Headers(opts.headers ? opts.headers : {});
+        opts.headers.set('X-Requested-With', 'XMLHttpRequest');
+        return opts.merge(opts);
+    }
+});
 
-	}
+var routes = [
+    { path: '', pathMatch: 'full', redirectTo: 'home'},
+    { path: 'home', component: HomeComponent},
+    { path: 'login', component: LoginComponent}
+];
 
-	authenticate();
+var AppModule = ng.core.NgModule({
+    imports: [ng.platformBrowser.BrowserModule, ng.http.HttpModule,
+            ng.router.RouterModule.forRoot(routes), ng.forms.FormsModule],
+    declarations: [HomeComponent, LoginComponent, AppComponent],
+    providers : [{ provide: ng.http.RequestOptions, useClass: RequestOptionsService }],
+    bootstrap: [AppComponent]
+  }).Class({constructor : function(){}});
 
-	self.credentials = {};
-	self.login = function() {
-		authenticate(self.credentials, function() {
-			if ($rootScope.authenticated) {
-				console.log("Login succeeded")
-				$location.path("/");
-				self.error = false;
-				$rootScope.authenticated = true;
-			} else {
-				console.log("Login failed")
-				$location.path("/login");
-				self.error = true;
-				$rootScope.authenticated = false;
-			}
-		})
-	};
-
-	self.logout = function() {
-		$http.post('logout', {}).finally(function() {
-			$rootScope.authenticated = false;
-			$location.path("/");
-		});
-	}
-
-}).controller('home', function($http) {
-	var self = this;
-	$http.get('token').then(function(response) {
-		$http({
-			url : 'http://localhost:9000',
-			method : 'GET',
-			headers : {
-				'X-Auth-Token' : response.data.token
-			}
-		}).then(function(response) {
-			self.greeting = response.data;
-		});
-	})
+document.addEventListener('DOMContentLoaded', function() {
+    ng.platformBrowserDynamic.platformBrowserDynamic().bootstrapModule(AppModule);
 });

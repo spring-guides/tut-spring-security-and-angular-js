@@ -212,7 +212,7 @@ var AppComponent = ng.core.Component({
     constructor : [ng.http.Http, function(http) {
         var self = this;
         self.greeting = {id:'', content:''};
-        http.get("/resource").map(response => response.json()).subscribe(data => self.greeting = data);
+        http.get("/resource").subscribe(response => self.greeting = response.json());
     }]
 });
 ----

@@ -21,8 +21,7 @@ var HomeComponent = ng.core.Component({
         var self = this;
         this.greeting = {id:'', msg:''};
         http.get('resource')
-            .map(response => response.json())
-            .subscribe(data => self.greeting = data);
+            .subscribe(response => self.greeting = response.json());
         this.authenticated = function() { return app.authenticated; };
     }]
 });
@@ -34,8 +33,7 @@ All we need to do to this is change the URL. For example, if we are going to run
 [source,javascript]
 ----
         http.get('http://localhost:9000')
-            .map(response => response.json())
-            .subscribe(data => self.greeting = data);
+            .map(response => self.greeting = response.json());
 ----
 
 === Server Side Changes

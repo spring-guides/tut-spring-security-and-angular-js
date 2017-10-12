@@ -11,7 +11,7 @@ var AppComponent = ng.core.Component({
             http.get('user').subscribe(function(response) {
                 if (response.json().name) {
                     self.authenticated = true;
-                    http.get('resource').subscribe(response => self.greeting =response.json());
+                    http.get('resource/').subscribe(response => self.greeting = response.json());
                 } else {
                     self.authenticated = false;
                 }

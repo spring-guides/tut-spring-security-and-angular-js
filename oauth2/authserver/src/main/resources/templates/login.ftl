@@ -1,6 +1,10 @@
 <html>
 <head>
-<link rel="stylesheet" href="css/wro.css"/>
+<link rel="stylesheet" type="text/css"
+  href="webjars/bootstrap/css/bootstrap.min.css" />
+<script type="text/javascript" src="webjars/jquery/jquery.min.js"></script>
+<script type="text/javascript"
+  src="webjars/bootstrap/js/bootstrap.min.js"></script>
 </head>
 <body>
 <#if RequestParameters['error']??>
@@ -22,6 +26,5 @@
 		  <button type="submit" class="btn btn-primary">Submit</button>
 		</form>
 	</div>
-	<script src="js/wro.js" type="text/javascript"></script>
 </body>
 </html>

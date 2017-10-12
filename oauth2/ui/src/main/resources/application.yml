@@ -1,5 +1,3 @@
-debug: true
-
 spring:
   aop:
     proxy-target-class: true

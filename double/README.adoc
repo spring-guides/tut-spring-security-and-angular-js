@@ -1,7 +1,7 @@
 [[_multiple_ui_applications_and_a_gateway_single_page_application_with_spring_and_angular_js_part_vi]]
 = Multiple UI Applications and a Gateway
 
-In this section we continue <<_sso_with_oauth2_angular_js_and_spring_security_part_v,our discussion>> of how to use http://projects.spring.io/spring-security[Spring Security] with http://angularjs.org[Angular JS] in a "single page application". Here we show how to use http://projects.spring.io/spring-security-oauth/[Spring Session] together with http://projects.spring.io/spring-cloud/[Spring Cloud] to combine the features of the systems we built in parts II and IV, and actually end up building 3 single page applications with quite different responsibilities. The aim is to build a Gateway (like in <<_the_api_gateway_pattern_angular_js_and_spring_security_part_iv,part IV>>) that is used not only for API resources but also to load the UI from a backend server. We simplify the token-wrangling bits of <<_the_login_page_angular_js_and_spring_security_part_ii,part II>> by using the Gateway to pass through the authentication to the backends. Then we extend the system to show how we can make local, granular access decisions in the backends, while still controlling identity and authentication at the Gateway. This is a very powerful model for building distributed systems in general, and has a number of benefits that we can explore as we introduce the features in the code we build.
+In this section we continue <<_sso_with_oauth2_angular_js_and_spring_security_part_v,our discussion>> of how to use http://projects.spring.io/spring-security[Spring Security] with http://angular.io[Angular] in a "single page application". Here we show how to use http://projects.spring.io/spring-security-oauth/[Spring Session] together with http://projects.spring.io/spring-cloud/[Spring Cloud] to combine the features of the systems we built in parts II and IV, and actually end up building 3 single page applications with quite different responsibilities. The aim is to build a Gateway (like in <<_the_api_gateway_pattern_angular_js_and_spring_security_part_iv,part IV>>) that is used not only for API resources but also to load the UI from a backend server. We simplify the token-wrangling bits of <<_the_login_page_angular_js_and_spring_security_part_ii,part II>> by using the Gateway to pass through the authentication to the backends. Then we extend the system to show how we can make local, granular access decisions in the backends, while still controlling identity and authentication at the Gateway. This is a very powerful model for building distributed systems in general, and has a number of benefits that we can explore as we introduce the features in the code we build.
 
 ____
 Reminder: if you are working through this section with the sample application, be sure to clear your browser cache of cookies and HTTP Basic credentials. In Chrome the best way to do that is to open a new incognito window.
@@ -11,7 +11,7 @@ ____
 
 Here's a picture of the basic system we are going to build to start with:
 
-image:https://raw.githubusercontent.com/dsyer/spring-security-angular/master/double/double-simple.png[Components of the System]
+image:https://raw.githubusercontent.com/spring-guides/tut-spring-security-and-angular-js/master/double/double-simple.png[Components of the System]
 
 Like the other sample applications in this series it has a UI (HTML and JavaScript) and a Resource server. Like the sample in <<_the_api_gateway_pattern_angular_js_and_spring_security_part_iv,Part IV>> it has a Gateway, but here it is separate, not part of the UI. The UI effectively becomes part of the backend, giving us even more choice to re-configure and re-implement features, and also bringing other benefits as we will see.
 
@@ -19,11 +19,11 @@ The browser goes to the Gateway for everything and it doesn't have to know about
 
 As in <<_the_api_gateway_pattern_angular_js_and_spring_security_part_iv,Part IV>> the Gateway simplifies the interaction between clients and servers, and it presents a small, well-defined surface on which to deal with security. For example, we don't need to worry about http://en.wikipedia.org/wiki/Cross-origin_resource_sharing[Cross Origin Resource Sharing], which is a welcome relief since it is easy to get wrong.
 
-The source code for the complete project we are going to build is in https://github.com/dsyer/spring-security-angular/tree/master/double[Github here], so you can just clone the project and work directly from there if you want. There is an extra component in the end state of this system ("double-admin") so ignore that for now.
+The source code for the complete project we are going to build is in https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/double[Github here], so you can just clone the project and work directly from there if you want. There is an extra component in the end state of this system ("double-admin") so ignore that for now.
 
 == Building the Backend
 
-In this architecture the backend is very similar to the https://github.com/dsyer/spring-security-angular/tree/master/spring-session["spring-session"] sample we built in <<_the_resource_server_angular_js_and_spring_security_part_iii,Part III>>, with the exception that it doesn't actually need a login page. The easiest way to get to what we want here is probably to copy the "resource" server from Part III and take the UI from the https://github.com/dsyer/spring-security-angular/tree/master/basic["basic"] sample in <<_spring_and_angular_js_a_secure_single_page_application,Part I>>. To get from the "basic" UI to the one we want here, we need only to add a couple of dependencies (like when we first used https://github.com/spring-projects/spring-session/[Spring Session] in Part III):
+In this architecture the backend is very similar to the https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/spring-session["spring-session"] sample we built in <<_the_resource_server_angular_js_and_spring_security_part_iii,Part III>>, with the exception that it doesn't actually need a login page. The easiest way to get to what we want here is probably to copy the "resource" server from Part III and take the UI from the https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/basic["basic"] sample in <<_spring_and_angular_js_a_secure_single_page_application,Part I>>. To get from the "basic" UI to the one we want here, we need only to add a couple of dependencies (like when we first used https://github.com/spring-projects/spring-session/[Spring Session] in Part III):
 
 .pom.xml
 [source,xml]
@@ -73,7 +73,7 @@ We are going to be POSTing changes to our message resource, which is a new featu
 	}
 ----
 
-The completed sample is https://github.com/dsyer/spring-security-angular/tree/master/double/resource[here in github] if you want to take a peek.
+The completed sample is https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/double/resource[here in github] if you want to take a peek.
 
 == The Gateway
 
@@ -87,7 +87,7 @@ $ curl https://cloud-start.spring.io/starter.tgz -d style=web \
   -d style=redis | tar -xzvf - 
 ----
 
-You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line. There is a version https://github.com/dsyer/spring-security-angular/tree/master/double/gateway[in github] if you want to go from there, but it has a few extra features that we don't need yet.
+You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line. There is a version https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/double/gateway[in github] if you want to go from there, but it has a few extra features that we don't need yet.
 
 Starting from the blank Initializr application, we add the Spring Session dependency (like in the UI above). The Gateway is ready to run, but it doesn't yet know about our backend services, so let's just set that up in its `application.yml` (renaming from `application.properties` if you did the curl thing above):
 
@@ -121,7 +121,7 @@ The interactions between the browser and the backend can be seen in your browser
 |GET |/ui/ |401 |Browser prompts for authentication
 |GET |/ui/ |200 |index.html
 |GET |/ui/css/angular-bootstrap.css |200 |Twitter bootstrap CSS
-|GET |/ui/js/angular-bootstrap.js |200 |Bootstrap and Angular JS
+|GET |/ui/js/angular-bootstrap.js |200 |Bootstrap and Angular
 |GET |/ui/js/hello.js |200 |Application logic
 |GET |/ui/user |200 |authentication
 |GET |/resource/ |200 |JSON greeting
@@ -171,7 +171,7 @@ Instead of the message rendering we will have a nice big navigation button:
 
 If you are looking at the sample in github, it also has a minimal navigation bar with a "Logout" button. Here's the login form in a screenshot:
 
-image:https://raw.githubusercontent.com/dsyer/spring-security-angular/master/double/login.png[Login Page]
+image:https://raw.githubusercontent.com/spring-guides/tut-spring-security-and-angular-js/master/double/login.png[Login Page]
 
 To support the login form we need some JavaScript with a "navigation" controller implementing the `login()` function we declared in the `<form/>`, and we need to set the `authenticated` flag so that the home page will render differently depending on whether or not the user is authenticated. For example:
 
@@ -238,13 +238,13 @@ We can use the `self` to store the `authenticated` flag because there is only on
 
 If we run this enhanced Gateway, instead of having to remember the URL for the UI we can just load the home page and follow links. Here's the home page for an authenticated user:
 
-image:https://raw.githubusercontent.com/dsyer/spring-security-angular/master/double/home.png[Home Page]
+image:https://raw.githubusercontent.com/spring-guides/tut-spring-security-and-angular-js/master/double/home.png[Home Page]
 
 == Granular Access Decisions in the Backend
 
 Up to now our application is functionally very similar to the one in <<_the_resource_server_angular_js_and_spring_security_part_iii,Part III>> or <<_the_api_gateway_pattern_angular_js_and_spring_security_part_iv,Part IV>>, but with an additional dedicated Gateway. The advantage of the extra layer may not be yet apparent, but we can emphasise it by expanding the system a bit. Suppose we want to use that Gateway to expose another backend UI, for users to "administrate" the content in the main UI, and that we want to restrict access to this feature to users with special roles. So we will add an "Admin" application behind the proxy, and the system will look like this:
 
-image:https://raw.githubusercontent.com/dsyer/spring-security-angular/master/double/double-components.png[Components of the System]
+image:https://raw.githubusercontent.com/spring-guides/tut-spring-security-and-angular-js/master/double/double-components.png[Components of the System]
 
 There is a new component (Admin) and a new route in the Gateway in `application.yml`:
 
@@ -322,7 +322,7 @@ For the "READER" and "WRITER" roles the application itself is split, and since t
 </div>
 ----
 
-Angular JS evaluates the "ng-include" attribute value as an expression, and then uses the result to load a template. 
+Angular evaluates the "ng-include" attribute value as an expression, and then uses the result to load a template. 
 
 TIP: A more complex application might use other mechanisms to modularize itself, e.g. the `$routeProvider` service that we used in nearly all the other applications in this series.
 

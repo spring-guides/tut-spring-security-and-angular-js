@@ -133,30 +133,26 @@ Hurrah, it works! You have two backend servers, one of which is a UI, each with 
 
 == Adding a Login Form
 
-Just as in the "basic" sample in <<_spring_and_angular_js_a_secure_single_page_application,Part I>> we can now add a login form to the Gateway, e.g. by copying the code from <<_the_login_page_angular_js_and_spring_security_part_ii,Part II>>. When we do that we can also add some basic navigation elements in the Gateway, so the user doesn't have to know the path to the UI backend in the proxy. So let's first copy the static assets from the "single" UI into the Gateway, delete the message rendering and insert a login form into our home page (in the `<body/>` somewhere):
+Just as in the "basic" sample in <<_spring_and_angular_js_a_secure_single_page_application,Part I>> we can now add a login form to the Gateway, e.g. by copying the code from <<_the_login_page_angular_js_and_spring_security_part_ii,Part II>>. When we do that we can also add some basic navigation elements in the Gateway, so the user doesn't have to know the path to the UI backend in the proxy. So let's first copy the static assets from the "single" UI into the Gateway, delete the message rendering and insert a login form into our home page (in the `<app/>` somewhere):
 
-.index.html
+.app.html
 [source,html]
 ----
-<body ng-app="hello" ng-controller="navigation as nav" ng-cloak
-	class="ng-cloak">
-  ...
-  <div class="container" ng-show="!nav.authenticated">
-    <form role="form" ng-submit="nav.login()">
-      <div class="form-group">
-        <label for="username">Username:</label> <input type="text"
-          class="form-control" id="username" name="username"
-          ng-model="nav.credentials.username" />
-      </div>
-      <div class="form-group">
-        <label for="password">Password:</label> <input type="password"
-          class="form-control" id="password" name="password"
-          ng-model="nav.credentials.password" />
-      </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-  </div>
-</body>
+<div class="container" [hidden]="authenticated">
+	<form role="form" (submit)="login()">
+		<div class="form-group">
+			<label for="username">Username:</label> <input type="text"
+				class="form-control" id="username" name="username"
+				[(ngModel)]="credentials.username" />
+		</div>
+		<div class="form-group">
+			<label for="password">Password:</label> <input type="password"
+				class="form-control" id="password" name="password"
+				[(ngModel)]="credentials.password" />
+		</div>
+		<button type="submit" class="btn btn-primary">Submit</button>
+	</form>
+</div>
 ----
 
 Instead of the message rendering we will have a nice big navigation button:
@@ -164,8 +160,8 @@ Instead of the message rendering we will have a nice big navigation button:
 .index.html
 [source,html]
 ----
-<div class="container" ng-show="nav.authenticated">
-  <a class="btn btn-primary" href="/ui/">Go To User Interface</a>
+<div class="container" [hidden]="!authenticated">
+	<a class="btn btn-primary" href="/ui/">Go To User Interface</a>
 </div>
 ----
 
@@ -173,68 +169,46 @@ If you are looking at the sample in github, it also has a minimal navigation bar
 
 image:https://raw.githubusercontent.com/spring-guides/tut-spring-security-and-angular-js/master/double/login.png[Login Page]
 
-To support the login form we need some JavaScript with a "navigation" controller implementing the `login()` function we declared in the `<form/>`, and we need to set the `authenticated` flag so that the home page will render differently depending on whether or not the user is authenticated. For example:
+To support the login form we need some JavaScript with a component implementing the `login()` function we declared in the `<form/>`, and we need to set the `authenticated` flag so that the home page will render differently depending on whether or not the user is authenticated. For example:
 
 .gateway.js
 [source,javascript]
 ----
-angular.module('gateway', []).controller('navigation',
-function($http) {
-
-  ...
-  
-  authenticate();
-  
-  self.credentials = {};
-
-  self.login = function() {
-    authenticate(self.credentials, function() {
-      if (self.authenticated) {
-        console.log("Login succeeded")
-        self.error = false;
-        self.authenticated = true;
-      } else {
-        console.log("Login failed")
-        self.error = true;
-        self.authenticated = false;
-      }
-    })
-  };
-
-}
+var AppComponent = ng.core.Component({
+        templateUrl: 'app.html',
+        selector: 'app'
+    }).Class({
+        constructor : [ng.http.Http, function(http){
+            var self = this;
+            this.credentials = {username:'', password:''};
+            this.authenticated = false;
+            var authenticate = function(credentials) {
+                var headers = credentials ? {
+                    authorization : "Basic " + btoa(credentials.username + ":" + credentials.password)
+                } : {};
+                http.get('user', {headers: headers}).subscribe(function(response) {
+                    var data =response.json();
+                    self.authenticated = data && data.name;
+                    self.user = self.authenticated ? data.name : '';
+                });
+            }
+            this.login = function() {
+                authenticate(self.credentials);
+                return false;
+            };
+            this.logout = function() {
+                http.post('logout', {}).subscribe(function() {
+                    self.authenticated = false;
+                });
+            }
+            authenticate();
+        }]
+    });
 ----
 
-where the implementation of the `authenticate()` function is similar to that in <<_the_login_page_angular_js_and_spring_security_part_ii,Part II>>:
+where the implementation of the `authenticate()` function is similar to that in <<_the_login_page_angular_js_and_spring_security_part_ii,Part II>>.
 
-.gateway.js
-[source,javascript]
-----
-var authenticate = function(credentials, callback) {
-
-  var headers = credentials ? {
-    authorization : "Basic "
-        + btoa(credentials.username + ":"
-            + credentials.password)
-  } : {};
-
-  $http.get('user', {
-    headers : headers
-  }).then(function(response) {
-    if (response.data.name) {
-      self.authenticated = true;
-    } else {
-      self.authenticated = false;
-    }
-    callback && callback();
-  }, function() {
-    self.authenticated = false;
-    callback && callback();
-  });
-
-}
-----
-
-We can use the `self` to store the `authenticated` flag because there is only one controller in this simple application.
+We can use the `self` to store the `authenticated` flag because there is only one component in this simple application.
 
 If we run this enhanced Gateway, instead of having to remember the URL for the UI we can just load the home page and follow links. Here's the home page for an authenticated user:
 
@@ -301,7 +275,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     http
     ...
       .authorizeRequests()
-        .antMatchers("/index.html", "/login", "/").permitAll()
+        .antMatchers("/index.html", "/app.html", "/login", "/").permitAll()
         .antMatchers("/admin/**").hasRole("ADMIN")
         .anyRequest().authenticated()
     ...
@@ -317,7 +291,7 @@ For the "READER" and "WRITER" roles the application itself is split, and since t
 ----
 <div class="container">
   <h1>Admin</h1>
-  <div ng-show="home.authenticated" ng-include="home.template"></div>
+  <div [hidden="home.authenticated" ng-include="home.template"></div>
   <div ng-show="!home.authenticated" ng-include="'unauthenticated.html'"></div>
 </div>
 ----

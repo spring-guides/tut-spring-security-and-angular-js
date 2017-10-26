@@ -6,7 +6,7 @@ var AppComponent = ng.core.Component({
             var self = this;
             this.credentials = {username:'', password:''};
             this.authenticated = false;
-            this.authenticate = function(credentials) {
+            var authenticate = function(credentials) {
                 var headers = credentials ? {
                     authorization : "Basic " + btoa(credentials.username + ":" + credentials.password)
                 } : {};
@@ -18,7 +18,7 @@ var AppComponent = ng.core.Component({
                 });
             }
             this.login = function() {
-                this.authenticate(self.credentials);
+                authenticate(self.credentials);
                 return false;
             };
             this.logout = function() {
@@ -26,7 +26,7 @@ var AppComponent = ng.core.Component({
                     self.authenticated = false;
                 });
             }
-            this.authenticate();
+            authenticate();
         }]
     });
 

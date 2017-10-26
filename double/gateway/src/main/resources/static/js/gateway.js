@@ -1,57 +1,52 @@
-angular.module('gateway', []).config(function($httpProvider) {
+var AppComponent = ng.core.Component({
+        templateUrl: 'app.html',
+        selector: 'app'
+    }).Class({
+        constructor : [ng.http.Http, function(http){
+            var self = this;
+            this.credentials = {username:'', password:''};
+            this.authenticated = false;
+            this.authenticate = function(credentials) {
+                var headers = credentials ? {
+                    authorization : "Basic " + btoa(credentials.username + ":" + credentials.password)
+                } : {};
+                http.get('user', {headers: headers}).subscribe(function(response) {
+                    var data =response.json();
+                    self.admin = data && data.roles && data.roles.indexOf("ROLE_ADMIN")>-1;
+                    self.authenticated = data && data.name;
+                    self.user = self.authenticated ? data.name : '';
+                });
+            }
+            this.login = function() {
+                this.authenticate(self.credentials);
+                return false;
+            };
+            this.logout = function() {
+                http.post('logout', {}).subscribe(function() {
+                    self.authenticated = false;
+                });
+            }
+            this.authenticate();
+        }]
+    });
 
-	$httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+var RequestOptionsService = ng.core.Class({
+    extends: ng.http.BaseRequestOptions,
+    constructor : function() {},
+    merge: function(opts) {
+        opts.headers = new ng.http.Headers(opts.headers ? opts.headers : {});
+        opts.headers.set('X-Requested-With', 'XMLHttpRequest');
+        return opts.merge(opts);
+    }
+});
 
-}).controller('navigation',
+var AppModule = ng.core.NgModule({
+    imports: [ng.platformBrowser.BrowserModule, ng.http.HttpModule, ng.forms.FormsModule],
+    declarations: [AppComponent],
+    providers : [{ provide: ng.http.RequestOptions, useClass: RequestOptionsService }],
+    bootstrap: [AppComponent]
+  }).Class({constructor : function(){}});
 
-function($http) {
-
-	var self = this;
-
-	var authenticate = function(credentials, callback) {
-
-		var headers = credentials ? {
-			authorization : "Basic "
-					+ btoa(credentials.username + ":"
-							+ credentials.password)
-		} : {};
-
-		self.user = ''
-		$http.get('user', {
-			headers : headers
-		}).then(function(response) {
-			var data = response.data;
-			if (data.name) {
-				self.authenticated = true;
-				self.user = data.name
-				self.admin = data && data.roles && data.roles.indexOf("ROLE_ADMIN")>-1;
-			} else {
-				self.authenticated = false;
-				self.admin = false;
-			}
-			callback && callback(true);
-		}, function() {
-			self.authenticated = false;
-			callback && callback(false);
-		});
-
-	}
-
-	authenticate();
-
-	self.credentials = {};
-	self.login = function() {
-		authenticate(self.credentials, function(authenticated) {
-			self.authenticated = authenticated;
-			self.error = !authenticated;
-		})
-	};
-
-	self.logout = function() {
-		$http.post('logout', {}).finally(function() {
-			self.authenticated = false;
-			self.admin = false;
-		});
-	}
-
+document.addEventListener('DOMContentLoaded', function() {
+    ng.platformBrowserDynamic.platformBrowserDynamic().bootstrapModule(AppModule);
 });

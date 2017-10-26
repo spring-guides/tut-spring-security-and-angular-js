@@ -44,7 +44,7 @@ public class UiApplication {
       http
         .httpBasic().and()
         .authorizeRequests()
-          .antMatchers("/index.html", "app.html", "/").permitAll()
+          .antMatchers("/index.html", "/app.html", "/").permitAll()
           .anyRequest().hasRole("USER");
       // @formatter:on
     }

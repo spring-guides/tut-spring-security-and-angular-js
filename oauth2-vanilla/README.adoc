@@ -362,7 +362,7 @@ The interactions between the browser and the backend can be seen in your browser
 |Verb |Path |Status |Response
 
 |GET |/ |200 |index.html
-|GET |/webjars/** |200  |Bootstrap and Angular JS
+|GET |/webjars/** |200  |Bootstrap and Angular
 |GET |/js/hello.js |200 |Application logic
 |GET |/app.html |200 |HTML partial for content
 |GET |/user |302 |Redirect to login page

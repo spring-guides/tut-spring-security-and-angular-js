@@ -26,6 +26,8 @@ The core of a single page application is a static "index.html". We already had a
 
 It's not much different than the original in fact, but we replaced the `<html/>` body content (everything except the scripts) with a single `<app/>`.
 
+NOTE: The `index.html` from the sample code uses `wro4j` to compile the CSS needed by the app. The details are not shown here (and the CSS needed by this app is really trivial), but you can copy the pattern if you want to extend it.
+
 The `<app/>` selector, in turn, needs to be wired up to a component in the Angular app, containing both the navigation elements and the main body content. It's going to be a little bit more sophisticated than out basic `AppComponent` but it has some of the same features. Here's the implementation:
 
 .hello.js

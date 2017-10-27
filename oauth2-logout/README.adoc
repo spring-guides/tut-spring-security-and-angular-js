@@ -1,7 +1,7 @@
 [[_oauth2_logout_angular_js_and_spring_security_part_ix]]
 = Logout from an OAuth2 Client Application
 
-In this section we continue <<_testing_angular_js_and_spring_security_part_viii,our discussion>> of how to use http://projects.spring.io/spring-security[Spring Security] with http://angularjs.org[Angular JS] in a "single page application". Here we show how to take the OAuth2 samples and add a different logout experience. Many people who implement OAuth2 single sign on find that they have a puzzle to solve of how to logout "cleanly"? The reason it's a puzzle is that there isn't a single correct way to do it, and the solution you choose will be determined by the user experience you are looking for, and also the amount of complexity you are willing to take on. The reasons for the complexity stem from the fact that there are potentially multiple browser sessions in the system, all with different backend servers, so when a user logs out from one of them, what should happen to the others? This is the ninth section of a tutorial, and you can catch up on the basic building blocks of the application or build it from scratch by reading the <<_spring_and_angular_js_a_secure_single_page_application,first section>>, or you can just go straight to the https://github.com/dsyer/spring-security-angular/tree/master/oauth2-logout[source code in Github]. 
+In this section we continue <<_testing_angular_js_and_spring_security_part_viii,our discussion>> of how to use http://projects.spring.io/spring-security[Spring Security] with http://angular.io[Angular] in a "single page application". Here we show how to take the OAuth2 samples and add a different logout experience. Many people who implement OAuth2 single sign on find that they have a puzzle to solve of how to logout "cleanly"? The reason it's a puzzle is that there isn't a single correct way to do it, and the solution you choose will be determined by the user experience you are looking for, and also the amount of complexity you are willing to take on. The reasons for the complexity stem from the fact that there are potentially multiple browser sessions in the system, all with different backend servers, so when a user logs out from one of them, what should happen to the others? This is the ninth section of a tutorial, and you can catch up on the basic building blocks of the application or build it from scratch by reading the <<_spring_and_angular_js_a_secure_single_page_application,first section>>, or you can just go straight to the https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/oauth2-logout[source code in Github]. 
 
 == Logout Patterns
 
@@ -42,14 +42,14 @@ The easiest two options, which apply nicely in the GIA pattern can be implemente
 It's quite easy to add a couple of lines of code to the browser client that logout from the authserver as soon as the UI app is logged out. E.g.
 
 ```javascript
-$http.post('logout', {}).finally(function() {
-  $rootScope.authenticated = false;
-  $location.path("/");
-  $http.post('http://localhost:9999/uaa/logout', {}, {withCredentials:true}).finally(function() {
-	console.log('Logged out');
-    })
-  });
-}
+this.logout = function() {
+    http.post('logout', {}).finally(function() {
+        self.authenticated = false;
+        http.post('http://localhost:9999/uaa/logout', {}, {withCredentials:true}).subscribe(function() {
+            console.log('Logged out');
+        });
+    }).subscribe();
+};
 ```
 
 In this sample we hardcoded the authserver logout endpoint URL into the JavaScript, but it would be easy to externalize that if you needed to. It has to be a POST directly to the authserver because we want the session cookie to go along too. The XHR request will only go out from the browser with a cookie attached if we specifically ask for `withCredentials:true`.
@@ -139,7 +139,7 @@ public void configure(AuthorizationServerEndpointsConfigurer endpoints)
 
 This interceptor looks for a `RedirectView`, which is a signal that the user is being redirected back to the client app, and checks if the location contains an auth code or an error. You could add "token=" if you were using implicit grants as well.
 
-With this simple change, as soon as you authenticate, the session in the authserver is already dead, so there's no need to try and manage it from the client. When you log out of the UI app, and then log back in, the authserver doesn't recognize you and prompts for credentials. This pattern is the one implemented by the `oauth2-logout` sample in the https://github.com/dsyer/spring-security-angular/tree/master/oauth2-logout[source code] for this tutorial. The downside of this approach is that you don't really have true single sign on any more - any other apps that are part of your system will find that the authserver session is dead and they have to prompt for authentication again - it isn't a great user experience if there are multiple apps.
+With this simple change, as soon as you authenticate, the session in the authserver is already dead, so there's no need to try and manage it from the client. When you log out of the UI app, and then log back in, the authserver doesn't recognize you and prompts for credentials. This pattern is the one implemented by the `oauth2-logout` sample in the https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/oauth2-logout[source code] for this tutorial. The downside of this approach is that you don't really have true single sign on any more - any other apps that are part of your system will find that the authserver session is dead and they have to prompt for authentication again - it isn't a great user experience if there are multiple apps.
 
 == Conclusion
 

@@ -54,10 +54,10 @@ var AppComponent = ng.core.Component({
         constructor : [AppService, ng.http.Http, ng.router.Router, function(app, http, router){
             app.authenticate();
             this.logout = function() {
-                http.post('logout', {}).subscribe(function() {
+                http.post('logout', {}).finally(function() {
                     app.authenticated = false;
                     router.navigateByUrl('/login')
-                });
+                }).subscribe();
             }
         }]
     });

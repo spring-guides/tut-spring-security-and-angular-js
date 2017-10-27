@@ -40,10 +40,10 @@ var AppComponent = ng.core.Component({
     }).Class({constructor : [AppService, ng.http.Http, ng.router.Router, function(app, http, router){
 
         this.logout = function() {
-            http.post('logout', {}).subscribe(function() {
+            http.post('logout', {}).finally(function() {
                 app.authenticated = false;
                 router.navigateByUrl('/login')
-            });
+            }).subscribe();
         }
 
         app.authenticate();
@@ -55,7 +55,7 @@ Salient features:
 
 * There is some more dependency injection, as well as the `http` service we are injecting a custom service called `app` (that will be used to centralize authentication information), and the Angular `router`.
 
-* There is a logout function exposed as a property of the component, which we can use later to send a logout request to the backend. If successful it sets a flag in the `app` service, and sends the user back to the login screen.
+* There is a logout function exposed as a property of the component, which we can use later to send a logout request to the backend. It sets a flag in the `app` service, and sends the user back to the login screen (and it does this unconditionally via a `finally()` callback).
 
 * We are using `templateUrl` to externalize the template HTML into a separate file.
 

@@ -1,0 +1,10 @@
+<div class="container">
+  <ul class="nav nav-pills">
+    <li><a routerLinkActive="active" routerLink="/home">Home</a></li>
+    <li><a routerLinkActive="active" routerLink="/login">Login</a></li>
+    <li><a (click)="logout()">Logout</a></li>
+  </ul>
+</div>
+<div class="container">
+  <router-outlet></router-outlet>
+</div>

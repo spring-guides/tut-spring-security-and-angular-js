@@ -1,6 +1,10 @@
-angular.module('home', []).controller('home', function($http) {
-	var self = this;
-	$http.get('/user/').then(function(response) {
-		self.user = response.data.name;
-	});
+var HomeComponent = ng.core.Component({
+    templateUrl : 'js/home/home.html'
+}).Class({
+    constructor : [AppService, ng.http.Http, function(app, http) {
+        var self = this;
+        this.greeting = {id:'', msg:''};
+        http.get('resource').subscribe(response => self.greeting =response.json());
+        this.authenticated = function() { return app.authenticated; };
+    }]
 });

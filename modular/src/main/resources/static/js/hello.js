@@ -1,31 +1,27 @@
-angular
-		.module('hello', [ 'ngRoute', 'auth', 'home', 'message', 'navigation' ])
-		.config(
+var RequestOptionsService = ng.core.Class({
+    extends: ng.http.BaseRequestOptions,
+    constructor : function() {},
+    merge: function(opts) {
+        opts.headers = new ng.http.Headers(opts.headers ? opts.headers : {});
+        opts.headers.set('X-Requested-With', 'XMLHttpRequest');
+        return opts.merge(opts);
+    }
+});
 
-				function($routeProvider, $httpProvider, $locationProvider) {
+var routes = [
+    { path: '', pathMatch: 'full', redirectTo: 'home'},
+    { path: 'home', component: HomeComponent},
+    { path: 'login', component: LoginComponent}
+];
 
-					$locationProvider.html5Mode(true);
+var AppModule = ng.core.NgModule({
+    imports: [ng.platformBrowser.BrowserModule, ng.http.HttpModule,
+            ng.router.RouterModule.forRoot(routes), ng.forms.FormsModule],
+    declarations: [HomeComponent, LoginComponent, AppComponent],
+    providers : [{ provide: ng.http.RequestOptions, useClass: RequestOptionsService }],
+    bootstrap: [AppComponent]
+  }).Class({constructor : function(){}});
 
-					$routeProvider.when('/', {
-						templateUrl : 'js/home/home.html',
-						controller : 'home',
-						controllerAs : 'controller'
-					}).when('/message', {
-						templateUrl : 'js/message/message.html',
-						controller : 'message',
-						controllerAs : 'controller'
-					}).when('/login', {
-						templateUrl : 'js/navigation/login.html',
-						controller : 'navigation',
-						controllerAs : 'controller'
-					}).otherwise('/');
-
-					$httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-
-				}).run(function(auth) {
-
-			// Initialize auth module with the home page and login/logout path
-			// respectively
-			auth.init('/', '/login', '/logout');
-
-		});
+document.addEventListener('DOMContentLoaded', function() {
+    ng.platformBrowserDynamic.platformBrowserDynamic().bootstrapModule(AppModule);
+});

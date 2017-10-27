@@ -134,7 +134,7 @@ NOTE: Using webjars for angular is a pragmatic choice, with strong pedagogical i
 
 Let's create the "hello" application (in "src/main/resources/static/js/hello.js" so that the `&lt;script/&gt;` at the bottom of our "index.html" finds it in the right place).
 
-A minimal Angular JS application looks like this:
+A minimal Angular application looks like this:
 
 .hello.js
 [source,javascript]

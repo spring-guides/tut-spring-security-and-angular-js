@@ -56,7 +56,6 @@ var WriteComponent = ng.core.Component({
           self.greeting = response.json()
         })
       }
-      this.authenticated = function() { return app.authenticated; };
   }]
 });
 

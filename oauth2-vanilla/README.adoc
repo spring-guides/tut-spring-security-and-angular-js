@@ -335,7 +335,7 @@ There are some tweaks to the UI application on the front end that we still need 
 .hello.js
 [source,javascript]
 ----
-include::src/main/resources/static/js/hello.js[indent=0]
+include::ui/src/main/resources/static/js/hello.js[indent=0]
 ----
 
 The `AppComponent` handles everything, fetching the user details and, if successful, the greeting. It also provides the `logout` function.
@@ -345,7 +345,7 @@ Now we need to create the "app.html" template for this new component:
 .app.html
 [source,html]
 ----
-include::src/main/resources/static/app.html[indent=0]
+include::ui/src/main/resources/static/app.html[indent=0]
 ----
 
 and include it in the home page as `<app/>`.

@@ -237,7 +237,9 @@ zuul:
 
 The fact that the existing UI is available to users in the "USER" role is indicated on the block diagram above in the Gateway box (green lettering), as is the fact that the "ADMIN" role is needed to go to the Admin application. The access decision for the "ADMIN" role could be applied in the Gateway, in which case it would appear in a `WebSecurityConfigurerAdapter`, or it could be applied in the Admin application itself (and we will see how to do that below).
 
-In addition, suppose that within the Admin application we want to distinguish between "READER" and "WRITER" roles, so that we can permit (let's say) users who are auditors to view the changes made by the main admin users. This is a granular access decision, where the rule is only known, and should only be known, in the backend application. In the Gateway we only need to ensure that our user accounts have the roles needed, and this information is available, but the Gateway doesn't need to know how to interpret it. In the Gateway we create user accounts to keep the sample application self-contained:
+So first, create a new Spring Boot application, or copy the UI and edit it. You won't need to change much in the UI app except the name to start with. The finished app is in https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/double/admin[Github here].
+
+Suppose that within the Admin application we want to distinguish between "READER" and "WRITER" roles, so that we can permit (let's say) users who are auditors to view the changes made by the main admin users. This is a granular access decision, where the rule is only known, and should only be known, in the backend application. In the Gateway we only need to ensure that our user accounts have the roles needed, and this information is available, but the Gateway doesn't need to know how to interpret it. In the Gateway we create user accounts to keep the sample application self-contained:
 
 .SecurityConfiguration.class
 [source,javascript]
@@ -284,61 +286,132 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 }
 ----
 
-For the "READER" and "WRITER" roles the application itself is split, and since the application is implemented in JavaScript, that is where we need to make the access decision. One way to do this is to have a home page with a computed view embedded in it:
+For the "READER" and "WRITER" roles the application itself is split, and since the application is implemented in JavaScript, that is where we need to make the access decision. One way to do this is to have a home page with a computed view embedded in it via the router:
 
-.index.html
+.app.html
 [source,html]
 ----
 <div class="container">
-  <h1>Admin</h1>
-  <div [hidden="home.authenticated" ng-include="home.template"></div>
-  <div ng-show="!home.authenticated" ng-include="'unauthenticated.html'"></div>
+	<h1>Admin</h1>
+	<router-outlet></router-outlet>
 </div>
 ----
 
-Angular evaluates the "ng-include" attribute value as an expression, and then uses the result to load a template. 
-
-TIP: A more complex application might use other mechanisms to modularize itself, e.g. the `$routeProvider` service that we used in nearly all the other applications in this series.
-
-The `template` variable is initialized in our controller, first by defining a utility function:
+The route is copmuted when the component loads:
 
 .admin.js
 [source,javascript]
 ----
-var computeDefaultTemplate = function(user) {
-  self.template = user && user.roles
-      && user.roles.indexOf("ROLE_WRITER")>0 ? "write.html" : "read.html";		
-}
-----
-
-then by using the utility function when the controller loads:
-
-.admin.js
-[source,javascript]
-----
-angular.module('admin', []).controller('home',
-
-function($http) {
-	
-  $http.get('user').then(function(response) {
-    var data = response.data;
-    if (data.name) {
-      self.authenticated = true;
-      self.user = data;
-      computeDefaultTemplate(data);
-    } else {
-      self.authenticated = false;
-    }
-    self.error = null
-  })
-  ...
-      
+var AppComponent = ng.core.Component({
+        templateUrl: 'app.html',
+        selector: 'app',
+        providers: [AppService]
+    }).Class({
+        constructor : [AppService, ng.http.Http, ng.router.Router, function(app, http, router){
+            var self = this;
+            self.user = {};
+            app.authenticate(response => {
+              self.user = response.json();
+              if (!app.authenticated) {
+                router.navigate(['/unauthenticated'])
+              } else {
+                if (app.writer) {
+                  router.navigate(['/write'])
+                } else {
+                  router.navigate(['/read'])
+                }
+              }
+            });
+        }]
 })
+
+var routes = [
+    { path: '', pathMatch: 'full', redirectTo: 'read'},
+    { path: 'read', component: ReadComponent},
+    { path: 'write', component: WriteComponent},
+    { path: 'unauthenticated', component: UnauthenticatedComponent}
+];
+...
 ----
 
-the first thing the application does is look at the usual (for this series) "/user" endpoint, then it extracts some data, sets the authenticated flag, and if the user is authenticated, computes the template by looking at the user data. 
+the first thing the application does is look at check  if the user is authenticated, and computes the route by looking at the user data. Each of those components (one for each route) has to be implemented separately. Here's the `ReadComponent` as an example:
 
-To support this function on the backend we need an endpoint, e.g. in our main application class:
+.admin.js
+[source,javascript]
+----
+var ReadComponent = ng.core.Component({
+    templateUrl : 'read.html'
+}).Class({
+    constructor : [AppService, ng.http.Http, function(app, http) {
+        var self = this;
+        self.greeting = {id:'', content:''};
+        http.get('/resource').subscribe(response => self.greeting =response.json());
+    }]
+});
+----
+
+.read.html
+[source,html]
+----
+<div>
+	<p>The ID is {{greeting.id}}</p>
+	<p>The content is {{greeting.content}}</p>
+</div>
+----
+
+The `WriteComponent` is similar, but has a form to change the message in the backend:
+
+.admin.js
+[source,javascript]
+----
+var WriteComponent = ng.core.Component({
+  templateUrl : 'write.html'
+}).Class({
+  constructor : [AppService, ng.http.Http, function(app, http) {
+      var self = this;
+      this.greeting = {id:'', content:''};
+      http.get('/resource').subscribe(response => self.greeting = response.json());
+      self.update = function() {
+        http.post('/resource', {content: self.greeting.content}).subscribe(function(response) {
+          self.greeting = response.json()
+        })
+      }
+  }]
+});
+----
+
+.read.html
+[source,html]
+----
+<form (submit)="update()">
+	<p>The ID is {{greeting.id}}</p>
+	<div class="form-group">
+		<label for="username">Content:</label> <input type="text"
+			class="form-control" id="content" name="content" [(ngModel)]="greeting.content"/>
+	</div>
+	<button type="submit" class="btn btn-primary">Submit</button>
+</form>
+----
+
+The `AppService` also needs to provide the data to compute the route, so in the `authenticate()` function we see this:
+
+.admin.js
+[source,javascript]
+----
+        http.get('/user').subscribe(function(response) {
+            var user = response.json();
+            if (user.name) {
+                self.authenticated = true;
+                self.writer = user.roles && user.roles.indexOf("ROLE_WRITER")>0;
+            } else {
+                self.authenticated = false;
+                self.writer = false;
+            }
+            callback && callback(response);
+        })
+----
+
+To support this function on the backend we need the `/user` endpoint, e.g. in our main application class:
 
 .AdminApplication.java
 [source,java]
@@ -372,22 +445,11 @@ We are going to use the roles to make access decisions in the Gateway as well (s
 .gateway.js
 [source,javascript]
 ----
-$http.get('user', {
-  headers : headers
-}).then(function(response) {
-  var data = response.data;
-  if (data.name) {
-    self.authenticated = true;
-    self.user = data.name
+http.get('user', {headers: headers}).subscribe(function(response) {
+    var data =response.json();
     self.admin = data && data.roles && data.roles.indexOf("ROLE_ADMIN")>-1;
-  } else {
-    self.authenticated = false;
-    self.admin = false;
-  }
-  callback && callback(true);
-}, function() {
-  self.authenticated = false;
-  callback && callback(false);
+    self.authenticated = data && data.name;
+    self.user = self.authenticated ? data.name : '';
 });
 ----
 
@@ -396,25 +458,25 @@ and we also need to reset the `admin` flag to `false` when a user logs out:
 .gateway.js
 [source,javascript]
 ----
-self.logout = function() {
-  $http.post('logout', {}).finally(function() {
-    self.authenticated = false;
-    self.admin = false;
-  });
+this.logout = function() {
+    http.post('logout', {}).subscribe(function() {
+        self.authenticated = false;
+        self.admin = false;
+    });
 }
 ----
 
 and then in the HTML we can conditionally show a new link:
 
-.index.html
+.app.html
 [source,html]
 ----
-<div class="container" ng-show="nav.authenticated">
-  <a class="btn btn-primary" href="/ui/">Go To User Interface</a>
+<div class="container" [hidden]="!authenticated">
+	<a class="btn btn-primary" href="/ui/">Go To User Interface</a>
 </div>
-<br/>
-<div class="container" ng-show="nav.authenticated && admin">
-  <a class="btn btn-primary" href="/admin/">Go To Admin Interface</a>
+<br />
+<div class="container" [hidden]="!authenticated || !admin">
+	<a class="btn btn-primary" href="/admin/">Go To Admin Interface</a>
 </div>
 ----
 

@@ -24,6 +24,7 @@ var AppComponent = ng.core.Component({
             this.logout = function() {
                 http.post('logout', {}).subscribe(function() {
                     self.authenticated = false;
+                    self.admin = false;
                 });
             }
             authenticate();

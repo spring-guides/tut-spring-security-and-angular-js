@@ -1,7 +1,7 @@
 [[_spring_and_angular_js_a_secure_single_page_application]]
 = A Secure Single Page Application
 
-In this section we show some nice features of Spring Security, Spring Boot and Angular working together to provide a pleasant and secure user experience. It should be accessible to beginners with Spring and Angular, but there also is plenty of detail that will be of use to experts in either. This is actually the first in a series of sections on Spring Security and Angular, with new features exposed in each one successively. We'll improve on the application in the <<_the_login_page_angular_js_and_spring_security_part_ii,second>> and subsequent installments, but the main changes after this are architectural rather than functional.
+In this tutorial we show some nice features of Spring Security, Spring Boot and Angular working together to provide a pleasant and secure user experience. It should be accessible to beginners with Spring and Angular, but there also is plenty of detail that will be of use to experts in either. This is actually the first in a series of sections on Spring Security and Angular, with new features exposed in each one successively. We'll improve on the application in the <<_the_login_page_angular_js_and_spring_security_part_ii,second>> and subsequent installments, but the main changes after this are architectural rather than functional.
 
 == Spring and the Single Page Application
 
@@ -108,7 +108,9 @@ $ java -jar target/*.jar
 
 == Front End Assets
 
-Entry-level tutorials on Angular tend to use a node.js toolchain to download and repackage all the libraries and their dependencies. Some demos for Angular and other front end technologies often just include the library assets directly from the internet. Instead of doing that we are going to use https://webjars.org[Webjars] and install the third party assets in our application classpath. There are quite a few needed for even the most basic Angular application:
+Most modern tutorials on Angular tend to use a node.js toolchain to download and repackage all the libraries and their dependencies. Some demos for Angular and other front end technologies often just include the library assets directly from the internet. Instead of doing either of those we are going to use https://webjars.org[Webjars] and install the third party assets in our application classpath. 
+
+There are quite a few webjars needed for even the most basic Angular application:
 
 [source,xml]
 ----
@@ -126,7 +128,7 @@ You can copy that verbatim into your POM, or just scan it if you are following a
 
 If you run the app now, you should see the CSS take effect and all the assets will load successfully, but the business logic and navigation is still missing.
 
-Aside: Webjars are probably not the tool of choice for hard-core front end developers - they would probably be using a node-based toolchain. These are definitely excellent tools, and covered in great detail all over the internet, so please feel free to use them if you prefer. If you just put the outputs from those toolchains in "src/main/resources/static" then it will all work. Spring developers with no experience in front-end development find webjars comfortable because they know how to use Java-based tooling.
+NOTE: Using webjars for angular is a pragmatic choice, with strong pedagogical influences. Most Spring application developers are not familiar with the node.js toolchains, or TypeScript, which is what all the official Angular documentation uses now. So webjars and plain old JavaScript (ES5) are an easy way to get you started using tools familiar to a Java developer, but they will probably be limiting in the longer term. You might want to look into using `npm` and the Angular CLI for anything larger than the most basic application: if you just put the outputs from those toolchains in "src/main/resources/static" or "target/classes/static" then it will all work.
 
 == Create the Angular Application
 

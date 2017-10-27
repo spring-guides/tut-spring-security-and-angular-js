@@ -40,7 +40,7 @@ static/
 
 The component definitions have moved into their own modules, alongside the HTML that they need to operate - nice and modular. If we had needed images or custom stylesheets we would have done the same with those.
 
-NOTE: all the client-side code is under a single directory, "js" (except `index.html` because that is a "welcome" page and loads automatically from the "static" directory). This is intentional because it makes it easy to apply a single Spring Security access rule to all the static resources. These ones are all unsecured (because `/js/**` is unsecure by default in a Spring Boot application), but you might need other rules for other applications, in which case you would pick a different path.
+NOTE: All the client-side code is under a single directory, "js" (except `index.html` because that is a "welcome" page and loads automatically from the "static" directory). This is intentional because it makes it easy to apply a single Spring Security access rule to all the static resources. These ones are all unsecured (because `/js/**` is unsecure by default in a Spring Boot application), but you might need other rules for other applications, in which case you would pick a different path.
 
 For example, here's the `home.js`:
 
@@ -123,7 +123,7 @@ public String redirect() {
 
 This method just needs to be in a `@Controller` (not a `@RestController`) somewhere in the Spring application. We use a "forward" (not a "redirect") so that the browser remembers the "real" route, and that's what the user sees in the URL. It also means that any saved-request mechanisms around authentication in Spring Security would work out of the box, although we won't be taking advantage of that in this application.
 
-NOTE: all the applications in the sample code already have this request mapping. It has been there all along if you were following along and using the code from github.
+NOTE: All the applications in the sample code already have this request mapping. It has been there all along if you were following along and using the code from github.
 
 Coupled with that you need a `<base/>` element in the header of the HTML in `index.html`, and you need to make sure the links in the menu bar refer to the correct routes:
 

@@ -27,5 +27,10 @@
     src="webjars/angular__platform-browser-dynamic/bundles/platform-browser-dynamic.umd.js"></script>
   <script type="text/javascript" src="webjars/angular__http/bundles/http.umd.js"></script>
   <script type="text/javascript" src="js/hello.js"></script>
+  <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+      ng.platformBrowserDynamic.platformBrowserDynamic().bootstrapModule(AppModule);
+    });
+  </script>
 </body>
 </html>

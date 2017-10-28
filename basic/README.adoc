@@ -81,6 +81,8 @@ Salient features include:
 
 * We also include a separate "hello.js" which is where we are going to define the application behaviour.
 
+* The `AppModule` is defined in "hello.js" but is initialized explicitly in the HTML because it makes "hello.js" testable.
+
 We are going to add the script and stylesheet assets in a minute, but for now we can ignore the fact that they don't exist.
 
 === Running the Application

@@ -14,80 +14,74 @@ ____
 Our "home" controller in the "basic" application is very simple, so it won't take a lot to test it thoroughly. Here's a reminder of the code (`hello.js`):
 
 ```javascript
-angular.module('hello', []).controller('home', function($scope, $http) {
-  $http.get('resource/').then(function(response) {
-    $scope.greeting = response.data;
-  })
+var AppComponent = ng.core.Component({
+    selector : 'app',
+    template : '<p>The ID is {{greeting.id}}</p><p>The content is {{greeting.content}}</p>'
+}).Class({
+    constructor : [ng.http.Http, function(http) {
+        var self = this;
+        self.greeting = {id:'', content:''};
+        http.get("/resource").subscribe(function(response) {
+          self.greeting =response.json()
+        });
+    }]
 });
 ```
 
-The main challenge we face is to provide the `$scope` and `$http` objects in the test, so we can make assertions about how they are used in the controller. Actually, even before we face that challenge we need to be able to create a controller instance, so we can test what happens when it loads. Here's how you can do that.
+The main challenge we face is to provide the `http` object in the test, so we can make assertions about how they are used in the component. Actually, even before we face that challenge we need to be able to create a component instance, so we can test what happens when it loads. Here's how you can do that.
 
 Create a new file `spec.js` and put it in "src/test/resources/static/js":
 
 ```javascript
-describe("App", function() {
+var TestBed = ng.core.testing.TestBed;
 
-	beforeEach(module('hello'));
+ng.core.testing.getTestBed().initTestEnvironment(
+    ng.platformBrowserDynamic.testing.BrowserDynamicTestingModule,
+    ng.platformBrowserDynamic.testing.platformBrowserDynamicTesting()
+  );
 
-    var $controller;
-	beforeEach(inject(function($injector) {
-		$controller = $injector.get('$controller');
-	}));
+describe("AppComponent", function() {
 
-	it("loads a controller", function() {
-		var controller = $controller('home')
-	});
+  beforeEach(function() {
+    TestBed.configureTestingModule({
+      declarations: [
+        AppComponent
+      ]
+    }).compileComponents();
+  });
 
-}
+  it('should create the app', function() {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.debugElement.componentInstance;
+    expect(app).toBeTruthy();
+  });
+
+});
 ```
 
 In this very basic test suite we have 3 important elements:
 
-1. We `describe()` the thing that is being tested (the "App" in this case) with a function.
+1. We `describe()` the thing that is being tested (the "AppComponent" in this case) with a function.
 
-2. Inside that function we provide a couple of `beforeEach()` callbacks, one of which loads the Angular module "hello", and the other of which creates a factory for controllers, which we call `$controller`.
+2. Inside that function we provide a `beforeEach()` callback, which loads the Angular component.
 
 3. Behaviour is expressed through a call to `it()`, where we state in words what the expectation is, and then provide a function that makes assertions.
 
-The test function here is so trivial it actually doesn't even make assertions, but it does create an instance of the "home" controller, so if that fails then the test will fail.
+4. We don't use ES6 style function declarations (with `=>`) because, while they probably work in your browser, they won't work in PhantomJS which we want to use later to automate the tests.
+
+The test function here is so trivial it actually only asserts that the component exists, so if that fails then the test will fail.
 
 > NOTE: "src/test/resources/static/js" is a logical place for test code in a Java application, although a case could be made for "src/test/javascript". We will see later why it makes sense to put it in the test classpath, though (indeed if you are used to Spring Boot conventions you may already see why).
 
 Now we need a driver for this Javascript code, in the form of an HTML page that we coudl load in a browser. Create a file called "test.html" and put it in "src/test/resources/static":
 
 ```html
-<!doctype html>
-<html>
-<head>
-
-<title>Jasmine Spec Runner</title>
-<link rel="stylesheet" type="text/css"
-  href="/webjars/jasmine/2.0.0/jasmine.css">
-<script type="text/javascript" src="/webjars/jasmine/2.0.0/jasmine.js"></script>
-<script type="text/javascript"
-  src="/webjars/jasmine/2.0.0/jasmine-html.js"></script>
-<script type="text/javascript" src="/webjars/jasmine/2.0.0/boot.js"></script>
-
-<!-- include source files here... -->
-<script type="text/javascript" src="/js/angular-bootstrap.js"></script>
-<script type="text/javascript" src="/js/hello.js"></script>
-
-<!-- include spec files here... -->
-<script type="text/javascript"
-  src="/webjars/angularjs/1.3.8/angular-mocks.js"></script>
-<script type="text/javascript" src="/js/spec.js"></script>
-
-</head>
-
-<body>
-</body>
-</html>
+include::basic/src/test/resources/static/test.html[indent=0]
 ```
 
 The HTML is content free, but it loads some Javascript, and it will have a UI once the scripts all run.
 
-First we load the required Jasmine components from `/webjars/**`. The 4 files that we load are just boilerplate - you can do the same thing for any application. To make those available at runtime in a test we will need to add the Jasmine dependency to our "pom.xml":
+First we load the required Jasmine components from `/webjars/**`. The files that we load are just boilerplate - you can do the same thing for any application. To make those available at runtime in a test we will need to add the Jasmine dependency to our "pom.xml":
 
 ```xml
 <dependency>
@@ -98,20 +92,9 @@ First we load the required Jasmine components from `/webjars/**`. The 4 files th
 </dependency>
 ```
 
-Then we come to the application-specific code. The main source code for our front end is "hello.js" so we have to load that, and also its dependencies in the form of "angular-bootstrap.js" (the latter is created by the wro4j maven plugin, so you need to run `mvn package` once successfully before it is loadable).
+Then we come to the application-specific code. The main source code for our front end is "hello.js" so we have to load that, and also its dependencies in the same way we do in the "index.html".
 
-Finally we need the "spec.js" that we jsut wrote, and its dependencies (any that are not already included the the other scripts), which for an Angular application will nearly always include the "angular-mocks.js". We load it from webjars, so you will also need to add that dependency to "pom.xml":
-
-```xml
-<dependency>
-  <groupId>org.webjars</groupId>
-  <artifactId>angularjs</artifactId>
-  <version>1.3.8</version>
-  <scope>test</scope>
-</dependency>
-```
-
-> NOTE: The angularjs webjar was already included as a dependency of the wro4j plugin, so that it could build the "angular-bootstrap.js". This is going to be used in a different build step, so we need it again.
+Finally we need the "spec.js" that we just wrote, and its dependencies (any that are not already included the the other scripts), which for an Angular application will nearly always include the "testing" module that pairs with each of the main mondules. We load them from webjars, just like the main dependencies.
 
 == Running the Specs
 
@@ -146,46 +129,14 @@ To improve the spec to production grade we need to actually assert something abo
 
 [source,javascript]
 ----
-describe("App", function() {
-
-  beforeEach(module('hello'));
-
-  var $httpBackend, $controller;
-  beforeEach(inject(function($injector) {
-    $httpBackend = $injector.get('$httpBackend');
-    $controller = $injector.get('$controller');
-  }));
-
-  afterEach(function() {
-    $httpBackend.verifyNoOutstandingExpectation();
-    $httpBackend.verifyNoOutstandingRequest();
-  });
-
-  it("says Hello Test when controller loads", function() {
-    var $scope = {};
-    $httpBackend.expectGET('resource/').respond(200, {
-      id : 4321,
-      content : 'Hello Test'
-    });
-    var controller = $controller('home', {
-      $scope : $scope
-    });
-    $httpBackend.flush();
-    expect($scope.greeting.content).toEqual('Hello Test');
-  });
-
-})
+include::basic/src/test/resources/static/js/spec.js[indent=0]
 ----
 
 The new pieces here are:
 
-* The creation of the `$httpBackend` in a `beforeEach()`.
+* The declaration of the `XHRBackend` in a `beforeEach()`.
 
-* Adding a new `afterEach()` that verifies the state of the backend.
-
-* In the test function we set expectations for the backend before we create the controller, telling it to expect a call to 'resource/',and what the response should be.
-
-* We also add a call to jasmine `expect()` to assert the outcome.
+* In the test function we set expectations for the backend before we create the component, telling it to expect a call to 'resource/',and what the response should be.
 
 Without having to start and stop the test application, this test should now be green in the browser.
 
@@ -198,7 +149,7 @@ It's great to be able to run specs in a browser, because there are excellent dev
 <plugin>
   <groupId>com.github.searls</groupId>
   <artifactId>jasmine-maven-plugin</artifactId>
-  <version>2.0-alpha-01</version>
+  <version>2.2</version>
   <executions>
     <execution>
       <goals>
@@ -215,23 +166,7 @@ The default settings for this plugin won't work with the static resource layout 
 ----
 <plugin>
   ...
-  <configuration>
-    <additionalContexts>
-      <context>
-        <contextRoot>/lib</contextRoot>
-        <directory>${project.build.directory}/classes/static/js</directory>
-      </context>
-    </additionalContexts>
-    <preloadSources>
-      <source>/lib/angular-bootstrap.js</source>
-      <source>/webjars/angularjs/1.3.8/angular-mocks.js</source>
-    </preloadSources>
-    <jsSrcDir>${project.basedir}/src/main/resources/static/js</jsSrcDir>
-    <jsTestSrcDir>${project.basedir}/src/test/resources/static/js</jsTestSrcDir>
-    <phantomjs>
-      <version>2.1.1</version>
-    </phantomjs>
-  </configuration>
+include::basic/pom.xml[tags=jasmine-config,indent=2]
 </plugin>
 ----
 

@@ -145,16 +145,32 @@
                         </goals>
                     </execution>
                 </executions>
+                <!-- tag::jasmine-config[] -->
                 <configuration>
-                    <additionalContexts>
-                        <context>
-                            <contextRoot>/lib</contextRoot>
-                            <directory>${project.build.directory}/generated-resources/static/js</directory>
-                        </context>
-                    </additionalContexts>
+                  <browserVersion>CHROME</browserVersion>  
                     <preloadSources>
-                        <source>/lib/angular-bootstrap.js</source>
-                        <source>/webjars/angularjs/${angularjs.version}/angular-mocks.js</source>
+                        <source>/webjars/core-js/client/shim.min.js</source>
+                        <source>/webjars/rxjs/bundles/Rx.min.js</source>
+                        <source>/webjars/zone.js/dist/zone.min.js</source>
+                        <source>/webjars/reflect-metadata/${reflect.version}/Reflect.js</source>
+                        <source>/webjars/angular__core/bundles/core.umd.js</source>
+                        <source>/webjars/angular__common/bundles/common.umd.js</source>
+                        <source>/webjars/angular__compiler/bundles/compiler.umd.js</source>
+                        <source>/webjars/angular__platform-browser/bundles/platform-browser.umd.js</source>
+                        <source>/webjars/angular__platform-browser-dynamic/bundles/platform-browser-dynamic.umd.js</source>
+                        <source>/webjars/angular__http/bundles/http.umd.js</source>
+                        <source>/webjars/zone.js/dist/long-stack-trace-zone.min.js</source>
+                        <source>/webjars/zone.js/dist/proxy.min.js</source>
+                        <source>/webjars/zone.js/dist/sync-test.js</source>
+                        <source>/webjars/zone.js/dist/jasmine-patch.min.js</source>
+                        <source>/webjars/zone.js/dist/async-test.js</source>
+                        <source>/webjars/zone.js/dist/fake-async-test.js</source>
+                        <source>/webjars/angular__core/bundles/core-testing.umd.js</source>
+                        <source>/webjars/angular__common/bundles/common-testing.umd.js</source>
+                        <source>/webjars/angular__compiler/bundles/compiler-testing.umd.js</source>
+                        <source>/webjars/angular__platform-browser/bundles/platform-browser-testing.umd.js</source>
+                        <source>/webjars/angular__platform-browser-dynamic/bundles/platform-browser-dynamic-testing.umd.js</source>
+                        <source>/webjars/angular__http/bundles/http-testing.umd.js</source>
                     </preloadSources>
                     <jsSrcDir>${project.basedir}/src/main/resources/static/js</jsSrcDir>
                     <jsTestSrcDir>${project.basedir}/src/test/resources/static/js</jsTestSrcDir>
@@ -162,6 +178,7 @@
                         <version>2.1.1</version>
                     </phantomjs>
                 </configuration>
+                <!-- end::jasmine-config[] -->
             </plugin>
         </plugins>
     </build>

@@ -59,7 +59,7 @@ describe("AppComponent", function() {
 });
 ```
 
-In this very basic test suite we have 3 important elements:
+In this very basic test suite we have these important elements:
 
 1. We `describe()` the thing that is being tested (the "AppComponent" in this case) with a function.
 
@@ -68,6 +68,8 @@ In this very basic test suite we have 3 important elements:
 3. Behaviour is expressed through a call to `it()`, where we state in words what the expectation is, and then provide a function that makes assertions.
 
 4. We don't use ES6 style function declarations (with `=>`) because, while they probably work in your browser, they won't work in PhantomJS which we want to use later to automate the tests.
+
+5. The test environment is initialized before anything else happens. This is boilerplate for most Angular apps.
 
 The test function here is so trivial it actually only asserts that the component exists, so if that fails then the test will fail.
 

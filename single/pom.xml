@@ -28,6 +28,16 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>bootstrap</artifactId>
+            <version>${bootstrap.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>jquery</artifactId>
+            <version>${jquery.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.webjars.npm</groupId>
             <artifactId>core-js</artifactId>
             <version>${corejs.version}</version>
@@ -106,7 +116,6 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
-        <wro4j.version>1.8.0</wro4j.version>
         <angular.version>4.4.4</angular.version>
         <bootstrap.version>3.3.7-1</bootstrap.version>
         <corejs.version>2.5.1</corejs.version>
@@ -121,39 +130,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>ro.isdc.wro4j</groupId>
-                <artifactId>wro4j-maven-plugin</artifactId>
-                <version>${wro4j.version}</version>
-                <executions>
-                    <execution>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <wroManagerFactory>ro.isdc.wro.maven.plugin.manager.factory.ConfigurableWroManagerFactory</wroManagerFactory>
-                    <cssDestinationFolder>${project.build.directory}/classes/static/css</cssDestinationFolder>
-                    <jsDestinationFolder>${project.build.directory}/classes/static/js</jsDestinationFolder>
-                    <wroFile>${basedir}/src/main/wro/wro.xml</wroFile>
-                    <extraConfigFile>${basedir}/src/main/wro/wro.properties</extraConfigFile>
-                    <contextFolder>${basedir}/src/main/less</contextFolder>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.webjars</groupId>
-                        <artifactId>bootstrap</artifactId>
-                        <version>${bootstrap.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.webjars</groupId>
-                        <artifactId>jquery</artifactId>
-                        <version>${jquery.version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
         </plugins>
     </build>

@@ -1,8 +1,0 @@
-<groups xmlns="http://www.isdc.ro/wro">
-  <group name="app">
-    <css>webjar:/less/bootstrap.less</css>
-    <css>/main.less</css>
-    <js>webjar:/jquery.min.js</js>
-    <js>webjar:/js/bootstrap.min.js</js>
-   </group>
-</groups>

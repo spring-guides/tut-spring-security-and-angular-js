@@ -75,7 +75,7 @@ Salient features include:
 
 * All the CSS classes are from http://getbootstrap.com/[Twitter Bootstrap]. They will make things look pretty once we get the right stylesheets set up.
 
-* The content in the greeting is an Angular component that we haven't defined yet (`<hello/>`).
+* The content in the greeting is an Angular component that we haven't defined yet (`<app/>`).
 
 * All the Angular libraries and dependencies (and Twitter Bootstrap) are included at the bottom of the `&lt;body&gt;` so that the browser can process all the HTML before it gets processed.
 
@@ -142,7 +142,7 @@ A minimal Angular application looks like this:
 [source,javascript]
 ----
 var AppComponent = ng.core.Component({
-    selector : 'hello',
+    selector : 'app',
     template : '<p>The ID is {{greeting.id}}</p><p>The content is {{greeting.content}}</p>'
 }).Class({
     constructor : function() {
@@ -210,7 +210,7 @@ So let's grab that message in the browser. Modify the `AppComponent` to load the
 [source,javascript]
 ----
 var AppComponent = ng.core.Component({
-    selector : 'hello',
+    selector : 'app',
     template : '<p>The ID is {{greeting.id}}</p><p>The content is {{greeting.content}}</p>'
 }).Class({
     constructor : [ng.http.Http, function(http) {

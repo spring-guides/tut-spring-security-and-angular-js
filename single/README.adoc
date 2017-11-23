@@ -14,7 +14,11 @@ The core of a single page application is a static "index.html". We already had a
 .index.html
 [source,html]
 ----
+<html>
+<head>
 ...
+<base href="/">
+</head>
 <body>
     <app/>
     <script type="text/javascript" src="webjars/core-js/client/shim.min.js"></script>
@@ -24,7 +28,7 @@ The core of a single page application is a static "index.html". We already had a
 </html>
 ----
 
-It's not much different than the original in fact, but we replaced the `<html/>` body content (everything except the scripts) with a single `<app/>`.
+It's not much different than the original in fact, but we replaced the `<html/>` body content (everything except the scripts) with a single `<app/>`, and added a `<base/>` element to the `<head/>` (it will be needed later by the router components).
 
 The `<app/>` selector, in turn, needs to be wired up to a component in the Angular app, containing both the navigation elements and the main body content. It's going to be a little bit more sophisticated than out basic `AppComponent` but it has some of the same features. Here's the implementation:
 

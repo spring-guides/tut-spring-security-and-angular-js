@@ -18,7 +18,7 @@ We are going to step through creating this application in some detail, so that a
 * link:#using-the-initializr-website[Using the Spring Initializr website]
 * link:#using-spring-tool-suite[Using Spring Tool Suite]
 
-The source code for the complete project we are going to build is in https://github.com/dsyer/spring-security-angular/tree/master/basic[Github here], so you can just clone the project and work directly from there if you want. Then jump to the link:#add-a-home-page[next section].
+The source code for the complete project we are going to build is in https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/basic[Github here], so you can just clone the project and work directly from there if you want. Then jump to the link:#add-a-home-page[next section].
 
 [[using-curl]]
 === Using Curl
@@ -57,44 +57,20 @@ If you prefer you can also get the same code directly as a .zip file from the ht
 In http://spring.io/tools/sts[Spring Tool Suite] (a set of Eclipse plugins) you can also create and import a project using a wizard at `File-&gt;New-&gt;Spring Starter Project`. Then jump to the link:#add-a-home-page[next section]. IntelliJ IDEA and NetBeans have similar features.
 
 [[add-a-home-page]]
-== Add a Home Page
+== Add an Angular App
 
-The core of a single page application is a static "index.html", so let's go ahead and create one (in "src/main/resources/static" or "src/main/resources/public"):
-
-.index.html
-[source,html]
-----
-include::src/main/resources/static/index.html[indent=0]
-----
-
-It's pretty short and sweet because it is just going to say "Hello World".
-
-=== Features of the Home Page
-
-Salient features include:
-
-* All the CSS classes are from http://getbootstrap.com/[Twitter Bootstrap]. They will make things look pretty once we get the right stylesheets set up.
-
-* The content in the greeting is an Angular component that we haven't defined yet (`<app/>`).
-
-* All the Angular libraries and dependencies (and Twitter Bootstrap) are included at the bottom of the `&lt;body&gt;` so that the browser can process all the HTML before it gets processed.
-
-* We also include a separate "hello.js" which is where we are going to define the application behaviour.
-
-* The `AppModule` is defined in "hello.js" but is initialized explicitly in the HTML because it makes "hello.js" testable.
-
-We are going to add the script and stylesheet assets in a minute, but for now we can ignore the fact that they don't exist.
+The core of a single page application in Angular (or any modern front-end framework) these days is going to be a Node.js build. Angular has some tools for setting this up quickly, so lets use those, and also keep the option of building with Maven, like any other Spring Boot application. The details of how to set up the Angular app are covered https://github.com/dsyer/spring-boot-angular[elsewhere], or you can just checkout the code for this tutorial from github.
 
 === Running the Application
 
-Once the home page file is added, your application will be loadable in a browser (even though it doesn't do much yet). On the command line you can do this
+Once the Angular app is primed, your application will be loadable in a browser (even though it doesn't do much yet). On the command line you can do this
 
 [source]
 ----
 $ mvn spring-boot:run
 ----
 
-and go to a browser at http://localhost:8080[http://localhost:8080]. When you load the home page you should get a browser dialog asking for username and password (the username is "user" and the password is printed in the console logs on startup). There's actually no content yet, so you should get a blank page with a "Greeting" header once you successfully authenticate.
+and go to a browser at http://localhost:8080[http://localhost:8080]. When you load the home page you should get a browser dialog asking for username and password (the username is "user" and the password is printed in the console logs on startup). There's actually no content yet (or maybe the deafult "hero" tutorial content from the `ng` CLI), so you should get essentially a blank page.
 
 TIP: If you don't like scraping the console log for the password just add this to the "application.properties" (in "src/main/resources"): `security.user.password=password` (and choose your own password). We did this in the sample code using "application.yml".
 
@@ -108,67 +84,50 @@ $ mvn package
 $ java -jar target/*.jar
 ----
 
-== Front End Assets
+== Customize the Angular Application
 
-Most modern tutorials on Angular tend to use a node.js toolchain to download and repackage all the libraries and their dependencies. Some demos for Angular and other front end technologies often just include the library assets directly from the internet. Instead of doing either of those we are going to use https://webjars.org[Webjars] and install the third party assets in our application classpath. 
-
-There are quite a few webjars needed for even the most basic Angular application:
-
-[source,xml]
-----
-include::pom.xml[tags=webjars,indent=0]
-----
-
-The versions in the sample app are currently:
-
-[source,xml]
-----
-include::pom.xml[tags=versions,indent=0]
-----
-
-You can copy that verbatim into your POM, or just scan it if you are following along from the https://github.com/dsyer/spring-security-angular/tree/master/basic/pom.xml#L43[source in Github]. Twitter Bootstrap has a dependency on jQuery, so we include that as well. An Angular application that didn't use Bootstrap wouldn't need that since Angular has its own version of the features it needs from jQuery.
-
-If you run the app now, you should see the CSS take effect and all the assets will load successfully, but the business logic and navigation is still missing.
-
-NOTE: Using webjars for angular is a pragmatic choice, with strong pedagogical influences. Most Spring application developers are not familiar with the node.js toolchains, or TypeScript, which is what all the official Angular documentation uses now. So webjars and plain old JavaScript (ES5) are an easy way to get you started using tools familiar to a Java developer, but they will probably be limiting in the longer term. You might want to look into using `npm` and the Angular CLI for anything larger than the most basic application: if you just put the outputs from those toolchains in "src/main/resources/static" or "target/classes/static" then it will all work.
-
-== Create the Angular Application
-
-Let's create the "hello" application (in "src/main/resources/static/js/hello.js" so that the `&lt;script/&gt;` at the bottom of our "index.html" finds it in the right place).
+Let's customize the "app-root" component (in "src/app/app.component.ts").
 
 A minimal Angular application looks like this:
 
-.hello.js
+.app.component.ts
 [source,javascript]
 ----
-var AppComponent = ng.core.Component({
-    selector : 'app',
-    template : '<p>The ID is {{greeting.id}}</p><p>The content is {{greeting.content}}</p>'
-}).Class({
-    constructor : function() {
-        this.greeting = {id:'XYZ', content:'Hello World'};
-    }
-});
+import { Component } from '@angular/core';
 
-var AppModule = ng.core.NgModule({
-    imports: [ng.platformBrowser.BrowserModule],
-    declarations: [AppComponent],
-    bootstrap: [AppComponent]
-  }).Class({constructor : function(){}})
-
-document.addEventListener('DOMContentLoaded', function() {
-    ng.platformBrowserDynamic.platformBrowserDynamic().bootstrapModule(AppModule);
-});
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  title = 'Demo';
+  greeting = {'id': 'XXX', 'content': 'Hello World'};
+}
 ----
 
-Most of the code in this Javascript is boiler plate - it's just there to get Angular up and running. The interesting stuff is all in the `AppComponent` where we define the "selector" (the name of the HTML element) and a snippet of HTML to render.
+Most of the code in this TypeScript is boiler plate. The interesting stuff is all going to be in the `AppComponent` where we define the "selector" (the name of the HTML element) and a snippet of HTML to render via the `@Component` annotation. We also need to edit the HTML template ("app.component.html"):
 
-If you added that file under "src/main/resources/static/js" your app should now be secure and functional, and it will say "Hello World!". The `greeting` is rendered by Angular in the HTML using the handlebar placeholders, `{{greeting.id}}` and `{{greeting.content}}`.
+.app.component.html
+[source,html]
+----
+<div style="text-align:center"class="container">
+  <h1>
+    Welcome {{title}}!
+  </h1>
+  <div class="container">
+    <p>Id: <span>{{greeting.id}}</span></p>
+    <p>Message: <span>{{greeting.content}}!</span></p>
+  </div>
+</div>
+----
+
+If you added those files under "src/app" and rebuilt your app it should now be secure and functional, and it will say "Hello World!". The `greeting` is rendered by Angular in the HTML using the handlebar placeholders, `{{greeting.id}}` and `{{greeting.content}}`.
 
 [[dynamic-content]]
 == Adding Dynamic Content
 
-So far we have an application with a greeting that is hard coded. That's useful for learning how things fit together, but really we expect content to come from a backend server, so let's create an HTTP endpoint that we can use to grab a greeting. In your https://github.com/dsyer/spring-security-angular/blob/master/basic/src/main/java/demo/UiApplication.java[application class] (in "src/main/java/demo"), add the `@RestController` annotation and define a new `@RequestMapping`:
+So far we have an application with a greeting that is hard coded. That's useful for learning how things fit together, but really we expect content to come from a backend server, so let's create an HTTP endpoint that we can use to grab a greeting. In your https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/basic/src/main/java/demo/UiApplication.java[application class] (in "src/main/java/demo"), add the `@RestController` annotation and define a new `@RequestMapping`:
 
 .UiApplication.java
 [source,java]
@@ -206,35 +165,51 @@ $ curl localhost:8080/resource
 
 So let's grab that message in the browser. Modify the `AppComponent` to load the protected resource using XHR:
 
-.hello.js
+.app.component.ts
 [source,javascript]
 ----
-var AppComponent = ng.core.Component({
-    selector : 'app',
-    template : '<p>The ID is {{greeting.id}}</p><p>The content is {{greeting.content}}</p>'
-}).Class({
-    constructor : [ng.http.Http, function(http) {
-        var self = this;
-        self.greeting = {id:'', content:''};
-        http.get("/resource").subscribe(response => self.greeting = response.json());
-    }]
-});
+import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  title = 'Demo';
+  greeting = {};
+  constructor(private http: HttpClient) {
+    http.get('resource').subscribe(data => this.greeting = data);
+  }
+}
 ----
 
 We injected an https://angular.io/guide/http[`http` service], which is provided by Angular through the `http` module, and used it to GET our resource. Angular passes us the response and we pull out JSON and assign it to the greeting.
 
-NOTE: following a common convention, we introduced a "self" variable as an alias for "this" to refer back to the controller inside a callback.
-
 To enable the dependency injection of the `http` service into our custom component, we need to declare it in the `AppModule` that includes the component (it's just one more line in the `imports` compared to the initial draft):
 
-.hello.js
+.app.module.ts
 [source,javascript]
 ---
-var AppModule = ng.core.NgModule({
-    imports: [ng.platformBrowser.BrowserModule, ng.http.HttpModule],
-    declarations: [AppComponent],
-    bootstrap: [AppComponent]
-  }).Class({constructor : function(){}})
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+
+import { AppComponent } from './app.component';
+import { HttpClientModule } from '@angular/common/http';
+
+@NgModule({
+  declarations: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    HttpClientModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
 ---
 
 Run the application again (or just reload the home page in the browser), and you will see the dynamic message with its unique ID. So, even though the resource is protected and you can't curl it directly, the browser was able to access the content. We have a secure single page application in less than a hundred lines of code!
@@ -251,8 +226,8 @@ The interactions between the browser and the backend can be seen in your browser
 
 |GET |/ |401 |Browser prompts for authentication
 |GET |/ |200 |index.html
-|GET |/webjars/** |200 |Loads of third party assets from webjars
-|GET |/js/hello.js |200 |Application logic
+|GET |/*.js |200 |Loads of third assets from angular
+|GET |/main.bundle.js |200 |Application logic
 |GET |/resource |200 |JSON greeting
 |===
 

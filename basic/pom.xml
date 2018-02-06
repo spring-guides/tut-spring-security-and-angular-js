@@ -14,7 +14,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.6.RELEASE</version>
+        <version>1.5.10.RELEASE</version>
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
 
@@ -32,92 +32,11 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- tag::webjars[] -->
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>jquery</artifactId>
-            <version>${jquery.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.npm</groupId>
-            <artifactId>core-js</artifactId>
-            <version>${corejs.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.npm</groupId>
-            <artifactId>zone.js</artifactId>
-            <version>${zone.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.npm</groupId>
-            <artifactId>reflect-metadata</artifactId>
-            <version>${reflect.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.npm</groupId>
-            <artifactId>rxjs</artifactId>
-            <version>${rxjs.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.npm</groupId>
-            <artifactId>angular__common</artifactId>
-            <version>${angular.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.npm</groupId>
-            <artifactId>angular__compiler</artifactId>
-            <version>${angular.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.npm</groupId>
-            <artifactId>angular__platform-browser</artifactId>
-            <version>${angular.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.npm</groupId>
-            <artifactId>angular__http</artifactId>
-            <version>${angular.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.npm</groupId>
-            <artifactId>angular__platform-browser-dynamic</artifactId>
-            <version>${angular.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.npm</groupId>
-            <artifactId>angular__core</artifactId>
-            <version>${angular.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>bootstrap</artifactId>
-            <version>${bootstrap.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>webjars-locator</artifactId>
-        </dependency>
-        <!-- end::webjars[] -->
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>jasmine</artifactId>
-            <version>${jasmine.version}</version>
-        </dependency>
     </dependencies>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
-        <!-- tag::versions[] -->
-        <angular.version>4.4.4</angular.version>
-        <bootstrap.version>3.3.7-1</bootstrap.version>
-        <corejs.version>2.5.1</corejs.version>
-        <jquery.version>2.2.4</jquery.version>
-        <reflect.version>0.1.10</reflect.version>
-        <rxjs.version>5.4.3</rxjs.version>
-        <zone.version>0.8.16</zone.version>
-        <!-- end::versions[] -->
-        <jasmine.version>2.0.0</jasmine.version>
     </properties>
 
     <build>
@@ -135,50 +54,45 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>com.github.searls</groupId>
-                <artifactId>jasmine-maven-plugin</artifactId>
-                <version>2.2</version>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>1.6</version>
+                <configuration>
+                    <nodeVersion>v8.8.1</nodeVersion>
+                </configuration>
                 <executions>
                     <execution>
+                        <id>install-npm</id>
                         <goals>
-                            <goal>test</goal>
+                            <goal>install-node-and-npm</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>npm-install</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>npm-build</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run-script build</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-test</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run-script e2e</arguments>
+                        </configuration>
+                        <phase>test</phase>
+                    </execution>
                 </executions>
-                <!-- tag::jasmine-config[] -->
-                <configuration>
-                  <browserVersion>CHROME</browserVersion>  
-                    <preloadSources>
-                        <source>/webjars/core-js/client/shim.min.js</source>
-                        <source>/webjars/rxjs/bundles/Rx.min.js</source>
-                        <source>/webjars/zone.js/dist/zone.min.js</source>
-                        <source>/webjars/reflect-metadata/${reflect.version}/Reflect.js</source>
-                        <source>/webjars/angular__core/bundles/core.umd.js</source>
-                        <source>/webjars/angular__common/bundles/common.umd.js</source>
-                        <source>/webjars/angular__compiler/bundles/compiler.umd.js</source>
-                        <source>/webjars/angular__platform-browser/bundles/platform-browser.umd.js</source>
-                        <source>/webjars/angular__platform-browser-dynamic/bundles/platform-browser-dynamic.umd.js</source>
-                        <source>/webjars/angular__http/bundles/http.umd.js</source>
-                        <source>/webjars/zone.js/dist/long-stack-trace-zone.min.js</source>
-                        <source>/webjars/zone.js/dist/proxy.min.js</source>
-                        <source>/webjars/zone.js/dist/sync-test.js</source>
-                        <source>/webjars/zone.js/dist/jasmine-patch.min.js</source>
-                        <source>/webjars/zone.js/dist/async-test.js</source>
-                        <source>/webjars/zone.js/dist/fake-async-test.js</source>
-                        <source>/webjars/angular__core/bundles/core-testing.umd.js</source>
-                        <source>/webjars/angular__common/bundles/common-testing.umd.js</source>
-                        <source>/webjars/angular__compiler/bundles/compiler-testing.umd.js</source>
-                        <source>/webjars/angular__platform-browser/bundles/platform-browser-testing.umd.js</source>
-                        <source>/webjars/angular__platform-browser-dynamic/bundles/platform-browser-dynamic-testing.umd.js</source>
-                        <source>/webjars/angular__http/bundles/http-testing.umd.js</source>
-                    </preloadSources>
-                    <jsSrcDir>${project.basedir}/src/main/resources/static/js</jsSrcDir>
-                    <jsTestSrcDir>${project.basedir}/src/test/resources/static/js</jsTestSrcDir>
-                    <phantomjs>
-                        <version>2.1.1</version>
-                    </phantomjs>
-                </configuration>
-                <!-- end::jasmine-config[] -->
             </plugin>
         </plugins>
     </build>

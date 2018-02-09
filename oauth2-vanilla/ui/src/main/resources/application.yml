@@ -5,6 +5,8 @@ spring:
 security:
   user:
     password: password
+  ignored:
+  - "*.bundle.*"
   oauth2:
     client:
       accessTokenUri: http://localhost:9999/uaa/oauth/token

@@ -332,23 +332,23 @@ protected OAuth2RestTemplate OAuth2RestTemplate(
 
 There are some tweaks to the UI application on the front end that we still need to make to trigger the redirect to the authorization server. In this simple demo we can strip the Angular app down to its bare essentials so you can see what is going on more clearly. So we forgo, for now, the use of forms or routes, and we go back to a single Angular component:
 
-.hello.js
+.app.component.ts
 [source,javascript]
 ----
-include::ui/src/main/resources/static/js/hello.js[indent=0]
+include::ui/src/app/app.component.ts[indent=0]
 ----
 
 The `AppComponent` handles everything, fetching the user details and, if successful, the greeting. It also provides the `logout` function.
 
-Now we need to create the "app.html" template for this new component:
+Now we need to create the template for this new component:
 
-.app.html
+app.component.html
 [source,html]
 ----
-include::ui/src/main/resources/static/app.html[indent=0]
+include::ui/src/app/app.component.html[indent=0]
 ----
 
-and include it in the home page as `<app/>`.
+and include it in the home page as `<app-root/>`.
 
 Note that the navigation link for "Login" is a regular link with an `href` (not an Angular route). The "/login" endpoint that this goes to is handled by Spring Security and if the user is not authenticated it will result in a redirect to the authorization server.
 
@@ -362,9 +362,7 @@ The interactions between the browser and the backend can be seen in your browser
 |Verb |Path |Status |Response
 
 |GET |/ |200 |index.html
-|GET |/webjars/** |200  |Bootstrap and Angular
-|GET |/js/hello.js |200 |Application logic
-|GET |/app.html |200 |HTML partial for content
+|GET |/*.js |200 |Assets from angular
 |GET |/user |302 |Redirect to login page
 |GET |/login |302 |Redirect to auth server
 |GET |(uaa)/oauth/authorize |401 |(ignored)

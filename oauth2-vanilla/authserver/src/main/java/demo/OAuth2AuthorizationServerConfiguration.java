@@ -75,7 +75,6 @@ public class OAuth2AuthorizationServerConfiguration
 		if (this.details.getAuthorizedGrantTypes().contains("password")) {
 			endpoints.authenticationManager(this.authenticationManager);
 		}
-		endpoints.prefix("/api");
 	}
 
 	@Configuration

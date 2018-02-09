@@ -76,20 +76,12 @@ Note the use of the "spring-cloud-starter-zuul" - it's a starter POM just like t
 
 With those changes in place our application still works, but we haven't actually used the new proxy yet until we modify the client. Fortunately that's trivial. We just need to revert the change we made going from the "single" to the "vanilla" samples in <<_the_resource_server_angular_js_and_spring_security_part_iii,the last section>>:
 
-.hello.js
+.home.component.ts
 [source,javascript]
 ----
-var HomeComponent = ng.core.Component({
-    templateUrl : 'home.html'
-}).Class({
-    constructor : [AppService, ng.http.Http, function(app, http) {
-        var self = this;
-        this.greeting = {id:'', msg:''};
-        http.get('resource')
-            .subscribe(response => self.greeting = response.json());
-        this.authenticated = function() { return app.authenticated; };
-    }]
-});
+constructor(private app: AppService, private http: HttpClient) {
+  http.get('resource').subscribe(data => this.greeting = data);
+}
 ----
 
 Now when we fire up the servers everything is working and the requests are being proxied through the UI (API Gateway) to the resource server.
@@ -200,11 +192,8 @@ What is going on behind the scenes now? First we can look at the HTTP requests i
 |Verb |Path |Status |Response
 
 |GET |/ |200 |index.html
-|GET |/webjars/** |200 |Bootstrap and Angular JS
-|GET |/js/hello.js |200 |Application logic
-|GET |/app.html |200 |Angular template for main layout
-|GET |/login.html |200 |Angular login form partial
-|GET |/user |401 |Unauthenticated access to user
+|GET |/*.js |200 |Assets form angular
+|GET |/user |401 |Unauthorized (ignored)
 |GET |/resource |401 |Unauthenticated access to resource
 |GET |/user |200 |JSON authenticated user
 |GET |/resource |200 |(Proxied) JSON greeting

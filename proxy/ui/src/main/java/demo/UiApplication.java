@@ -14,10 +14,8 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
-@RestController
 @EnableZuulProxy
 @Controller
 public class UiApplication {
@@ -47,7 +45,7 @@ public class UiApplication {
                 .httpBasic().and()
                 .logout().and()
                 .authorizeRequests()
-                .antMatchers("/index.html", "/home.html", "/login.html", "/app.html", "/", "/home", "/login").permitAll()
+                .antMatchers("/index.html", "/", "/home", "/login").permitAll()
                     .anyRequest().authenticated()
                     .and()
                 .csrf()

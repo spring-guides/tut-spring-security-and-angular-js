@@ -3,6 +3,8 @@ logging:
     org.springframework.security: DEBUG
 security:
   sessions: ALWAYS
+  ignored:
+  - "*.bundle.*"
 spring:
   session:
     store-type: redis

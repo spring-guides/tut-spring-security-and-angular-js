@@ -4,6 +4,8 @@ logging:
 security:
   user:
     role: USER,ADMIN
+  ignored:
+  - "*.bundle.*"
 spring:
   session:
     store-type: redis

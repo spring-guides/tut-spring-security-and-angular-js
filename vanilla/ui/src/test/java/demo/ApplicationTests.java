@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.net.HttpCookie;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +13,7 @@ import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -58,9 +60,9 @@ public class ApplicationTests {
 		RequestEntity<MultiValueMap<String, String>> request = new RequestEntity<MultiValueMap<String, String>>(
 				form, headers, HttpMethod.POST, URI.create("http://localhost:" + port
 						+ "/login"));
-		ResponseEntity<Void> location = template.exchange(request, Void.class);
-		assertEquals("http://localhost:" + port + "/",
-				location.getHeaders().getFirst("Location"));
+    ResponseEntity<Map<String, Object>> location = template.exchange(request, new ParameterizedTypeReference<Map<String, Object>>() {
+    });
+		assertEquals("user", location.getBody().get("name"));
 	}
 
 	private String getCsrf(HttpHeaders headers) {
@@ -74,5 +76,5 @@ public class ApplicationTests {
 		}
 		return null;
 	}
-	
+
 }

@@ -37,7 +37,7 @@ public class UiApplication {
                 .httpBasic().and()
                 .logout().and()
                 .authorizeRequests()
-                    .antMatchers("/index.html", "/home.html", "/login.html", "/app.html", "/", "/home", "/login").permitAll()
+                    .antMatchers("/index.html", "/", "/home", "/login").permitAll()
                     .anyRequest().authenticated().and()
                 .csrf()
                     .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());

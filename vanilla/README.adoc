@@ -195,24 +195,16 @@ TIP: if you don't have a redis server running locally you can easily spin one up
 
 The only missing piece is the transport mechanism for the key to the data in the store. The key is the `HttpSession` ID, so if we can get hold of that key in the UI client, we can send it as a custom header to the resource server. So the "home" controller would need to change so that it sends the header as part of the HTTP request for the greeting resource. For example:
 
-.hello.js
+.home.component.js
 [source,javascript]
 ----
-var HomeComponent = ng.core.Component({
-    templateUrl : 'home.html'
-}).Class({
-    constructor : [AppService, ng.http.Http, function(app, http) {
-        var self = this;
-        this.greeting = {id:'', msg:''};
-        http.get('token').subscribe(response => {
-            var token = response.json().token;
-            http.get('http://localhost:9000', {
-                headers: {'X-Auth-Token': token}
-            }).subscribe(response => self.greeting =response.json());
-        })
-        this.authenticated = function() { return app.authenticated; };
-    }]
-});
+  constructor(private app: AppService, private http: HttpClient) {
+    http.get('token').subscribe(data => {
+      const token = data['token'];
+      http.get('http://localhost:9000', {headers : new HttpHeaders().set('X-Auth-Token', token)})
+        .subscribe(response => this.greeting = response);
+    }, () => {});
+  }
 ----
 
 (A more elegant solution might be to grab the token as needed, and use our `RequestOptionsService` to add the header to every request to the resource server.)

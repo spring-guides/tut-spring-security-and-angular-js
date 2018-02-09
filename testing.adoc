@@ -1,62 +1,45 @@
 [[_testing_angular_js_and_spring_security_part_viii]]
 = Testing an Angular Application
 
-In this section we continue <<_modular_angular_js_and_spring_security_part_vii,our discussion>> of how to use http://projects.spring.io/spring-security[Spring Security] with http://angular.io[Angular] in a "single page application". Here we show how to write and run unit tests for the client-side code using the Javascript test framework http://jasmine.github.io/2.0/introduction.html[Jasmine]. You can catch up on the basic building blocks of the application or build it from scratch by reading the <<_spring_and_angular_js_a_secure_single_page_application,first section>>, or you can just go straight to the https://github.com/dsyer/spring-security-angular/tree/master/basic[source code in Github] (the same source code as Part I, but with tests now added). This section actually has very little code using Spring or Spring Security, but it covers the client-side testing in a way that might not be so easy to find in the usual Javascript community resources, and one which we feel will be comfortable for the majority of Spring users.
-
-As with the rest of this series, the build tools are typical for Spring users, and not so much for experienced front-end developers. Thus we look for solutions that can be used from a Java IDE, and on the command line with familiar Java build tools. If you already know about Jasmine and Javascript testing, and you are happy using a Node.js based toolchain (e.g. `npm`, `grunt` etc.), then you probably can skip this section completely. If you are more comfortable in Eclipse or IntelliJ, and would prefer to use the same tools for your front end as for the back end, then this section will be of interest. When we need a command line (e.g. for continuous integration), we use Maven in the examples here, but Gradle users will probably find the same code easy to integrate.
+In this section we continue <<_modular_angular_js_and_spring_security_part_vii,our discussion>> of how to use http://projects.spring.io/spring-security[Spring Security] with http://angular.io[Angular] in a "single page application". Here we show how to write and run unit tests for the client-side code using the Angular test framework. You can catch up on the basic building blocks of the application or build it from scratch by reading the <<_spring_and_angular_js_a_secure_single_page_application,first section>>, or you can just go straight to the https://github.com/dsyer/spring-security-angular/tree/master/basic[source code in Github] (the same source code as Part I, but with tests now added). This section actually has very little code using Spring or Spring Security, but it covers the client-side testing in a way that might not be so easy to find in the usual Angular community resources, and one which we feel will be comfortable for the majority of Spring users.
 
 ____
 Reminder: if you are working through this section with the sample application, be sure to clear your browser cache of cookies and HTTP Basic credentials. In Chrome the best way to do that for a single server is to open a new incognito window.
 ____
 
-== Writing a Specification in Jasmine
+== Writing a Specification
 
-Our "home" controller in the "basic" application is very simple, so it won't take a lot to test it thoroughly. Here's a reminder of the code (`hello.js`):
+Our "app" component in the "basic" application is very simple, so it won't take a lot to test it thoroughly. Here's a reminder of the code:
 
+.app.component.ts
 ```javascript
-var AppComponent = ng.core.Component({
-    selector : 'app',
-    template : '<p>The ID is {{greeting.id}}</p><p>The content is {{greeting.content}}</p>'
-}).Class({
-    constructor : [ng.http.Http, function(http) {
-        var self = this;
-        self.greeting = {id:'', content:''};
-        http.get("/resource").subscribe(function(response) {
-          self.greeting =response.json()
-        });
-    }]
-});
+include::basic/src/app/app.component.ts
 ```
 
 The main challenge we face is to provide the `http` object in the test, so we can make assertions about how they are used in the component. Actually, even before we face that challenge we need to be able to create a component instance, so we can test what happens when it loads. Here's how you can do that.
 
-Create a new file `spec.js` and put it in "src/test/resources/static/js":
+The Angular build in an app created from `ng new` already has a spec and some configuration to run it. The generated spec is in "src/app", and it starts like this:
 
+.app.component.ts
 ```javascript
-var TestBed = ng.core.testing.TestBed;
-
-ng.core.testing.getTestBed().initTestEnvironment(
-    ng.platformBrowserDynamic.testing.BrowserDynamicTestingModule,
-    ng.platformBrowserDynamic.testing.platformBrowserDynamicTesting()
-  );
-
-describe("AppComponent", function() {
-
-  beforeEach(function() {
+import { TestBed, async } from '@angular/core/testing';
+import { AppComponent } from './app.component';
+describe('AppComponent', () => {
+  beforeEach(async(() => {
     TestBed.configureTestingModule({
+      imports: [],
       declarations: [
         AppComponent
       ]
     }).compileComponents();
-  });
-
-  it('should create the app', function() {
+  }));
+  it('should create the app', async(() => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.debugElement.componentInstance;
     expect(app).toBeTruthy();
-  });
-
-});
+  }));
+  ...
+}
 ```
 
 In this very basic test suite we have these important elements:
@@ -67,144 +50,33 @@ In this very basic test suite we have these important elements:
 
 3. Behaviour is expressed through a call to `it()`, where we state in words what the expectation is, and then provide a function that makes assertions.
 
-4. We don't use ES6 style function declarations (with `=>`) because, while they probably work in your browser, they won't work in PhantomJS which we want to use later to automate the tests.
-
-5. The test environment is initialized before anything else happens. This is boilerplate for most Angular apps.
+4. The test environment is initialized before anything else happens. This is boilerplate for most Angular apps.
 
 The test function here is so trivial it actually only asserts that the component exists, so if that fails then the test will fail.
 
-NOTE: "src/test/resources/static/js" is a logical place for test code in a Java application, although a case could be made for "src/test/javascript". We will see later why it makes sense to put it in the test classpath, though (indeed if you are used to Spring Boot conventions you may already see why).
-
-Now we need a driver for this Javascript code, in the form of an HTML page that we coudl load in a browser. Create a file called "test.html" and put it in "src/test/resources/static":
-
-```html
-include::basic/src/test/resources/static/test.html[indent=0]
-```
-
-The HTML is content free, but it loads some Javascript, and it will have a UI once the scripts all run.
-
-First we load the required Jasmine components from `/webjars/**`. The files that we load are just boilerplate - you can do the same thing for any application. To make those available at runtime in a test we will need to add the Jasmine dependency to our "pom.xml":
-
-```xml
-<dependency>
-  <groupId>org.webjars</groupId>
-  <artifactId>jasmine</artifactId>
-  <version>2.0.0</version>
-  <scope>test</scope>
-</dependency>
-```
-
-Then we come to the application-specific code. The main source code for our front end is "hello.js" so we have to load that, and also its dependencies in the same way we do in the "index.html".
-
-Finally we need the "spec.js" that we just wrote, and its dependencies (any that are not already included the the other scripts), which for an Angular application will nearly always include the "testing" module that pairs with each of the main mondules. We load them from webjars, just like the main dependencies.
-
-== Running the Specs
-
-To run our "test.html" code we need a tiny application (e.g. in "src/test/java/test"):
-
-[source,java]
-----
-@SpringBootApplication
-@Controller
-public class TestApplication {
-
-	@RequestMapping("/")
-	public String home() {
-		return "forward:/test.html";
-	}
-
-	public static void main(String[] args) {
-		new SpringApplicationBuilder(TestApplication.class).properties(
-				"server.port=9999", "security.basic.enabled=false").run(args);
-	}
-
-}
-----
-
-The `TestApplication` is pure boilerplate: all applications could run tests the same way. You can run it in your IDE and visit http://localhost:9999[http://localhost:9999] to see the Javascript running. The one `@RequestMapping` we provided just makes the home page display out test HTML. All (one) tests should be green.
-
-Your developer workflow from here would be to make a change to Javascript code and reload the test application in your browser to run the tests. So simple!
-
 == Improving the Unit Test: Mocking HTTP Backend
 
-To improve the spec to production grade we need to actually assert something about what happens when the controller loads. Since it makes a call to `$http.get()` we need to mock that call to avoid having to run the whole application just for a unit test. To do that we use the Angular `$httpBackend` (in "spec.js"):
+To improve the spec to production grade we need to actually assert something about what happens when the controller loads. Since it makes a call to `http.get()` we need to mock that call to avoid having to run the whole application just for a unit test. To do that we use the Angular `HttpClientTestingModule`:
 
+.app.component.spec
 [source,javascript]
 ----
-include::basic/src/test/resources/static/js/spec.js[indent=0]
+include::basic/src/app/app.component.spec[indent=0]
 ----
 
 The new pieces here are:
 
-* The declaration of the `XHRBackend` in a `beforeEach()`.
+* The declaration of the `HttpClientTestingModule` as an imports in the `TestBed` in `beforeEach()`.
 
 * In the test function we set expectations for the backend before we create the component, telling it to expect a call to 'resource/',and what the response should be.
 
-Without having to start and stop the test application, this test should now be green in the browser.
+== Running the Specs
 
-== Running Specs on the Command Line
+To run our test" code we can do `./ng test` (or `./ng build`) using the convenience script created when the project was set up. It also runs as part of the Maven lifecycle, so `./mvnw install` is also a good way to run the tests, and this is what will happen in your CI build.
 
-It's great to be able to run specs in a browser, because there are excellent developer tools built into modern browsers (e.g. F12 in Chrome). You can set breakpoints and inspect variables, and well as being able to refresh the view to re-run your tests in a live server. But this won't help you with continuous integration: for that you need a way to run the tests from a command line. There is tooling available for whatever build tools you prefer to use, but since we are using Maven here, we will add a plugin to the "pom.xml":
+== End-to-End Tests
 
-[source,xml]
-----
-<plugin>
-  <groupId>com.github.searls</groupId>
-  <artifactId>jasmine-maven-plugin</artifactId>
-  <version>2.2</version>
-  <executions>
-    <execution>
-      <goals>
-        <goal>test</goal>
-      </goals>
-    </execution>
-  </executions>
-</plugin>
-----
-
-The default settings for this plugin won't work with the static resource layout that we already made, so we need a bit of configuration for that:
-
-[source,xml]
-----
-<plugin>
-  ...
-include::basic/pom.xml[tags=jasmine-config,indent=2]
-</plugin>
-----
-
-The default Selenium web driver is `phantomjs`, which will be downloaded for you if you are on a supported platform, or else it needs to be on your `PATH` at runtime. This works out of the box in https://travis-ci.org[Travis CI], for instance. In principle, any driver can be used here, but PhantomJS is probably the best one to use for an Angular application.
-
-That's it. All boilerplate again (so it can go in a parent pom if you want to share the code between multiple projects). Just run it on the command line:
-
-```
-$ mvn jasmine:test
-```
-
-The tests also run as part of the Maven "test" lifecycle, so you can just run `mvn test` to run all the Java tests as well as the Javascript ones, slotting very smoothly into your existing build and deployment cycle. Here's the log:
-
-```
-$ mvn test
-...
-[INFO] 
--------------------------------------------------------
- J A S M I N E   S P E C S
--------------------------------------------------------
-[INFO] 
-App
-  says Hello Test when controller loads
-
-Results: 1 specs, 0 failures
-
-[INFO] ------------------------------------------------------------------------
-[INFO] BUILD SUCCESS
-[INFO] ------------------------------------------------------------------------
-[INFO] Total time: 21.064s
-[INFO] Finished at: Sun Apr 26 14:46:14 BST 2015
-[INFO] Final Memory: 47M/385M
-[INFO] ------------------------------------------------------------------------
-```
-
-The Jasmine Maven plugin also comes with a goal `mvn jasmine:bdd` that runs a server that you can load in your browser to run the tests (as an alternative to the `TestApplication` above).
+Angular also has a standard build set up for "end-to-end tests" using a browser and your generated JavaScript. These are written as "specs" in the top-level `e2e` directory. All the samples in this tutorial contain a really simple end-to-end test which run in the Maven lifecycle (hence you will see a browser window popup if you run `mvn install` in any of the "ui" apps).
 
 == Conclusion
 

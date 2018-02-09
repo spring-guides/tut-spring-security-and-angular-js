@@ -42,11 +42,12 @@ The easiest two options, which apply nicely in the GIA pattern can be implemente
 It's quite easy to add a couple of lines of code to the browser client that logout from the authserver as soon as the UI app is logged out. E.g.
 
 ```javascript
-this.logout = function() {
-    http.post('logout', {}).finally(function() {
+logout() {
+    this.http.post('logout', {}).finally(() => {
         self.authenticated = false;
-        http.post('http://localhost:9999/uaa/logout', {}, {withCredentials:true}).subscribe(function() {
-            console.log('Logged out');
+        this.http.post('http://localhost:9999/uaa/logout', {}, {withCredentials:true})
+            .subscribe(() => {
+                console.log('Logged out');
         });
     }).subscribe();
 };
@@ -60,6 +61,8 @@ Conversely, on the server we need some CORS configuration because the request is
 @Override
 protected void configure(HttpSecurity http) throws Exception {
   http
+	.requestMatchers().antMatchers("/login", "/logout", "/oauth/authorize", "/oauth/confirm_access")
+  .and()
     .cors().configurationSource(configurationSource())
     ...
 }

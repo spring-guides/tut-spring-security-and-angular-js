@@ -41,10 +41,10 @@ public class UiApplication {
         protected void configure(HttpSecurity http) throws Exception {
             // @formatter:off
             http
-                .formLogin().loginPage("/login").permitAll().and()
+                .formLogin().loginPage("/login").successForwardUrl("/user").and()
                 .logout().and()
                 .authorizeRequests()
-                    .antMatchers("/index.html", "/home.html", "/login.html", "/app.html", "/", "/home").permitAll()
+                    .antMatchers("/index.html", "/", "/home").permitAll()
                     .anyRequest().authenticated()
                     .and()
                 .csrf()

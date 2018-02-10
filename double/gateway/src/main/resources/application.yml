@@ -5,6 +5,7 @@ security:
   sessions: ALWAYS
   ignored:
   - "*.bundle.*"
+  - favicon.ico
 spring:
   session:
     store-type: redis

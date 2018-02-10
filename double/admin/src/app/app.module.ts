@@ -1,7 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, Injectable } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
 import { RouterModule, Routes } from '@angular/router';
 import { AppService } from './app.service';
 import { AppComponent } from './app.component';
@@ -9,9 +8,8 @@ import { ReadComponent } from './read.component';
 import { WriteComponent } from './write.component';
 import { ChangesComponent } from './changes.component';
 import { UnauthenticatedComponent } from './unauthenticated.component';
-import { Injectable } from '@angular/core';
 import {
-  HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HTTP_INTERCEPTORS
+  HttpClientModule, HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HTTP_INTERCEPTORS
 } from '@angular/common/http';
 
 import { Observable } from 'rxjs/Observable';

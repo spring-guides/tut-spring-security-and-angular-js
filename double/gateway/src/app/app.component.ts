@@ -18,19 +18,15 @@ export class AppComponent {
     this.login();
   }
 
-  authenticate(credentials) {
-    const headers = credentials ? new HttpHeaders().set(
-        'authorization', 'Basic ' + btoa(credentials.username + ':' + credentials.password)
-     ) : new HttpHeaders();
-    this.http.get('user', {headers: headers}).subscribe(data => {
-        this.admin = data && data['roles'] && data['roles'].indexOf('ROLE_ADMIN') > -1;
-        this.authenticated = data && data['name'];
-        this.user = this.authenticated ? data['name'] : '';
-    });
-  }
-
   login() {
-    this.authenticate(this.credentials);
+    const headers = this.credentials.username ? new HttpHeaders().set(
+      'authorization', 'Basic ' + btoa(this.credentials.username + ':' + this.credentials.password)
+    ) : new HttpHeaders();
+    this.http.get('user', {headers: headers}).subscribe(data => {
+      this.authenticated = data && data['name'];
+      this.user = this.authenticated ? data['name'] : '';
+      this.admin = this.authenticated && data['roles'] && data['roles'].indexOf('ROLE_ADMIN') > -1;
+    });
     return false;
   }
 

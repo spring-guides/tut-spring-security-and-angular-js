@@ -21,31 +21,30 @@ export class AppComponent {
   }
 
   logout() {
-        this.http.post('logout', {}).subscribe(function() {
-            this.app.authenticated = false;
-            this.router.navigateByUrl('/login');
-        });
-    }
+    this.http.post('logout', {}).subscribe(function() {
+        this.app.authenticated = false;
+        this.router.navigateByUrl('/login');
+    });
+  }
 
-    message() {
-      if (!this.app.authenticated) {
-        this.router.navigate(['/unauthenticated']);
+  message() {
+    if (!this.app.authenticated) {
+      this.router.navigate(['/unauthenticated']);
+    } else {
+      if (this.app.writer) {
+        this.router.navigate(['/write']);
       } else {
-        if (this.app.writer) {
-          this.router.navigate(['/write']);
-        } else {
-          this.router.navigate(['/read']);
-        }
-
+        this.router.navigate(['/read']);
       }
     }
+  }
 
-    changes() {
-      if (!this.app.authenticated) {
-        this.router.navigate(['/unauthenticated']);
-      } else {
-        this.router.navigate(['/changes']);
-      }
+  changes() {
+    if (!this.app.authenticated) {
+      this.router.navigate(['/unauthenticated']);
+    } else {
+      this.router.navigate(['/changes']);
     }
+  }
 
 }

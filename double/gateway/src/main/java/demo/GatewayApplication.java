@@ -18,7 +18,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -26,11 +25,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @EnableZuulProxy
 public class GatewayApplication {
-
-  @GetMapping(value = "/{path:[^\\.]*}")
-  public String redirect() {
-    return "forward:/";
-  }
 
   @RequestMapping("/user")
   @ResponseBody
@@ -68,7 +62,7 @@ public class GatewayApplication {
 				.httpBasic().and()
 				.logout().and()
 				.authorizeRequests()
-					.antMatchers("/index.html", "/app.html", "/login", "/").permitAll()
+					.antMatchers("/index.html", "/").permitAll()
 					.anyRequest().authenticated()
 					.and()
 				.csrf()

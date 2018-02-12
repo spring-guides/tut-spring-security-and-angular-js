@@ -9,7 +9,7 @@ export class ReadComponent {
   greeting = {};
 
   constructor(private http: HttpClient) {
-    http.get('http://localhost:9000').subscribe(data => this.greeting = data);
+    http.get('/resource').subscribe(data => this.greeting = data);
   }
 
 }

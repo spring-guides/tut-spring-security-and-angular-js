@@ -14,7 +14,7 @@ Our first step is to create a new server to handle authentication and token mana
 [source]
 ----
 $ curl https://start.spring.io/starter.tgz -d style=web \
--d style=security -d name=authserver | tar -xzvf - 
+-d style=security -d name=authserver | tar -xzvf -
 ----
 
 You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line.
@@ -44,7 +44,7 @@ public class AuthserverApplication extends WebMvcConfigurerAdapter {
   public static void main(String[] args) {
     SpringApplication.run(AuthserverApplication.class, args);
   }
-  
+
 }
 ----
 
@@ -175,7 +175,7 @@ $ curl -v localhost:9000
 > User-Agent: curl/7.35.0
 > Host: localhost:9000
 > Accept: */*
-> 
+>
 < HTTP/1.1 401 Unauthorized
 ...
 < WWW-Authenticate: Bearer realm="null", error="unauthorized", error_description="An Authentication object was not found in the SecurityContext"
@@ -281,7 +281,7 @@ public class UiApplication extends WebSecurityConfigurerAdapter {
           .csrf()
             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
     }
-    
+
 }
 ----
 
@@ -317,7 +317,7 @@ the UI app itself.
 NOTE: If you want the UI application be able to refresh expired
 access tokens automatically, you have to get an `OAuth2RestOperations`
 injected into the Zuul filter that does the relay. You can do this
-by just creating a bean of that type (check the `OAuth2TokenRelayFilter` 
+by just creating a bean of that type (check the `OAuth2TokenRelayFilter`
 for details):
 [source,java]
 ----

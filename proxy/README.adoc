@@ -92,7 +92,7 @@ Even better: we don't need the CORS filter any more in the resource server. We t
 
 == Securing the Resource Server
 
-You might remember in the intermediate state that we started from there is no security in place for the resource server. 
+You might remember in the intermediate state that we started from there is no security in place for the resource server.
 
 ____
 Aside: Lack of software security might not even be a problem if your network architecture mirrors the application architecture (you can just make the resource server physically inaccessible to anyone but the UI server). As a simple demonstration of that we can make the resource server only accessible on localhost. Just add this to `application.properties` in the resource server:

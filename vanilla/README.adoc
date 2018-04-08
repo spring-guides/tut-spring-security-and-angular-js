@@ -41,13 +41,19 @@ All we need to do to this is change the URL. For example, if we are going to run
 
 === Server Side Changes
 
-The https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/vanilla/ui/src/main/java/demo/UiApplication.java[UI server] is trivial to change: we just need to remove the `@RequestMapping` for the greeting resource (it was "/resource"). Then we need to create a new resource server, which we can do like we did in the <<_spring_and_angular_js_a_secure_single_page_application,first section>> using the https://start.spring.io[Spring Boot Initializr]. E.g. using curl on a UN*X like system:
+The https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/vanilla/ui/src/main/java/demo/UiApplication.java[UI server]
+is trivial to change: we just need to remove the `@RequestMapping` for the
+greeting resource (it was "/resource").
+Then we need to create a new resource server, which we can do like we did in
+the <<_spring_and_angular_js_a_secure_single_page_application,first section>>
+using the https://start.spring.io[Spring Boot Initializr].
+E.g. using curl on a UN*X like system:
 
 [source]
 ----
 $ mkdir resource && cd resource
 $ curl https://start.spring.io/starter.tgz -d style=web \
--d name=resource | tar -xzvf - 
+-d name=resource | tar -xzvf -
 ----
 
 You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line.
@@ -60,7 +66,7 @@ Just add a `@RequestMapping` to the https://github.com/spring-guides/tut-spring-
 @SpringBootApplication
 @RestController
 class ResourceApplication {
-	
+
   @RequestMapping("/")
   public Message home() {
     return new Message("Hello World");
@@ -101,7 +107,14 @@ If you try loading that resource from the UI (on port 8080) in a browser, you wi
 
 == CORS Negotiation
 
-The browser tries to negotiate with our resource server to find out if it is allowed to access it according to the http://en.wikipedia.org/wiki/Cross-origin_resource_sharing[Cross Origin Resource Sharing] protocol. It's not an Angular JS responsibility, so just like the cookie contract it will work like this with all JavaScript in the browser. The two servers do not declare that they have a common origin, so the browser declines to send the request and the UI is broken.
+The browser tries to negotiate with our resource server to find out if it is
+allowed to access it according to the
+http://en.wikipedia.org/wiki/Cross-origin_resource_sharing[Cross Origin Resource Sharing]
+protocol.
+It's not an Angular responsibility, so just like the cookie contract it will
+work like this with all JavaScript in the browser.
+The two servers do not declare that they have a common origin, so the browser
+declines to send the request and the UI is broken.
 
 To fix that we need to support the CORS protocol which involves a "pre-flight" OPTIONS request and some headers to list the allowed behaviour of the caller. Spring 4.2 has some nice https://jira.spring.io/browse/SPR-9278[fine-grained CORS support], so we can just add an annotation to our controller mapping, for example:
 
@@ -242,7 +255,7 @@ There is one tiny change to the resource server for it to be able to accept the 
 [source,java]
 ----
 @RequestMapping("/")
-@CrossOrigin(origins = "*", maxAge = 3600, 
+@CrossOrigin(origins = "*", maxAge = 3600,
     allowedHeaders={"x-auth-token", "x-requested-with", "x-xsrf-token"})
 public Message home() {
   return new Message("Hello World");
@@ -277,7 +290,7 @@ All that remains is to pick up the custom token in the resource server and use i
 class ResourceApplication {
 
   ...
-  
+
   @Bean
   HeaderHttpSessionStrategy sessionStrategy() {
     return new HeaderHttpSessionStrategy();

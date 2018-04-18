@@ -33,7 +33,7 @@ export class HomeComponent {
 
 All we need to do to this is change the URL. For example, if we are going to run the new resource on localhost, it could look like this:
 
-.home.component.js
+.home.component.ts
 [source,javascript]
 ----
         http.get('http://localhost:9000').subscribe(data => this.greeting = data);
@@ -208,7 +208,7 @@ TIP: if you don't have a redis server running locally you can easily spin one up
 
 The only missing piece is the transport mechanism for the key to the data in the store. The key is the `HttpSession` ID, so if we can get hold of that key in the UI client, we can send it as a custom header to the resource server. So the "home" controller would need to change so that it sends the header as part of the HTTP request for the greeting resource. For example:
 
-.home.component.js
+.home.component.ts
 [source,javascript]
 ----
   constructor(private app: AppService, private http: HttpClient) {

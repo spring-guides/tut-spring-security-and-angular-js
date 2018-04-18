@@ -413,7 +413,7 @@ NOTE: the role names come back from the "/user" endpoint with the "ROLE_" prefix
 
 We are going to use the roles to make access decisions in the Gateway as well (so we can conditionally display a link to the admin UI), so we should add the "roles" to the "/user" endpoint in the Gateway as well. Once that is in place we can add some JavaScript to set up a flag to indicate that the current user is an "ADMIN". In the `authenticated()` function:
 
-.app.component.js
+.app.component.ts
 [source,javascript]
 ----
 this.http.get('user', {headers: headers}).subscribe(data => {

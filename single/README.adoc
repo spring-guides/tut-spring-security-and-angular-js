@@ -127,7 +127,7 @@ Since the user now has the choice whether to login or not (before it was all con
 
 The `HomeComponent` has to fetch the greeting, and also provide the `authenticated()` utility function that pulls the flag out of the `AppService`:
 
-.home.component.js
+.home.component.ts
 [source,javascript]
 ----
 include::src/app/home.component.ts[indent=0]

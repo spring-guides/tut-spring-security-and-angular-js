@@ -115,7 +115,7 @@ work like this with all JavaScript in the browser.
 The two servers do not declare that they have a common origin, so the browser
 declines to send the request and the UI is broken.
 
-To fix that we need to support the CORS protocol which involves a "pre-flight" OPTIONS request and some headers to list the allowed behaviour of the caller. Spring 4.2 has some nice https://jira.spring.io/browse/SPR-9278[fine-grained CORS support], so we can just add an annotation to our controller mapping, for example:
+To fix that we need to support the CORS protocol which involves a "pre-flight" OPTIONS request and some headers to list the allowed behaviour of the caller. Spring has some nice fine-grained CORS support, so we can just add an annotation to our controller mapping, for example:
 
 .ResourceApplication.java
 [source,java]
@@ -155,22 +155,12 @@ Re-launch the resource server and, hey presto! It's secure:
 [source]
 ----
 $ curl -v localhost:9000
-< HTTP/1.1 302 Found
-< Location: http://localhost:9000/login
+< HTTP/1.1 401
+< WWW-Authenticate: Basic realm="Realm"
 ...
 ----
 
-We are getting a redirect to a (whitelabel) login page because curl is not sending the same headers that our Angular client will. Modifying the command to send more similar headers:
-
-[source]
-----
-$ curl -v -H "Accept: application/json" \
-    -H "X-Requested-With: XMLHttpRequest" localhost:9000
-< HTTP/1.1 401 Unauthorized
-...
-----
-
-So all we need to do is teach the client to send credentials with every request.
+In a browser we would get a redirect to a (whitelabel) login page, but the resource is just as secure. So all we need to do now is teach the client to send credentials with every request.
 
 == Token Authentication
 

@@ -1,0 +1,30 @@
+{
+    "run": {
+        "default": "",
+        "items": [
+            {
+                "name": "vanilla-ui",
+                "projectName": "vanilla-ui",
+                "workingDirectory": "/home/dsyer/dev/guides/tutorials/tut-spring-security-and-angular-js/vanilla/ui",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            }
+        ]
+    },
+    "debug": {
+        "default": "",
+        "items": [
+            {
+                "name": "vanilla-ui",
+                "projectName": "vanilla-ui",
+                "workingDirectory": "/home/dsyer/dev/guides/tutorials/tut-spring-security-and-angular-js/vanilla/ui",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            }
+        ]
+    }
+}

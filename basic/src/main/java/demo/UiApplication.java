@@ -15,21 +15,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UiApplication extends WebSecurityConfigurerAdapter {
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests().anyRequest().authenticated().and().httpBasic();
-	}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.authorizeRequests().anyRequest().authenticated().and().httpBasic();
+    }
 
-	@RequestMapping("/resource")
-	public Map<String, Object> home() {
-		Map<String, Object> model = new HashMap<String, Object>();
-		model.put("id", UUID.randomUUID().toString());
-		model.put("content", "Hello World");
-		return model;
-	}
+    @RequestMapping("/resource")
+    public Map<String, Object> home() {
+        Map<String, Object> model = new HashMap<String, Object>();
+        model.put("id", UUID.randomUUID().toString());
+        model.put("content", "Hello World");
+        return model;
+    }
 
-	public static void main(String[] args) {
-		SpringApplication.run(UiApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(UiApplication.class, args);
+    }
 
 }

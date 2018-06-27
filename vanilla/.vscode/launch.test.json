@@ -1,0 +1,44 @@
+{
+    "run": {
+        "default": "",
+        "items": [
+            {
+                "name": "vanilla-resource",
+                "projectName": "vanilla-resource",
+                "workingDirectory": "/home/dsyer/dev/guides/tutorials/tut-spring-security-and-angular-js/vanilla",
+                "args": [],
+                "vmargs": [],
+                "preLaunchTask": ""
+            },
+            {
+                "name": "vanilla-ui",
+                "projectName": "vanilla-ui",
+                "workingDirectory": "/home/dsyer/dev/guides/tutorials/tut-spring-security-and-angular-js/vanilla",
+                "args": [],
+                "vmargs": [],
+                "preLaunchTask": ""
+            }
+        ]
+    },
+    "debug": {
+        "default": "",
+        "items": [
+            {
+                "name": "vanilla-resource",
+                "projectName": "vanilla-resource",
+                "workingDirectory": "/home/dsyer/dev/guides/tutorials/tut-spring-security-and-angular-js/vanilla",
+                "args": [],
+                "vmargs": [],
+                "preLaunchTask": ""
+            },
+            {
+                "name": "vanilla-ui",
+                "projectName": "vanilla-ui",
+                "workingDirectory": "/home/dsyer/dev/guides/tutorials/tut-spring-security-and-angular-js/vanilla",
+                "args": [],
+                "vmargs": [],
+                "preLaunchTask": ""
+            }
+        ]
+    }
+}

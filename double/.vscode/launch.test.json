@@ -1,0 +1,84 @@
+{
+    "run": {
+        "default": "",
+        "items": [
+            {
+                "name": "double-gateway",
+                "projectName": "double-gateway",
+                "workingDirectory": "/home/dsyer/dev/guides/tutorials/tut-spring-security-and-angular-js/double",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "double-ui",
+                "projectName": "double-ui",
+                "workingDirectory": "/home/dsyer/dev/guides/tutorials/tut-spring-security-and-angular-js/double",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "double-resource",
+                "projectName": "double-resource",
+                "workingDirectory": "/home/dsyer/dev/guides/tutorials/tut-spring-security-and-angular-js/double",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "double-admin",
+                "projectName": "double-admin",
+                "workingDirectory": "/home/dsyer/dev/guides/tutorials/tut-spring-security-and-angular-js/double",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            }
+        ]
+    },
+    "debug": {
+        "default": "",
+        "items": [
+            {
+                "name": "double-gateway",
+                "projectName": "double-gateway",
+                "workingDirectory": "/home/dsyer/dev/guides/tutorials/tut-spring-security-and-angular-js/double",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "double-ui",
+                "projectName": "double-ui",
+                "workingDirectory": "/home/dsyer/dev/guides/tutorials/tut-spring-security-and-angular-js/double",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "double-resource",
+                "projectName": "double-resource",
+                "workingDirectory": "/home/dsyer/dev/guides/tutorials/tut-spring-security-and-angular-js/double",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "double-admin",
+                "projectName": "double-admin",
+                "workingDirectory": "/home/dsyer/dev/guides/tutorials/tut-spring-security-and-angular-js/double",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            }
+        ]
+    }
+}

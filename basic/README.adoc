@@ -70,9 +70,9 @@ Once the Angular app is primed, your application will be loadable in a browser (
 $ mvn spring-boot:run
 ----
 
-and go to a browser at http://localhost:8080[http://localhost:8080]. When you load the home page you should get a browser dialog asking for username and password (the username is "user" and the password is printed in the console logs on startup). There's actually no content yet (or maybe the deafult "hero" tutorial content from the `ng` CLI), so you should get essentially a blank page.
+and go to a browser at http://localhost:8080[http://localhost:8080]. When you load the home page you should get a whitelabel login page asking for username and password (the username is "user" and the password is printed in the console logs on startup). There's actually no content yet (or maybe the deafult "hero" tutorial content from the `ng` CLI), so you should get essentially a blank page.
 
-TIP: If you don't like scraping the console log for the password just add this to the "application.properties" (in "src/main/resources"): `security.user.password=password` (and choose your own password). We did this in the sample code using "application.yml".
+TIP: If you don't like scraping the console log for the password just add this to the "application.properties" (in "src/main/resources"): `spring.security.user.password=password` (and choose your own password). We did this in the sample code using "application.yml".
 
 In an IDE, just run the `main()` method in the application class (there is only one class, and it is called `UiApplication` if you used the "curl" command above).
 
@@ -159,6 +159,27 @@ Run that application and try to curl the "/resource" endpoint and you will find 
 ----
 $ curl localhost:8080/resource
 {"timestamp":1420442772928,"status":401,"error":"Unauthorized","message":"Full authentication is required to access this resource","path":"/resource"}
+----
+
+=== HTTP Basic Authentication
+
+The curl command above returned a 401 response because the user agent was detected and Spring Security assumed that was a better response than a 302 redirect to the login page. We don't actually want the login page for our app. We could replace it with a nicer looking one, and we will be doing that later in the tutorial. For now, we want to just use HTTP Basic authentication, so we need to override the default Spring Security configuration. To do this we can add a `WebSecurityConfigurer` to the context and Spring Boot will back off doing what it did out of the box. For example the main application class itself can be a security configurer:
+
+.UiApplication.java
+[source,java]
+----
+@SpringBootApplication
+@RestController
+public class UiApplication extends WebSecurityConfigurerAdapter {
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http.authorizeRequests().anyRequest().authenticated().and().httpBasic();
+	}
+
+    ...
+
+}
 ----
 
 === Loading a Dynamic Resource from Angular
@@ -255,7 +276,3 @@ On the face of it, it seems like we did a pretty good job, it's concise, easy to
 CSRF isn't really an issue with our application as it stands since it only needs to GET the backend resources (i.e. no state is changed in the server). As soon as you have a POST, PUT or DELETE in your application it simply isn't secure any more by any reasonable modern measure.
 
 In the <<_the_login_page_angular_js_and_spring_security_part_ii,next section in this series>> we will extend the application to use form-based authentication, which is a lot more flexible than HTTP Basic. Once we have a form we will need CSRF protection, and both Spring Security and Angular have some nice out-of-the box features to help with this. Spoiler: we are going to need to use the `HttpSession`.
-
-****
-Thanks: I would like to thank everyone who helped me develop this series, and in particular http://spring.io/team/rwinch[Rob Winch] and https://twitter.com/thspaeth[Thorsten Spaeth] for their careful reviews of the text and source code, and for teaching me a few tricks I didn't know even about the parts I thought I was most familar with.
-****

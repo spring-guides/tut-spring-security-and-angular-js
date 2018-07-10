@@ -2,6 +2,8 @@ spring:
   security:
     user:
       password: password
+    filter:
+      dispatcher-types: async, error, request, forward
 logging:
   level:
     org.springframework.security: DEBUG

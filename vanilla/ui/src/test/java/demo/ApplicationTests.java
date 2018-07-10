@@ -45,7 +45,7 @@ public class ApplicationTests {
 
     @Test
     public void loginSucceeds() {
-        ResponseEntity<String> response = template.getForEntity("/user",
+        ResponseEntity<String> response = template.getForEntity("/resource",
                 String.class);
         String csrf = getCsrf(response.getHeaders());
         MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();

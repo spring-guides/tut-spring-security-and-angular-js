@@ -1,4 +1,4 @@
-[[_the_api_gateway_pattern_angular_js_and_spring_security_part_iv]]
+`[[_the_api_gateway_pattern_angular_js_and_spring_security_part_iv]]
 = The API Gateway
 
 In this section we continue <<_the_resource_server_angular_js_and_spring_security_part_iii,our discussion>> of how to use http://projects.spring.io/spring-security[Spring Security] with http://angular.io[Angular] in a "single page application". Here we show how to build an API Gateway to control the authentication and access to the backend resources using http://projects.spring.io/spring-cloud/[Spring Cloud]. This is the fourth in a series of sections, and you can catch up on the basic building blocks of the application or build it from scratch by reading the <<_spring_and_angular_js_a_secure_single_page_application,first section>>, or you can just go straight to the https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/proxy[source code in Github]. In the <<_the_resource_server_angular_js_and_spring_security_part_iii,last section>> we built a simple distributed application that used https://github.com/spring-projects/spring-session/[Spring Session] to authenticate the backend resources. In this one we make the UI server into a reverse proxy to the backend resource server, fixing the issues with the last implementation (technical complexity introduced by custom token authentication), and giving us a lot of new options for controlling access from the browser client.
@@ -33,8 +33,9 @@ and in an external configuration file we need to map a local resource in the UI 
 .application.yml
 [source,yaml]
 ----
-security:
-  ...
+spring:
+  security:
+    ...
 zuul:
   routes:
     resource:
@@ -54,7 +55,7 @@ All we need to make this work is the right stuff on the classpath. For that purp
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-dependencies</artifactId>
-      <version>Dalston.SR4</version>
+      <version>Finchley.RELEASE</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>
@@ -64,13 +65,13 @@ All we need to make this work is the right stuff on the classpath. For that purp
 <dependencies>
   <dependency>
     <groupId>org.springframework.cloud</groupId>
-    <artifactId>spring-cloud-starter-zuul</artifactId>
+    <artifactId>spring-cloud-starter-netflix-zuul</artifactId>
   </dependency>
   ...
 </dependencies>
 ----
 
-Note the use of the "spring-cloud-starter-zuul" - it's a starter POM just like the Spring Boot ones, but it governs the dependencies we need for this Zuul proxy. We are also using `&lt;dependencyManagement&gt;` because we want to be able to depend on all the versions of transitive dependencies being correct.
+Note the use of the "spring-cloud-starter-netflix-zuul" - it's a starter POM just like the Spring Boot ones, but it governs the dependencies we need for this Zuul proxy. We are also using `&lt;dependencyManagement&gt;` because we want to be able to depend on all the versions of transitive dependencies being correct.
 
 === Consuming the Proxy in the Client
 
@@ -123,14 +124,14 @@ That's enough to get us a secure resource server, but it won't get us a working 
 
 == Sharing Authentication State
 
-We can use the same mechanism to share authentication (and CSRF) state as we did in the last, i.e. https://github.com/spring-projects/spring-session/[Spring Session]. We add the dependency to both servers as before:
+We can use Spring Session to share authentication (and CSRF) state. We add the dependency to both servers:
 
 .pom.xml
 [source,xml]
 ----
 <dependency>
   <groupId>org.springframework.session</groupId>
-  <artifactId>spring-session</artifactId>
+  <artifactId>spring-session-data-redis</artifactId>
 </dependency>
 <dependency>
   <groupId>org.springframework.boot</groupId>
@@ -138,7 +139,7 @@ We can use the same mechanism to share authentication (and CSRF) state as we did
 </dependency>
 ----
 
-but this time the configuration is much simpler because we can just add the same `Filter` declaration to both. First the UI server, declaring explicitly that we want all headers to be forwarded (i.e. none are "sensitive"):
+There are some minor tweaks to the two applications. First the UI server, declaring explicitly that we want all headers to be forwarded (i.e. none are "sensitive"):
 
 .application.yml
 [source,properties]
@@ -174,15 +175,15 @@ ____
 Aside: an alternative, which would also prevent the authentication dialog, would be to keep HTTP Basic but change the 401 challenge to something other than "Basic". You can do that with a one-line implementation of `AuthenticationEntryPoint` in the `HttpSecurity` configuration callback.
 ____
 
-and the other is to explicitly ask for a non-stateless session creation policy in `application.properties`:
+and the other is to explicitly ask for a non-stateless session creation policy (in the same method):
 
-.application.properties
-[source,properties]
+.ResourceApplication.java
+[source,java]
 ----
-security.sessions: NEVER
+    http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER);
 ----
 
-As long as redis is still running in the background (use the https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/proxy/docker-compose.yml[`docker-compose.yml`] if you like to start it) then the system will work. Load the homepage for the UI at http://localhost:8080[http://localhost:8080] and login and you will see the message from the backend rendered on the homepage.
+As long as redis is running in the background (use the https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/proxy/docker-compose.yml[`docker-compose.yml`] if you like to start it) then the system will work. Load the homepage for the UI at http://localhost:8080[http://localhost:8080] and login and you will see the message from the backend rendered on the homepage.
 
 == How Does it Work?
 

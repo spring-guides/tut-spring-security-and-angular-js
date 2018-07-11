@@ -1,7 +1,7 @@
 [[_the_resource_server_angular_js_and_spring_security_part_iii]]
 = The Resource Server
 
-In this section we continue <<_the_login_page_angular_js_and_spring_security_part_ii,our discussion>> of how to use http://projects.spring.io/spring-security[Spring Security] with http://angular.io[Angular] in a "single page application". Here we start by breaking out the "greeting" resource that we are using as the dynamic content in our application into a separate server, first as an unprotected resource, and then protected by an opaque token. This is the third in a series of sections, and you can catch up on the basic building blocks of the application or build it from scratch by reading the <<_spring_and_angular_js_a_secure_single_page_application,first section>>, or you can just go straight to the source code in Github, which is in two parts: one where the https://github.com/dsyer/spring-security-angular/tree/master/vanilla[resource is unprotected], and one where it is https://github.com/dsyer/spring-security-angular/tree/master/spring-session[protected by a token].
+In this section we continue <<_the_login_page_angular_js_and_spring_security_part_ii,our discussion>> of how to use http://projects.spring.io/spring-security[Spring Security] with http://angular.io[Angular] in a "single page application". Here we start by breaking out the "greeting" resource that we are using as the dynamic content in our application into a separate server, first as an unprotected resource, and then protected by an opaque token. This is the third in a series of sections, and you can catch up on the basic building blocks of the application or build it from scratch by reading the <<_spring_and_angular_js_a_secure_single_page_application,first section>>, or you can just go straight to the source code in Github, which is in two parts: one where the https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/vanilla[resource is unprotected], and one where it is https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/spring-session[protected by a token].
 
 TIP: if you are working through this section with the sample application, be sure to clear your browser cache of cookies and HTTP Basic credentials. In Chrome the best way to do that for a single server is to open a new incognito window.
 
@@ -58,7 +58,7 @@ $ curl https://start.spring.io/starter.tgz -d style=web \
 
 You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line.
 
-Just add a `@RequestMapping` to the https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/vanilla/resource/src/main/java/demo/ResourceApplication.java[main application class], copying the implementation from the https://github.com/dsyer/spring-security-angular/blob/master/single/src/main/java/demo/UiApplication.java[old UI]:
+Just add a `@RequestMapping` to the https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/vanilla/resource/src/main/java/demo/ResourceApplication.java[main application class], copying the implementation from the https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/single/src/main/java/demo/UiApplication.java[old UI]:
 
 .ResourceApplication.java
 [source,java]
@@ -173,7 +173,7 @@ Remember from <<_the_login_page_angular_js_and_spring_security_part_ii,Part II>>
 
 That part of the solution is pretty easy with https://github.com/spring-projects/spring-session/[Spring Session]. All we need is a shared data store (Redis and JDBC are supported out of the box), and a few lines of configuration in the servers to set up a `Filter`.
 
-In the UI application we need to add some dependencies to our https://github.com/dsyer/spring-security-angular/blob/master/spring-session/ui/pom.xml[POM]:
+In the UI application we need to add some dependencies to our https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/spring-session/ui/pom.xml[POM]:
 
 .pom.xml
 [source,xml]
@@ -192,7 +192,7 @@ Spring Boot and Spring Session work together to connect to Redis and store sessi
 
 With that 1 line of code in place and a Redis server running on localhost you can run the UI application, login with some valid user credentials, and the session data (the authentication) will be stored in redis.
 
-TIP: if you don't have a redis server running locally you can easily spin one up with https://www.docker.com/[Docker] (on Windows or MacOS this requires a VM). There is a http://docs.docker.com/compose/[`docker-compose.yml`] file in the https://github.com/dsyer/spring-security-angular/tree/master/spring-session/docker-compose.yml[source code in Github] which you can run really easily on the command line with `docker-compose up`. If you do this in a VM the Redis server will be running on a different host than localhost, so you either need to tunnel it onto localhost, or configure the app to point at the correct `spring.redis.host` in your `application.properties`.
+TIP: if you don't have a redis server running locally you can easily spin one up with https://www.docker.com/[Docker] (on Windows or MacOS this requires a VM). There is a http://docs.docker.com/compose/[`docker-compose.yml`] file in the https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/spring-session/docker-compose.yml[source code in Github] which you can run really easily on the command line with `docker-compose up`. If you do this in a VM the Redis server will be running on a different host than localhost, so you either need to tunnel it onto localhost, or configure the app to point at the correct `spring.redis.host` in your `application.properties`.
 
 == Sending a Custom Token from the UI
 

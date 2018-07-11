@@ -11,7 +11,7 @@ up on the basic building blocks of the application or build it from scratch by
 reading the
 <<_spring_and_angular_js_a_secure_single_page_application,first section>>, or
 you can just go straight to the
-https://github.com/dsyer/spring-security-angular/tree/master/single[source code in Github].
+https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/single[source code in Github].
 In the first section we built a simple application that used HTTP Basic
 authentication to protect the backend resources. In this one we add a login
 form, give the user some control over whether to authenticate or not, and fix
@@ -188,7 +188,7 @@ This is a useful trick in a Spring Security application. If the "/user" resource
 
 === Handling the Login Request on the Server
 
-Spring Security makes it easy to handle the login request. We just need to add some configuration to our https://github.com/dsyer/spring-security-angular/blob/master/single/src/main/java/demo/UiApplication.java[main application class] (e.g. as an inner class):
+Spring Security makes it easy to handle the login request. We just need to add some configuration to our https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/single/src/main/java/demo/UiApplication.java[main application class] (e.g. as an inner class):
 
 .UiApplication.java
 [source,java]

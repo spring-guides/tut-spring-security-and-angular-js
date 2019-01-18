@@ -11,3 +11,5 @@ spring:
     store-type: redis
 server:
   port: 8082
+
+  

@@ -9,16 +9,15 @@
 	<name>Spring Security Angular Samples</name>
 
 	<modules>
-		<module>basic</module>
-		<module>single</module>
+		<!--<module>basic</module>-->
+		<!--<module>single</module>-->
 		<module>vanilla</module>
-		<module>spring-session</module>
-		<module>proxy</module>
-		<module>oauth2-vanilla</module>
-		<module>oauth2</module>
-		<module>oauth2-logout</module>
-		<module>double</module>
-		<module>modular</module>
+		<!--<module>spring-session</module>-->
+		<!--<module>proxy</module>-->
+		<!--<module>oauth2-vanilla</module>-->
+		<!--<module>oauth2</module>-->
+		<!--<module>oauth2-logout</module>-->
+		<!--<module>double</module>-->
 	</modules>
 
 	<build>

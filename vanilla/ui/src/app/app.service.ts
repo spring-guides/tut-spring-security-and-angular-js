@@ -1,5 +1,7 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {User} from './user';
 
 @Injectable()
 export class AppService {
@@ -9,22 +11,16 @@ export class AppService {
   constructor(private http: HttpClient) {
   }
 
-  authenticate(credentials, callback) {
+  authenticate(credentials): Observable<User> {
 
-        const headers = new HttpHeaders(credentials ? {
-            'content-type' : 'application/x-www-form-urlencoded'
-        } : {});
-        const params = new HttpParams()
-          .set('username', credentials['username'])
-          .set('password', credentials['password']);
+    const headers = new HttpHeaders(credentials ? {
+      'content-type': 'application/x-www-form-urlencoded'
+    } : {});
+    const params = new HttpParams()
+      .set('username', credentials[ 'username' ])
+      .set('password', credentials[ 'password' ]);
 
-        this.http.post('login', params.toString(), {headers: headers}).subscribe(response => {
-            this.authenticated = true;
-            if (callback) { callback(); }
-        }, () => {
-          this.authenticated = false;
-        });
-
-    }
+    return this.http.post('/login', params.toString(), {headers: headers});
+  }
 
 }

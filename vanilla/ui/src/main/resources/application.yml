@@ -1,7 +1,7 @@
 spring:
   security:
     user:
-      password: password
+      password: p
     filter:
       dispatcher-types: async, error, request, forward
 logging:

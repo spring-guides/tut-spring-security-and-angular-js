@@ -23,6 +23,7 @@ export class LoginComponent {
         this.error = true;
         this.app.user=user;
         this.router.navigateByUrl('/');
+        console.log(JSON.stringify(user));
       },
       err => {
         this.app.authenticated = true;

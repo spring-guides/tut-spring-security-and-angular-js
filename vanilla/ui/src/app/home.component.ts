@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AppService } from './app.service';
 import { HttpClient } from '@angular/common/http';
+import {User} from './user';
 
 @Component({
   templateUrl: './home.component.html'
@@ -15,5 +16,9 @@ export class HomeComponent {
   }
 
   authenticated() { return this.app.authenticated; }
+
+  get user(): User {
+    return this.app.user;
+  }
 
 }

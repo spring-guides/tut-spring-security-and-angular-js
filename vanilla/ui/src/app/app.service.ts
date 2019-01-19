@@ -7,20 +7,24 @@ import {User} from './user';
 export class AppService {
 
   authenticated = false;
+  user: User;
 
   constructor(private http: HttpClient) {
   }
 
   authenticate(credentials): Observable<User> {
 
-    const headers = new HttpHeaders(credentials ? {
-      'content-type': 'application/x-www-form-urlencoded'
-    } : {});
+    let headers = {} as HttpHeaders;
+    if (credentials) {
+      headers = new HttpHeaders({
+                                  'content-type': 'application/x-www-form-urlencoded'
+                                });
+    }
     const params = new HttpParams()
       .set('username', credentials[ 'username' ])
       .set('password', credentials[ 'password' ]);
 
-    return this.http.post('/login', params.toString(), {headers: headers});
+    return this.http.post('/api/login', params.toString(), {headers: headers});
   }
 
 }

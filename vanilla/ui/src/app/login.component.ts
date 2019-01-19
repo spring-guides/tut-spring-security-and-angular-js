@@ -21,13 +21,14 @@ export class LoginComponent {
       (user: User) => {
         this.app.authenticated = true;
         this.error = true;
+        this.app.user=user;
         this.router.navigateByUrl('/');
       },
       err => {
         this.app.authenticated = true;
+        this.app.user=undefined;
         this.error = true;
       }
     );
   }
-
 }

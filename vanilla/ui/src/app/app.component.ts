@@ -2,7 +2,6 @@ import {Component} from '@angular/core';
 import {AppService} from './app.service';
 import {HttpClient} from '@angular/common/http';
 import {Router} from '@angular/router';
-import 'rxjs/add/operator/finally';
 
 @Component({
              selector: 'app-root',
@@ -10,18 +9,30 @@ import 'rxjs/add/operator/finally';
              styleUrls: [ './app.component.css' ]
            })
 export class AppComponent {
+
   constructor(private app: AppService, private http: HttpClient, private router: Router) {
-    //this.app.authenticate({});
+  }
+
+  get showMessage() {
+    return this.app.showMessage;
+  }
+
+  get message() {
+    return this.app.message;
   }
 
   logout() {
-    this.http.post('api/logout', {}, {responseType: 'text'}).finally(() => {
-      this.app.authenticated = false;
-      this.router.navigateByUrl('/login');
-    }).subscribe(
-      () => console.log('logged out successfully'),
-      err => console.error(err),
-      () => console.log('logout completed')
+    this.app.logout().subscribe(
+      success => {
+        if (success) {
+          this.router.navigateByUrl('/login');
+          this.app.showMessage = false;
+        } else {
+          this;
+          this.app.showMessage = true;
+          this.app.message='Le logout n\'a pu être fait car une erreur s\'est produite';
+        }
+      }
     );
   }
 

@@ -1,7 +1,6 @@
 <h1>Greeting</h1>
 <div *ngIf="authenticated()">
-  <p>The ID is {{user.details.sessionId}}</p>
-  <p>Bienvenue {{user.name}}</p>
+  <p>Bienvenue {{user.username}}</p>
 </div>
 <div *ngIf="!authenticated()">
   <p>Login to see your greeting</p>

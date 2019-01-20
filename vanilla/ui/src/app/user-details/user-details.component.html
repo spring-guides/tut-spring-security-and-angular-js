@@ -1,0 +1,8 @@
+<h3>Nom de l'utilisateur:</h3>
+<p>
+  {{user.username}}
+</p>
+<h3>Permissions:</h3>
+<ul>
+  <li *ngFor="let role of user.authorities">{{role.authority}}</li>
+</ul>

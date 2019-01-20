@@ -7,6 +7,19 @@ projects: [spring-security,spring-security-oauth]
 :source-highlighter: prettify
 :image-width: 500
 
+= Ce qui fonctionne
+Le repo initial ne fonctionne pas intégralement et date un peu.
+J'ai fait fonctionner et implémenté des tests sur le module "vanilla/ui" car il suffisait à ec que je voulais faire.
+J'ai monté en version angular car le repo avait 3 version majeures de retard.
+J'ai implémenté la sécurité telle que je la souhaitais.
+La solution fonctionne, que l'on utilise l'interface angular déployée (port 8080) ou en développement (via npm start,
+ sur le port 4200).
+
+Pour utiliser: dans le pom parent, désactiver tous les sous-modules inutilisés (ne garder que le vanilla) et lancer
+le build maven.
+Les 2 users sont "user" et "loic". le password est "p" dans les 2 cas, les les permissions varient, "user" en a 2 et
+"loic" en a 3.
+
 = Spring Security and Angular
 
 include::basic/README.adoc[leveloffset=+1]

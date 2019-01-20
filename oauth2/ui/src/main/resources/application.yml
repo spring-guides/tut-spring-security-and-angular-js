@@ -1,13 +1,7 @@
 spring:
   aop:
     proxy-target-class: true
-
-
 security:
-  user:
-    password: none
-  ignored:
-  - "*.bundle.*"
   oauth2:
     client:
       accessTokenUri: http://localhost:9999/uaa/oauth/token
@@ -15,6 +9,7 @@ security:
       clientId: acme
       clientSecret: acmesecret
     resource:
+      #userInfoUri: http://localhost:9999/uaa/user
       jwt:
         keyValue: |
           -----BEGIN PUBLIC KEY-----
@@ -33,3 +28,4 @@ zuul:
 logging:
   level:
     org.springframework.security: DEBUG
+    org.springframework.web: DEBUG

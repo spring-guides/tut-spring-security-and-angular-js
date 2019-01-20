@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -17,14 +16,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(webEnvironment=WebEnvironment.RANDOM_PORT)
 public class ApplicationTests {
 
-	@LocalServerPort
+	@org.springframework.boot.web.server.LocalServerPort
 	private int port;
 
 	private TestRestTemplate template = new TestRestTemplate();
 
 	@Test
 	public void resourceLoads() {
-		ResponseEntity<String> response = template.getForEntity("http://localhost:{port}/resource/", String.class, port);
+		ResponseEntity<String> response = template.getForEntity("http://localhost:{port}/", String.class, port);
 		assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
 		String auth = response.getHeaders().getFirst("WWW-Authenticate");
 		assertTrue("Wrong header: " + auth , auth.startsWith("Bearer"));

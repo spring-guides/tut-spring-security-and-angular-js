@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.context.embedded.LocalServerPort;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -13,13 +13,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = "security.user.password:foo")
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = {"spring.security.user.password=foo", "spring.security.user.roles=USER"})
 public class ApplicationTests {
 
-	@LocalServerPort
+	@org.springframework.boot.web.server.LocalServerPort
 	private int port;
 
-	private TestRestTemplate template = new TestRestTemplate();
+	@Autowired
+	private TestRestTemplate template;
 
 	@Test
 	public void homePageLoads() {
@@ -41,8 +42,7 @@ public class ApplicationTests {
 
 	@Test
 	public void loginSucceeds() {
-		TestRestTemplate template = new TestRestTemplate("user", "foo");
-		ResponseEntity<String> response = template.getForEntity("http://localhost:" + port + "/user", String.class);
+		ResponseEntity<String> response = template.withBasicAuth("user", "foo").getForEntity("http://localhost:" + port + "/user", String.class);
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 	}
 

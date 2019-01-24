@@ -12,11 +12,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import org.springframework.boot.web.server.LocalServerPort;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties={"spring.security.user.password=foo", "spring.security.user.roles=ADMIN"}, webEnvironment=WebEnvironment.RANDOM_PORT)
 public class ApplicationTests {
 
-	@org.springframework.boot.web.server.LocalServerPort
+	@LocalServerPort
 	private int port;
 
 	@Autowired

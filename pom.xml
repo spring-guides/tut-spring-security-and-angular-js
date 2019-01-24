@@ -19,6 +19,7 @@
 		<module>oauth2-logout</module>
 		<module>double</module>
 		<module>modular</module>
+        <module>double-outh2</module>
 	</modules>
 
 	<build>

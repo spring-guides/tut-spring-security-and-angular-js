@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.oauth2.client.OAuth2ClientContext;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
@@ -33,11 +34,18 @@ public class UiApplication extends WebSecurityConfigurerAdapter {
         http
             .logout().logoutSuccessUrl("/").and()
             .authorizeRequests()
-                .antMatchers("/index.html", "/").permitAll()
+                .antMatchers("/index.html", "/", "/error", "/app.html").permitAll()
                 .anyRequest().authenticated()
                 .and()
             .csrf()
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
         // @formatter:on
+    }
+    
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web
+           .ignoring()
+               .antMatchers("/*.bundle.*");
     }
 }

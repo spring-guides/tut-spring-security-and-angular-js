@@ -1,0 +1,7 @@
+<div [hidden]="error">
+	<p>Login to see your greeting</p>
+</div>
+<div [hidden]="!error">
+	<p>Not permitted at this time. {{error}} Please login and try
+		again.</p>
+</div>

@@ -1,0 +1,8 @@
+[[_multiple_ui_applications_and_a_gateway_single_page_application_with_spring_and_angular_js_part_TBD]]
+= Multiple UI Applications and a Gateway
+
+This is a modification of the original "double" project that used Spring Session persistence for SSO. Instead, this project is using Oaut2 and JWT. This project has been developed using Spring Boot 2.*.
+
+____
+Reminder: if you are working through this section with the sample application, be sure to clear your browser cache of cookies and HTTP Basic credentials. In Chrome the best way to do that is to open a new incognito window.
+____

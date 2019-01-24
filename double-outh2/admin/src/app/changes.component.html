@@ -1,0 +1,4 @@
+<ol>
+	<li *ngFor="let item of data">{{item.timestamp}} ({{item.user}}): "{{item.message}}"</li>
+</ol>
+<div [hidden]="data && data.length">No changes to show</div>

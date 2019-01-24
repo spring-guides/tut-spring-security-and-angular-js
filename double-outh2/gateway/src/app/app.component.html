@@ -1,0 +1,22 @@
+<nav class="navbar navbar-default">
+  <div class="container">
+    <a class="brand" href='#/'>Home</a>
+    <div class="navbar-right">
+      <a class="btn btn-primary" href="login">login</a> <a
+        class="btn btn-primary" [hidden]="!authenticated" href=""
+        (click)="logout()">logout</a>
+      <p [hidden]="!authenticated">
+        Signed in as <a href="#/" class="navbar-link">{{user}}</a>
+      </p>
+    </div>
+  </div>
+</nav>
+<div class="alert alert-danger" [hidden]="!error">There was a
+problem logging in. Please try again.</div>
+<div class="container" [hidden]="!authenticated">
+  <a class="btn btn-primary" href="/ui/">Go To User Interface</a>
+</div>
+<br />
+<div class="container" [hidden]="!authenticated || !admin">
+  <a class="btn btn-primary" href="/admin/">Go To Admin Interface</a>
+</div>

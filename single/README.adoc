@@ -244,7 +244,7 @@ So here's how to set default headers in an Angular XHR request.
 
 First extend the default `RequestOptions` provided by the Angular HTTP module:
 
-.app.module.js
+.app.module.ts
 [source,javascript]
 ----
 @Injectable()
@@ -264,7 +264,7 @@ The syntax here is  boilerplate. The `implements` property of the `Class` is its
 To install this new `RequestOptions` factory we need to declare it in the `providers` of the `AppModule`:
 
 
-.app.module.js
+.app.module.ts
 [source,javascript]
 ----
 @NgModule({

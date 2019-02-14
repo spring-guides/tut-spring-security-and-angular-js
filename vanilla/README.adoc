@@ -287,7 +287,7 @@ All that remains is to pick up the custom token in the resource server and use i
 ----
 @SpringBootApplication
 @RestController
-class ResourceApplication {
+public class ResourceApplication extends WebSecurityConfigurerAdapter {
 
   ...
 

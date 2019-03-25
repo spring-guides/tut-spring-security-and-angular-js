@@ -1,4 +1,4 @@
-<groups xmlns="http://www.isdc.ro/wro">
+<groups xmlns="https://www.isdc.ro/wro">
   <group name="angular-bootstrap">
     <css>webjar:bootstrap/@bootstrap.version@/less/bootstrap.less</css>
     <css>file:@project.basedir@/src/main/wro/main.less</css>

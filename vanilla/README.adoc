@@ -47,15 +47,6 @@ greeting resource (it was "/resource").
 Then we need to create a new resource server, which we can do like we did in
 the <<_spring_and_angular_js_a_secure_single_page_application,first section>>
 using the https://start.spring.io[Spring Boot Initializr].
-E.g. using curl on a UN*X like system:
-
-[source]
-----
-$ mkdir resource && cd resource
-$ curl https://start.spring.io/starter.tgz -d style=web \
--d name=resource | tar -xzvf -
-----
-
 You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line.
 
 Just add a `@RequestMapping` to the https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/vanilla/resource/src/main/java/demo/ResourceApplication.java[main application class], copying the implementation from the https://github.com/dsyer/spring-security-angular/blob/master/single/src/main/java/demo/UiApplication.java[old UI]:

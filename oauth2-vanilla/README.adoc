@@ -9,13 +9,7 @@ ____
 
 == Creating an OAuth2 Authorization Server
 
-Our first step is to create a new server to handle authentication and token management. Following the steps in <<_spring_and_angular_js_a_secure_single_page_application,Part I>> we can begin with https://start.spring.io[Spring Boot Initializr]. E.g. using curl on a UN*X like system:
-
-[source]
-----
-$ curl https://start.spring.io/starter.tgz -d style=web \
--d style=security -d name=authserver | tar -xzvf -
-----
+Our first step is to create a new server to handle authentication and token management. Following the steps in <<_spring_and_angular_js_a_secure_single_page_application,Part I>> we can begin with https://start.spring.io[Spring Boot Initializr].
 
 You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line.
 

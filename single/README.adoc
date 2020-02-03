@@ -143,7 +143,7 @@ The login form also gets its own component:
 include::src/app/login.component.html[indent=0]
 ----
 
-This is a very standard login form, with 2 inputs for username and password and a button for submitting the form via an Angular event handler `(submit)`. You don't need an action on the form tag, so it's probably better not to put one in at all. There is also an error message, shown only if the angular model contains an `error`. The form controls use `ngModel` from https://angular.io/guide/reactive-forms[Angular Forms] to pass data between the HTML and the Angular controller, and in this case we are using a `credentials` object to hold the username and pasword.
+This is a very standard login form, with 2 inputs for username and password and a button for submitting the form via an Angular event handler `(submit)`. You don't need an action on the form tag, so it's probably better not to put one in at all. There is also an error message, shown only if the angular model contains an `error`. The form controls use `ngModel` from https://angular.io/guide/reactive-forms[Angular Forms] to pass data between the HTML and the Angular controller, and in this case we are using a `credentials` object to hold the username and password.
 
 == The Authentication Process
 

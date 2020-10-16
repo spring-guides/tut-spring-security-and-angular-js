@@ -13,8 +13,8 @@ Our first step is to create a new server to handle authentication and token mana
 
 [source]
 ----
-$ curl https://start.spring.io/starter.tgz -d style=web \
--d style=security -d name=authserver | tar -xzvf -
+$ curl https://start.spring.io/starter.tgz -d dependencies=web \
+-d dependencies=security -d name=authserver | tar -xzvf -
 ----
 
 You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line.

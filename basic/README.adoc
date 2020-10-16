@@ -28,7 +28,8 @@ The easiest way to create a new project to get started is via the https://start.
 [source]
 ----
 $ mkdir ui && cd ui
-$ curl https://start.spring.io/starter.tgz -d dependencies=web,security -d name=ui | tar -xzvf -
+$ curl https://start.spring.io/starter.tgz -d dependencies=web \
+-d dependencies=security -d name=ui | tar -xzvf -
 ----
 
 You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line. Then jump to the link:#add-a-home-page[next section].
@@ -69,11 +70,7 @@ Once the Angular app is primed, your application will be loadable in a browser (
 $ mvn spring-boot:run
 ----
 
-<<<<<<< HEAD
-and go to a browser at http://localhost:8080[http://localhost:8080]. When you load the home page you should get a browser dialog asking for username and password (the username is "user" and the password is printed in the console logs on startup). There's actually no content yet (or maybe the default "hero" tutorial content from the `ng` CLI), so you should get essentially a blank page.
-=======
 and go to a browser at http://localhost:8080[http://localhost:8080]. When you load the home page you should get a whitelabel login page asking for username and password (the username is "user" and the password is printed in the console logs on startup). There's actually no content yet (or maybe the deafult "hero" tutorial content from the `ng` CLI), so you should get essentially a blank page.
->>>>>>> 77ec0f6 (Migrate basic sample to Boot 2.0)
 
 TIP: If you don't like scraping the console log for the password just add this to the "application.properties" (in "src/main/resources"): `spring.security.user.password=password` (and choose your own password). We did this in the sample code using "application.yml".
 
@@ -279,10 +276,3 @@ On the face of it, it seems like we did a pretty good job, it's concise, easy to
 CSRF isn't really an issue with our application as it stands since it only needs to GET the backend resources (i.e. no state is changed in the server). As soon as you have a POST, PUT or DELETE in your application it simply isn't secure any more by any reasonable modern measure.
 
 In the <<_the_login_page_angular_js_and_spring_security_part_ii,next section in this series>> we will extend the application to use form-based authentication, which is a lot more flexible than HTTP Basic. Once we have a form we will need CSRF protection, and both Spring Security and Angular have some nice out-of-the box features to help with this. Spoiler: we are going to need to use the `HttpSession`.
-<<<<<<< HEAD
-
-****
-Thanks: I would like to thank everyone who helped me develop this series, and in particular http://spring.io/team/rwinch[Rob Winch] and https://twitter.com/thspaeth[Thorsten Spaeth] for their careful reviews of the text and source code, and for teaching me a few tricks I didn't know even about the parts I thought I was most familiar with.
-****
-=======
->>>>>>> 77ec0f6 (Migrate basic sample to Boot 2.0)

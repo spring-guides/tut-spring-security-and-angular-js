@@ -30,7 +30,8 @@ describe('AppComponent', () => {
     const http = TestBed.get(HttpTestingController);
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.debugElement.componentInstance;
+    http.expectOne('user').flush({name: 'test'});
     http.expectOne('resource').flush({id: 'XYZ', content: 'Hello'});
-    expect(app.data.content).toContain('Hello');
+    expect(app.greeting.content).toContain('Hello');
   }));
 });

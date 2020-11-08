@@ -1,0 +1,16 @@
+<div class="navbar navbar-default">
+	<div class="container-fluid">
+		<ul class="nav navbar-nav">
+			<li><a class="navbar-primary" href="/">Home</a></li>
+			<li><a class="navbar-primary" (click)="message()">Message</a></li>
+			<li><a class="navbar-primary" (click)="changes()">Changes</a></li>
+		</ul>
+		<p class="navbar-text navbar-right" [hidden]="!authenticated">
+			Signed in as <a href="#/" class="navbar-link">{{user.name}}</a>
+		</p>
+	</div>
+</div>
+<div class="container">
+	<h1>Admin</h1>
+	<router-outlet></router-outlet>
+</div>

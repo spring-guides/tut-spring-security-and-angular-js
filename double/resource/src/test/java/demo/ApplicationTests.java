@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -17,7 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(webEnvironment=WebEnvironment.RANDOM_PORT)
 public class ApplicationTests {
 
-	@LocalServerPort
+	@org.springframework.boot.web.server.LocalServerPort
 	private int port;
 
 	private TestRestTemplate template = new TestRestTemplate();

@@ -7,12 +7,11 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.actuate.trace.TraceProperties;
-import org.springframework.boot.actuate.trace.TraceRepository;
-import org.springframework.boot.actuate.trace.WebRequestTraceFilter;
+import org.springframework.boot.actuate.trace.http.HttpExchangeTracer;
+import org.springframework.boot.actuate.trace.http.HttpTraceRepository;
+import org.springframework.boot.actuate.web.trace.servlet.HttpTraceFilter;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
-import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -59,20 +58,19 @@ public class ResourceApplication extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		// We need this to prevent the browser from popping up a dialog on a 401
-		http.httpBasic().disable().csrf()
-				.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
-		http.authorizeRequests().antMatchers(HttpMethod.POST, "/**").hasRole("WRITER")
+		http
+			.httpBasic().disable()
+			.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+		http
+			.authorizeRequests()
+				.antMatchers(HttpMethod.POST, "/**").hasRole("WRITER")
 				.anyRequest().authenticated();
 	}
-
+	
 	@Bean
-	public WebRequestTraceFilter webRequestLoggingFilter(ErrorAttributes errorAttributes,
-			TraceRepository traceRepository, TraceProperties traceProperties) {
-		WebRequestTraceFilter filter = new WebRequestTraceFilter(traceRepository,
-				traceProperties);
-		if (errorAttributes != null) {
-			filter.setErrorAttributes(errorAttributes);
-		}
+	public HttpTraceFilter webRequestLoggingFilter(HttpTraceRepository traceRepository, HttpExchangeTracer tracer) {
+		HttpTraceFilter filter = new HttpTraceFilter(traceRepository,
+				tracer);
 		filter.setOrder(SecurityProperties.DEFAULT_FILTER_ORDER - 1);
 		return filter;
 	}

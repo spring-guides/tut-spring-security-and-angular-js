@@ -11,50 +11,9 @@ Spring has always been a popular technology for building the backend features (e
 
 == Create a New Project
 
-We are going to step through creating this application in some detail, so that anyone who isn't completely au fait with Spring and Angular can follow what is happening. If you prefer to cut to the chase, you can link:#how-does-it-work[skip to the end] where the application is working, and see how it all fits together. There are various options for creating a new project:
+We are going to step through creating this application in some detail, so that anyone who is not completely with Spring and Angular can follow what is happening. If you prefer to cut to the chase, you can link:#how-does-it-work[skip to the end], where the application is working, and see how it all fits together.
 
-* link:#using-curl[Using curl on the command line]
-* link:#using-spring-boot-cli[Using Spring Boot CLI]
-* link:#using-the-initializr-website[Using the Spring Initializr website]
-* link:#using-spring-tool-suite[Using Spring Tool Suite]
-
-The source code for the complete project we are going to build is in https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/basic[Github here], so you can just clone the project and work directly from there if you want. Then jump to the link:#add-a-home-page[next section].
-
-[[using-curl]]
-=== Using Curl
-
-The easiest way to create a new project to get started is via the https://start.spring.io[Spring Boot Initializr]. E.g. using curl on a UN*X like system:
-
-[source]
-----
-$ mkdir ui && cd ui
-$ curl https://start.spring.io/starter.tgz -d style=web \
--d style=security -d name=ui | tar -xzvf -
-----
-
-You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line. Then jump to the link:#add-a-home-page[next section].
-
-[[using-spring-boot-cli]]
-=== Using Spring Boot CLI
-
-You can create the same project using the http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#getting-started-installing-the-cli[Spring Boot CLI], like this:
-
-[source]
-----
-$ spring init --dependencies web,security ui/ && cd ui
-----
-
-Then jump to the link:#add-a-home-page[next section].
-
-[[using-the-initializr-website]]
-=== Using the Initializr Website
-
-If you prefer you can also get the same code directly as a .zip file from the https://start.spring.io[Spring Boot Initializr]. Just open it up in your browser and select dependencies "Web" and "Security", then click on "Generate Project". The .zip file contains a standard Maven or Gradle project in the root directory, so you might want to create an empty directory before you unpack it. Then jump to the link:#add-a-home-page[next section].
-
-[[using-spring-tool-suite]]
-=== Using Spring Tool Suite
-
-In http://spring.io/tools/sts[Spring Tool Suite] (a set of Eclipse plugins) you can also create and import a project using a wizard at `File-&gt;New-&gt;Spring Starter Project`. Then jump to the link:#add-a-home-page[next section]. IntelliJ IDEA and NetBeans have similar features.
+We recommend using the Spring Initializar, which is available at https://start.spring.io.  For this project, select the `Spring Web` and `Spring Security` dependencies. Then click *Generate Project*. The .zip file contains a standard Maven (the default) or Gradle project in the root directory, so you might want to create an empty directory before you unpack it.
 
 [[add-a-home-page]]
 == Add an Angular App
@@ -74,7 +33,7 @@ and go to a browser at http://localhost:8080[http://localhost:8080]. When you lo
 
 TIP: If you don't like scraping the console log for the password just add this to the "application.properties" (in "src/main/resources"): `security.user.password=password` (and choose your own password). We did this in the sample code using "application.yml".
 
-In an IDE, just run the `main()` method in the application class (there is only one class, and it is called `UiApplication` if you used the "curl" command above).
+In an IDE, just run the `main()` method in the application class (there is only one class, and it is called `UiApplication`).
 
 To package and run as a standalone JAR, you can do this:
 

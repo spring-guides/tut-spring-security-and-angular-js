@@ -28,8 +28,7 @@ The easiest way to create a new project to get started is via the https://start.
 [source]
 ----
 $ mkdir ui && cd ui
-$ curl https://start.spring.io/starter.tgz -d style=web \
--d style=security -d name=ui | tar -xzvf -
+$ curl https://start.spring.io/starter.tgz -d dependencies=web,security -d name=ui | tar -xzvf -
 ----
 
 You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line. Then jump to the link:#add-a-home-page[next section].

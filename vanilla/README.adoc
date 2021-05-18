@@ -52,8 +52,7 @@ E.g. using curl on a UN*X like system:
 [source]
 ----
 $ mkdir resource && cd resource
-$ curl https://start.spring.io/starter.tgz -d style=web \
--d name=resource | tar -xzvf -
+$ curl https://start.spring.io/starter.tgz -d dependencies=web -d name=resource | tar -xzvf -
 ----
 
 You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line.

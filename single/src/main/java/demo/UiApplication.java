@@ -49,7 +49,7 @@ public class UiApplication {
 
         @Override
         public void configure(WebSecurity web) throws Exception {
-            web.ignoring().antMatchers("/*.bundle.*", "/favicon.ico");
+            web.ignoring().antMatchers("/*.js", "/*.css", "/favicon.ico");
         }
 
         @Override

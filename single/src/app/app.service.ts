@@ -9,13 +9,13 @@ export class AppService {
   constructor(private http: HttpClient) {
   }
 
-  authenticate(credentials, callback) {
+  authenticate(credentials: any, callback: any) {
 
         const headers = new HttpHeaders(credentials ? {
             authorization : 'Basic ' + btoa(credentials.username + ':' + credentials.password)
         } : {});
 
-        this.http.get('user', {headers: headers}).subscribe(response => {
+        this.http.get('user', {headers: headers}).subscribe((response: any) => {
             if (response['name']) {
                 this.authenticated = true;
             } else {

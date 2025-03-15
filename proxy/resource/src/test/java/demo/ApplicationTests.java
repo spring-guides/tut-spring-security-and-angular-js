@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.context.embedded.LocalServerPort;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -16,14 +16,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(webEnvironment=WebEnvironment.RANDOM_PORT)
 public class ApplicationTests {
 
-	@LocalServerPort
-	private int port;
-
-	private TestRestTemplate template = new TestRestTemplate();
+    @Autowired
+    private TestRestTemplate template = new TestRestTemplate();
 
 	@Test
 	public void resourceLoads() {
-		ResponseEntity<String> response = template.getForEntity("http://localhost:{port}/", String.class, port);
+		ResponseEntity<String> response = template.getForEntity("/", String.class);
 		assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
 	}
 }

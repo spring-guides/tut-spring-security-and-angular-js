@@ -1,3 +1,4 @@
-security:
-  user:
-    password: password
+spring:
+  security:
+    user:
+      password: password

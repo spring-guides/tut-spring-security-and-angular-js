@@ -25,11 +25,12 @@ dist/
 nbdist/
 .nb-gradle/# See http://help.github.com/ignore-files/ for more about ignoring files.
 .vscode/*
-!.vscode/settings.json
 !.vscode/tasks.json
+!.vscode/launch.test.json
 !.vscode/launch.json
 !.vscode/extensions.json
 node/
 node_modules/
+.angular/
 e2e/*.js
 e2e/*.map

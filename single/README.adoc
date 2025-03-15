@@ -11,7 +11,7 @@ up on the basic building blocks of the application or build it from scratch by
 reading the
 <<_spring_and_angular_js_a_secure_single_page_application,first section>>, or
 you can just go straight to the
-https://github.com/dsyer/spring-security-angular/tree/master/single[source code in Github].
+https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/single[source code in Github].
 In the first section we built a simple application that used HTTP Basic
 authentication to protect the backend resources. In this one we add a login
 form, give the user some control over whether to authenticate or not, and fix
@@ -188,7 +188,7 @@ This is a useful trick in a Spring Security application. If the "/user" resource
 
 === Handling the Login Request on the Server
 
-Spring Security makes it easy to handle the login request. We just need to add some configuration to our https://github.com/dsyer/spring-security-angular/blob/master/single/src/main/java/demo/UiApplication.java[main application class] (e.g. as an inner class):
+Spring Security makes it easy to handle the login request. We just need to add some configuration to our https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/single/src/main/java/demo/UiApplication.java[main application class] (e.g. as an inner class):
 
 .UiApplication.java
 [source,java]
@@ -200,7 +200,6 @@ public class UiApplication {
   ...
 
   @Configuration
-  @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
   protected static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -218,14 +217,19 @@ public class UiApplication {
 
 This is a standard Spring Boot application with Spring Security customization, just allowing anonymous access to the static (HTML) resources. The HTML resources need to be available to anonymous users, not just ignored by Spring Security, for reasons that will become clear.
 
-The last thing we need to remember is to make the JavaScript components provided by Angular available anonymously to the application. We could do that in the `HttpSecurity` configuration above, but since it is static content, it's better to simply ignore it:
+The last thing we need to remember is to make the JavaScript components provided by Angular available anonymously to the application. We can do that in the `HttpSecurity` configuration above, and since it is static content, it's better to simply ignore it (together with the favicon that the browser likes to see):
 
-.application.yml
-[source,yaml]
+.UiApplication.java
+[source,java]
 ----
-security:
-  ignored:
-  - "*.bundle.*"
+@Configuration
+protected static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring().antMatchers("/*.bundle.*", "/favicon.ico");
+    }
+    ...
+}
 ----
 
 == Adding Default HTTP Request Headers

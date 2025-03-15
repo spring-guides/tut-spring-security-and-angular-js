@@ -3,7 +3,7 @@
 
 In this section we continue
 <<_spring_and_angular_js_a_secure_single_page_application,our discussion>>
-of how to use http://projects.spring.io/spring-security[Spring Security] with
+of how to use https://projects.spring.io/spring-security[Spring Security] with
 https://angular.io/[Angular] in a "single page application". Here we show how
 to use Angular to authenticate a user via a form and fetch a secure resource to
 render in the UI. This is the second in a series of sections, and you can catch
@@ -341,9 +341,9 @@ The interactions between the browser and the backend can be seen in your browser
 
 The responses that are marked "ignored" above are HTML responses received by Angular in an XHR call, and since we aren't processing that data the HTML is dropped on the floor. We do look for an authenticated user in the case of the "/user" resource, but since it isn't there in the first call, that response is dropped.
 
-Look more closely at the requests and you will see that they all have cookies. If you start with a clean browser (e.g. incognito in Chrome), the very first request has no cookies going off to the server, but the server sends back "Set-Cookie" for "JSESSIONID" (the regular `HttpSession`) and "X-XSRF-TOKEN" (the CRSF cookie that we set up above). Subsequent requests all have those cookies, and they are important: the application doesn't work without them, and they are providing some really basic security features (authentication and CSRF protection). The values of the cookies change when the user authenticates (after the POST) and this is another important security feature (preventing http://en.wikipedia.org/wiki/Session_fixation[session fixation attacks]).
+Look more closely at the requests and you will see that they all have cookies. If you start with a clean browser (e.g. incognito in Chrome), the very first request has no cookies going off to the server, but the server sends back "Set-Cookie" for "JSESSIONID" (the regular `HttpSession`) and "X-XSRF-TOKEN" (the CRSF cookie that we set up above). Subsequent requests all have those cookies, and they are important: the application doesn't work without them, and they are providing some really basic security features (authentication and CSRF protection). The values of the cookies change when the user authenticates (after the POST) and this is another important security feature (preventing https://en.wikipedia.org/wiki/Session_fixation[session fixation attacks]).
 
-NOTE: It is not adequate for CSRF protection to rely on a cookie being sent back to the server because the browser will automatically send it even if you are not in a page loaded from your application (a Cross Site Scripting attack, otherwise known as http://en.wikipedia.org/wiki/Cross-site_scripting[XSS]). The header is not automatically sent, so the origin is under control. You might see that in our application the CSRF token is sent to the client as a cookie, so we will see it being sent back automatically by the browser, but it is the header that provides the protection.
+NOTE: It is not adequate for CSRF protection to rely on a cookie being sent back to the server because the browser will automatically send it even if you are not in a page loaded from your application (a Cross Site Scripting attack, otherwise known as https://en.wikipedia.org/wiki/Cross-site_scripting[XSS]). The header is not automatically sent, so the origin is under control. You might see that in our application the CSRF token is sent to the client as a cookie, so we will see it being sent back automatically by the browser, but it is the header that provides the protection.
 
 == Help, How is My Application Going to Scale?
 
@@ -353,7 +353,7 @@ NOTE: It is not adequate for CSRF protection to rely on a cookie being sent back
 
 The good news is you have a choice. The easiest choice is to store the session data in-memory, and rely on sticky sessions in your load balancer to route requests from the same session back to the same JVM (they all support that somehow). That's good enough to get you off the ground and will work for a _really_ large number of use cases. The other choice is to share the session data between instances of your application. As long as you are strict and only store the security data, it is small and changes infrequently (only when users log in and out, or their session times out), so there shouldn't be any major infrastructure problems. It's also really easy to do with https://github.com/spring-projects/spring-session/[Spring Session]. We'll be using Spring Session in the next section in this series, so there's no need to go into any detail about how to set it up here, but it is literally a few lines of code and a Redis server, which is super fast.
 
-TIP: Another easy way to set up shared session state is to deploy your application as a WAR file to Cloud Foundry http://run.pivotal.io[Pivotal Web Services] and bind it to a Redis service.
+TIP: Another easy way to set up shared session state is to deploy your application as a WAR file to Cloud Foundry https://run.pivotal.io[Pivotal Web Services] and bind it to a Redis service.
 
 == But, What about My Custom Token Implementation (it's Stateless, Look)?
 

@@ -7,7 +7,7 @@ In this tutorial we show some nice features of Spring Security, Spring Boot and 
 
 HTML5, rich browser-based features, and the "single page application" are extremely valuable tools for modern developers, but any meaningful interactions will involve a backend server, so as well as static content (HTML, CSS and JavaScript) we are going to need a backend server. The backend server can play any or all of a number of roles: serving static content, sometimes (but not so often these days) rendering dynamic HTML, authenticating users, securing access to protected resources, and (last but not least) interacting with JavaScript in the browser through HTTP and JSON (sometimes referred to as a REST API).
 
-Spring has always been a popular technology for building the backend features (especially in the enterprise), and with the advent of http://projects.spring.io/spring-boot[Spring Boot] things have never been easier. Let's have a look at how to build a new single page application from nothing using Spring Boot, Angular and Twitter Bootstrap. There's no particular reason to choose that specific stack, but it is quite popular, especially with the core Spring constituency in enterprise Java shops, so it's a worthwhile starting point.
+Spring has always been a popular technology for building the backend features (especially in the enterprise), and with the advent of https://projects.spring.io/spring-boot[Spring Boot] things have never been easier. Let's have a look at how to build a new single page application from nothing using Spring Boot, Angular and Twitter Bootstrap. There's no particular reason to choose that specific stack, but it is quite popular, especially with the core Spring constituency in enterprise Java shops, so it's a worthwhile starting point.
 
 == Create a New Project
 
@@ -36,7 +36,7 @@ You can then import that project (it's a normal Maven Java project by default) i
 [[using-spring-boot-cli]]
 === Using Spring Boot CLI
 
-You can create the same project using the http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#getting-started-installing-the-cli[Spring Boot CLI], like this:
+You can create the same project using the https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#getting-started-installing-the-cli[Spring Boot CLI], like this:
 
 [source]
 ----
@@ -53,7 +53,7 @@ If you prefer you can also get the same code directly as a .zip file from the ht
 [[using-spring-tool-suite]]
 === Using Spring Tool Suite
 
-In http://spring.io/tools/sts[Spring Tool Suite] (a set of Eclipse plugins) you can also create and import a project using a wizard at `File-&gt;New-&gt;Spring Starter Project`. Then jump to the link:#add-a-home-page[next section]. IntelliJ IDEA and NetBeans have similar features.
+In https://spring.io/tools/sts[Spring Tool Suite] (a set of Eclipse plugins) you can also create and import a project using a wizard at `File-&gt;New-&gt;Spring Starter Project`. Then jump to the link:#add-a-home-page[next section]. IntelliJ IDEA and NetBeans have similar features.
 
 [[add-a-home-page]]
 == Add an Angular App
@@ -230,7 +230,7 @@ The interactions between the browser and the backend can be seen in your browser
 |GET |/resource |200 |JSON greeting
 |===
 
-You might not see the 401 because the browser treats the home page load as a single interaction, and you might see 2 requests for "/resource" because there is a http://en.wikipedia.org/wiki/Cross-origin_resource_sharing[CORS] negotiation.
+You might not see the 401 because the browser treats the home page load as a single interaction, and you might see 2 requests for "/resource" because there is a https://en.wikipedia.org/wiki/Cross-origin_resource_sharing[CORS] negotiation.
 
 Look more closely at the requests and you will see that all of them have an "Authorization" header, something like this:
 
@@ -249,12 +249,12 @@ On the face of it, it seems like we did a pretty good job, it's concise, easy to
 
 * The authentication UI is ubiquitous but ugly (browser dialog).
 
-* There is no protection from http://en.wikipedia.org/wiki/Cross-site_request_forgery[Cross Site Request Forgery] (CSRF).
+* There is no protection from https://en.wikipedia.org/wiki/Cross-site_request_forgery[Cross Site Request Forgery] (CSRF).
 
 CSRF isn't really an issue with our application as it stands since it only needs to GET the backend resources (i.e. no state is changed in the server). As soon as you have a POST, PUT or DELETE in your application it simply isn't secure any more by any reasonable modern measure.
 
 In the <<_the_login_page_angular_js_and_spring_security_part_ii,next section in this series>> we will extend the application to use form-based authentication, which is a lot more flexible than HTTP Basic. Once we have a form we will need CSRF protection, and both Spring Security and Angular have some nice out-of-the box features to help with this. Spoiler: we are going to need to use the `HttpSession`.
 
 ****
-Thanks: I would like to thank everyone who helped me develop this series, and in particular http://spring.io/team/rwinch[Rob Winch] and https://twitter.com/thspaeth[Thorsten Spaeth] for their careful reviews of the text and source code, and for teaching me a few tricks I didn't know even about the parts I thought I was most familiar with.
+Thanks: I would like to thank everyone who helped me develop this series, and in particular https://spring.io/team/rwinch[Rob Winch] and https://twitter.com/thspaeth[Thorsten Spaeth] for their careful reviews of the text and source code, and for teaching me a few tricks I didn't know even about the parts I thought I was most familiar with.
 ****

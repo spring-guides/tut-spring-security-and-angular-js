@@ -1,7 +1,7 @@
 [[_the_resource_server_angular_js_and_spring_security_part_iii]]
 = The Resource Server
 
-In this section we continue <<_the_login_page_angular_js_and_spring_security_part_ii,our discussion>> of how to use http://projects.spring.io/spring-security[Spring Security] with http://angular.io[Angular] in a "single page application". Here we start by breaking out the "greeting" resource that we are using as the dynamic content in our application into a separate server, first as an unprotected resource, and then protected by an opaque token. This is the third in a series of sections, and you can catch up on the basic building blocks of the application or build it from scratch by reading the <<_spring_and_angular_js_a_secure_single_page_application,first section>>, or you can just go straight to the source code in Github, which is in two parts: one where the https://github.com/dsyer/spring-security-angular/tree/master/vanilla[resource is unprotected], and one where it is https://github.com/dsyer/spring-security-angular/tree/master/spring-session[protected by a token].
+In this section we continue <<_the_login_page_angular_js_and_spring_security_part_ii,our discussion>> of how to use https://projects.spring.io/spring-security[Spring Security] with https://angular.io[Angular] in a "single page application". Here we start by breaking out the "greeting" resource that we are using as the dynamic content in our application into a separate server, first as an unprotected resource, and then protected by an opaque token. This is the third in a series of sections, and you can catch up on the basic building blocks of the application or build it from scratch by reading the <<_spring_and_angular_js_a_secure_single_page_application,first section>>, or you can just go straight to the source code in Github, which is in two parts: one where the https://github.com/dsyer/spring-security-angular/tree/master/vanilla[resource is unprotected], and one where it is https://github.com/dsyer/spring-security-angular/tree/master/spring-session[protected by a token].
 
 TIP: if you are working through this section with the sample application, be sure to clear your browser cache of cookies and HTTP Basic credentials. In Chrome the best way to do that for a single server is to open a new incognito window.
 
@@ -108,7 +108,7 @@ If you try loading that resource from the UI (on port 8080) in a browser, you wi
 
 The browser tries to negotiate with our resource server to find out if it is
 allowed to access it according to the
-http://en.wikipedia.org/wiki/Cross-origin_resource_sharing[Cross Origin Resource Sharing]
+https://en.wikipedia.org/wiki/Cross-origin_resource_sharing[Cross Origin Resource Sharing]
 protocol.
 It's not an Angular responsibility, so just like the cookie contract it will
 work like this with all JavaScript in the browser.
@@ -201,7 +201,7 @@ Spring Boot and Spring Session work together to connect to Redis and store sessi
 
 With that 1 line of code in place and a Redis server running on localhost you can run the UI application, login with some valid user credentials, and the session data (the authentication) will be stored in redis.
 
-TIP: if you don't have a redis server running locally you can easily spin one up with https://www.docker.com/[Docker] (on Windows or MacOS this requires a VM). There is a http://docs.docker.com/compose/[`docker-compose.yml`] file in the https://github.com/dsyer/spring-security-angular/tree/master/spring-session/docker-compose.yml[source code in Github] which you can run really easily on the command line with `docker-compose up`. If you do this in a VM the Redis server will be running on a different host than localhost, so you either need to tunnel it onto localhost, or configure the app to point at the correct `spring.redis.host` in your `application.properties`.
+TIP: if you don't have a redis server running locally you can easily spin one up with https://www.docker.com/[Docker] (on Windows or MacOS this requires a VM). There is a https://docs.docker.com/compose/[`docker-compose.yml`] file in the https://github.com/dsyer/spring-security-angular/tree/master/spring-session/docker-compose.yml[source code in Github] which you can run really easily on the command line with `docker-compose up`. If you do this in a VM the Redis server will be running on a different host than localhost, so you either need to tunnel it onto localhost, or configure the app to point at the correct `spring.redis.host` in your `application.properties`.
 
 == Sending a Custom Token from the UI
 

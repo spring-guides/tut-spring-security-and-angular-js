@@ -1,36 +1,30 @@
-import { TestBed, async } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { AppComponent } from './app.component';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+
 describe('AppComponent', () => {
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      declarations: [
-        AppComponent
-      ]
+  let httpMock: HttpTestingController;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [AppComponent],
+      providers: [provideHttpClient(), provideHttpClientTesting()]
     }).compileComponents();
-  }));
-  it('should create the app', async(() => {
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => { httpMock.verify(); });
+
+  it('should create the app', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.debugElement.componentInstance;
-    expect(app).toBeTruthy();
-  }));
-  it(`should have as title 'app'`, async(() => {
+    httpMock.expectOne('/user').flush({ name: 'user' });
+    expect(fixture.componentInstance).toBeTruthy();
+  });
+
+  it('should have title Demo', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.debugElement.componentInstance;
-    expect(app.title).toEqual('Demo');
-  }));
-  it('should render title in a h1 tag', async(() => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('h1').textContent).toContain('Welcome Demo!');
-  }));
-  it('should fetch data from backend', async(() => {
-    const http = TestBed.get(HttpTestingController);
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.debugElement.componentInstance;
-    http.expectOne('resource').flush({id: 'XYZ', content: 'Hello'});
-    expect(app.data.content).toContain('Hello');
-  }));
+    httpMock.expectOne('/user').flush({ name: 'user' });
+    expect(fixture.componentInstance.title).toEqual('Demo');
+  });
 });

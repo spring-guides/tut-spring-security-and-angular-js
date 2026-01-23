@@ -1,19 +1,29 @@
-import { Component, OnInit } from '@angular/core';
-import { AppService } from './app.service';
+import { Component, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { AppService } from './app.service';
+
+interface Greeting {
+  id?: number;
+  content?: string;
+}
 
 @Component({
+  selector: 'app-home',
+  standalone: true,
   templateUrl: './home.component.html'
 })
 export class HomeComponent {
-
   title = 'Demo';
-  greeting = {};
+  greeting: Greeting = {};
 
-  constructor(private app: AppService, private http: HttpClient) {
-    http.get('resource').subscribe(data => this.greeting = data);
+  private app = inject(AppService);
+  private http = inject(HttpClient);
+
+  constructor() {
+    this.http.get<Greeting>('resource').subscribe(data => this.greeting = data);
   }
 
-  authenticated() { return this.app.authenticated; }
-
+  authenticated(): boolean {
+    return this.app.authenticated;
+  }
 }

@@ -1,24 +1,33 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
+  standalone: true,
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
+  private http = inject(HttpClient);
+
   title = 'Demo';
-  greeting = {};
+  greeting: { id?: string; content?: string } = {};
   authenticated = false;
   user = '';
-  constructor(private http: HttpClient) {
-    http.get('/user').subscribe(data => {
-      if (data['name']) {
-        this.authenticated = true;
-        http.get('/resource').subscribe(response => this.greeting = response);
-      } else {
+
+  constructor() {
+    this.http.get<{ name?: string }>('/user').subscribe({
+      next: (data) => {
+        if (data['name']) {
+          this.authenticated = true;
+          this.http.get<{ id?: string; content?: string }>('/resource').subscribe(response => this.greeting = response);
+        } else {
+          this.authenticated = false;
+        }
+      },
+      error: () => {
         this.authenticated = false;
       }
-    }, () => { this.authenticated = false; });
+    });
   }
 }

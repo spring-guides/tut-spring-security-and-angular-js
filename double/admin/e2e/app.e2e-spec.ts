@@ -1,14 +1,8 @@
-import { AppPage } from './app.po';
+import { test, expect } from '@playwright/test';
 
-describe('client App', () => {
-  let page: AppPage;
-
-  beforeEach(() => {
-    page = new AppPage();
-  });
-
-  it('should display welcome message', () => {
-    page.navigateTo();
-    expect(page.getParagraphText()).toEqual('Admin');
+test.describe('client App', () => {
+  test('should display admin heading', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('h1')).toHaveText('Admin');
   });
 });

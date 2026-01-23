@@ -1,29 +1,26 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class AppService {
-
   authenticated = false;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {
+  authenticate(credentials: { username: string; password: string } | undefined, callback?: () => void): void {
+    const headers = new HttpHeaders(credentials ? {
+      authorization: 'Basic ' + btoa(credentials.username + ':' + credentials.password)
+    } : {});
+
+    this.http.get<{ name?: string }>('user', { headers }).subscribe({
+      next: (response) => {
+        this.authenticated = !!response?.name;
+        if (callback) {
+          callback();
+        }
+      },
+      error: () => {
+        this.authenticated = false;
+      }
+    });
   }
-
-  authenticate(credentials, callback) {
-
-        const headers = new HttpHeaders(credentials ? {
-            authorization : 'Basic ' + btoa(credentials.username + ':' + credentials.password)
-        } : {});
-
-        this.http.get('user', {headers: headers}).subscribe(response => {
-            if (response['name']) {
-                this.authenticated = true;
-            } else {
-                this.authenticated = false;
-            }
-            return callback && callback();
-        });
-
-    }
-
 }

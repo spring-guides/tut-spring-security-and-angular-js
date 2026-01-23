@@ -1,23 +1,25 @@
-import { Component, OnInit } from '@angular/core';
-import { AppService } from './app.service';
-import { HttpClient } from '@angular/common/http';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { AppService } from './app.service';
 
 @Component({
+  selector: 'app-login',
+  standalone: true,
+  imports: [FormsModule],
   templateUrl: './login.component.html'
 })
 export class LoginComponent {
+  credentials = { username: '', password: '' };
+  error = false;
 
-  credentials = {username: '', password: ''};
+  private app = inject(AppService);
+  private router = inject(Router);
 
-  constructor(private app: AppService, private http: HttpClient, private router: Router) {
-  }
-
-  login() {
-        this.app.authenticate(this.credentials, () => {
-        this.router.navigateByUrl('/');
+  login(): boolean {
+    this.app.authenticate(this.credentials, () => {
+      this.router.navigateByUrl('/');
     });
     return false;
   }
-
 }

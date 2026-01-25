@@ -21,8 +21,8 @@ public class ResourceApplication {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.httpBasic().disable();
-		http.authorizeRequests().anyRequest().authenticated();
+		http.httpBasic(httpBasic -> httpBasic.disable());
+		http.authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
 		return http.build();
 	}
 

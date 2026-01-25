@@ -53,11 +53,11 @@ public class ResourceApplication {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.httpBasic().disable()
-			.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
-		http.authorizeRequests()
-			.antMatchers(HttpMethod.POST, "/**").hasRole("WRITER")
-			.anyRequest().authenticated();
+		http.httpBasic(httpBasic -> httpBasic.disable())
+			.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
+		http.authorizeHttpRequests(authorize -> authorize
+			.requestMatchers(HttpMethod.POST, "/**").hasRole("WRITER")
+			.anyRequest().authenticated());
 		return http.build();
 	}
 }

@@ -8,6 +8,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -43,13 +44,11 @@ public class AdminApplication {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
       http
-        .httpBasic()
-        .and()
-        .authorizeRequests()
-          .antMatchers("/index.html", "/").permitAll()
-          .anyRequest().hasRole("ADMIN")
-        .and()
-        .csrf().disable();
+        .httpBasic(Customizer.withDefaults())
+        .authorizeHttpRequests(authorize -> authorize
+          .requestMatchers("/index.html", "/").permitAll()
+          .anyRequest().hasRole("ADMIN"))
+        .csrf(csrf -> csrf.disable());
       return http.build();
     }
   }

@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.session.web.http.HeaderHttpSessionIdResolver;
@@ -19,7 +20,8 @@ public class ResourceApplication {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.cors().and().authorizeRequests().anyRequest().authenticated();
+		http.cors(Customizer.withDefaults())
+			.authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
 		return http.build();
 	}
 

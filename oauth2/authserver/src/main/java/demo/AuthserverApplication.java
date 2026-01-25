@@ -73,8 +73,8 @@ public class AuthserverApplication implements WebMvcConfigurer {
 		@Order(2)
 		public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
 			http
-				.authorizeRequests(authorize -> authorize
-					.antMatchers("/login").permitAll()
+				.authorizeHttpRequests(authorize -> authorize
+					.requestMatchers("/login").permitAll()
 					.anyRequest().authenticated()
 				)
 				.formLogin(form -> form.loginPage("/login").permitAll());

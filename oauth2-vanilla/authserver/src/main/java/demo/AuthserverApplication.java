@@ -64,7 +64,7 @@ public class AuthserverApplication {
 		@Order(2)
 		public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
 			http
-				.authorizeRequests(authorize -> authorize.anyRequest().authenticated())
+				.authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
 				.formLogin(Customizer.withDefaults());
 			return http.build();
 		}

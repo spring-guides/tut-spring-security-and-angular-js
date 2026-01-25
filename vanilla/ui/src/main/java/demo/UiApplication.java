@@ -6,6 +6,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
@@ -38,16 +39,14 @@ public class UiApplication {
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             http
-                .formLogin().loginPage("/login").successForwardUrl("/user")
-                .and()
-                .logout()
-                .and()
-                .authorizeRequests()
-                    .antMatchers("/index.html", "/", "/home").permitAll()
+                .formLogin(form -> form.loginPage("/login").successForwardUrl("/user"))
+                .logout(Customizer.withDefaults())
+                .authorizeHttpRequests(authorize -> authorize
+                    .requestMatchers("/index.html", "/", "/home").permitAll()
                     .anyRequest().authenticated()
-                .and()
-                .csrf()
-                    .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+                )
+                .csrf(csrf -> csrf
+                    .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
             return http.build();
         }
     }

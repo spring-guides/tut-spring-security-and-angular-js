@@ -4,12 +4,13 @@ import java.security.Principal;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
@@ -30,16 +31,14 @@ public class UiApplication {
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             http
-                .httpBasic()
-                .and()
-                .logout()
-                .and()
-                .authorizeRequests()
-                    .antMatchers("/index.html", "/", "/home", "/login").permitAll()
+                .httpBasic(Customizer.withDefaults())
+                .logout(Customizer.withDefaults())
+                .authorizeHttpRequests(authorize -> authorize
+                    .requestMatchers("/index.html", "/", "/home", "/login").permitAll()
                     .anyRequest().authenticated()
-                .and()
-                .csrf()
-                    .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+                )
+                .csrf(csrf -> csrf
+                    .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
             return http.build();
         }
     }

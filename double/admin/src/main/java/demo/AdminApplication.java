@@ -6,11 +6,12 @@ import java.util.Map;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -38,19 +39,18 @@ public class AdminApplication {
   }
 
   @Configuration
-  protected static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-      // @formatter:off
-			http
-				.httpBasic()
-			.and()
-				.authorizeRequests()
-					.antMatchers("/index.html", "/").permitAll()
-					.anyRequest().hasRole("ADMIN")
-			.and()
-				.csrf().disable();
-			// @formatter:on
+  protected static class SecurityConfiguration {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+      http
+        .httpBasic()
+        .and()
+        .authorizeRequests()
+          .antMatchers("/index.html", "/").permitAll()
+          .anyRequest().hasRole("ADMIN")
+        .and()
+        .csrf().disable();
+      return http.build();
     }
   }
 

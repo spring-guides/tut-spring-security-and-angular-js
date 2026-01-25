@@ -4,18 +4,19 @@ import java.security.Principal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
-import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +24,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @SpringBootApplication
 @Controller
-@EnableZuulProxy
 public class GatewayApplication {
 
   @RequestMapping("/user")
@@ -40,34 +40,36 @@ public class GatewayApplication {
   }
 
   @Configuration
-  @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
-  protected static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+  protected static class SecurityConfiguration {
 
-    @Autowired
-    public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
-      // @formatter:off
-			auth.inMemoryAuthentication()
-				.withUser("user").password("password").roles("USER")
-			.and()
-				.withUser("admin").password("admin").roles("USER", "ADMIN", "READER", "WRITER")
-			.and()
-				.withUser("audit").password("audit").roles("USER", "ADMIN", "READER");
-// @formatter:on
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+      return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-      // @formatter:off
-			http
-				.httpBasic().and()
-				.logout().and()
-				.authorizeRequests()
-					.antMatchers("/index.html", "/").permitAll()
-					.anyRequest().authenticated()
-					.and()
-				.csrf()
-					.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
-			// @formatter:on
+    @Bean
+    public UserDetailsService userDetailsService(PasswordEncoder encoder) {
+      InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+      manager.createUser(User.withUsername("user").password(encoder.encode("password")).roles("USER").build());
+      manager.createUser(User.withUsername("admin").password(encoder.encode("admin")).roles("USER", "ADMIN", "READER", "WRITER").build());
+      manager.createUser(User.withUsername("audit").password(encoder.encode("audit")).roles("USER", "ADMIN", "READER").build());
+      return manager;
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+      http
+        .httpBasic()
+        .and()
+        .logout()
+        .and()
+        .authorizeRequests()
+          .antMatchers("/index.html", "/").permitAll()
+          .anyRequest().authenticated()
+        .and()
+        .csrf()
+          .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+      return http.build();
     }
   }
 

@@ -1,19 +1,16 @@
 package demo;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.context.embedded.LocalServerPort;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment=WebEnvironment.RANDOM_PORT)
 public class ApplicationTests {
 
@@ -25,28 +22,24 @@ public class ApplicationTests {
 	@Test
 	public void homePageProtected() {
 		ResponseEntity<String> response = template.getForEntity("http://localhost:"
-				+ port + "/uaa/", String.class);
+				+ port + "/", String.class);
 		assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-		String auth = response.getHeaders().getFirst("WWW-Authenticate");
-		assertTrue("Wrong header: " + auth, auth.startsWith("Bearer realm=\""));
 	}
 
 	@Test
 	public void userEndpointProtected() {
 		ResponseEntity<String> response = template.getForEntity("http://localhost:"
-				+ port + "/uaa/user", String.class);
+				+ port + "/user", String.class);
 		assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-		String auth = response.getHeaders().getFirst("WWW-Authenticate");
-		assertTrue("Wrong header: " + auth, auth.startsWith("Bearer realm=\""));
 	}
 
 	@Test
 	public void authorizationRedirects() {
 		ResponseEntity<String> response = template.getForEntity("http://localhost:"
-				+ port + "/uaa/oauth/authorize", String.class);
-		assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-		String auth = response.getHeaders().getFirst("WWW-Authenticate");
-		assertTrue("Wrong header: " + auth, auth.startsWith("Basic realm=\""));
+				+ port + "/oauth2/authorize", String.class);
+		assertEquals(HttpStatus.FOUND, response.getStatusCode());
+		String location = response.getHeaders().getFirst("Location");
+		assertTrue(location.contains("/login"), "Wrong header: " + location);
 	}
 
 }

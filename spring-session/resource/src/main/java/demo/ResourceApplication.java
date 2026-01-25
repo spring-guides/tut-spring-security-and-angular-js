@@ -6,19 +6,21 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.session.web.http.HeaderHttpSessionStrategy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.session.web.http.HeaderHttpSessionIdResolver;
+import org.springframework.session.web.http.HttpSessionIdResolver;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
 @RestController
-public class ResourceApplication extends WebSecurityConfigurerAdapter {
+public class ResourceApplication {
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.cors().and().authorizeRequests().anyRequest().authenticated();
+		return http.build();
 	}
 
 	@RequestMapping("/")
@@ -28,8 +30,8 @@ public class ResourceApplication extends WebSecurityConfigurerAdapter {
 	}
 
 	@Bean
-	HeaderHttpSessionStrategy sessionStrategy() {
-		return new HeaderHttpSessionStrategy();
+	HttpSessionIdResolver sessionStrategy() {
+		return HeaderHttpSessionIdResolver.xAuthToken();
 	}
 
 	public static void main(String[] args) {

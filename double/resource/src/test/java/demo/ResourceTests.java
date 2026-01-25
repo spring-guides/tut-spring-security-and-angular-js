@@ -1,15 +1,15 @@
 package demo;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.security.Principal;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 
 public class ResourceTests {
-	
+
 	private ResourceApplication resource = new ResourceApplication();
 
 	@Test
@@ -26,7 +26,7 @@ public class ResourceTests {
 
 	@Test
 	public void changesOverflow() {
-		for (int i=1; i<=11; i++) { resource.changes().add(new Change("foo", "bar")); } 
+		for (int i=1; i<=11; i++) { resource.changes().add(new Change("foo", "bar")); }
 		Principal user = new UsernamePasswordAuthenticationToken("admin", "");
 		resource.update(new Message("Foo"), user);
 		assertEquals(10, resource.changes().size());

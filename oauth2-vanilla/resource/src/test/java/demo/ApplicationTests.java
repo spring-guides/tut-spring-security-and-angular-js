@@ -1,19 +1,16 @@
 package demo;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.context.embedded.LocalServerPort;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment=WebEnvironment.RANDOM_PORT)
 public class ApplicationTests {
 
@@ -27,6 +24,6 @@ public class ApplicationTests {
 		ResponseEntity<String> response = template.getForEntity("http://localhost:{port}/", String.class, port);
 		assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
 		String auth = response.getHeaders().getFirst("WWW-Authenticate");
-		assertTrue("Wrong header: " + auth , auth.startsWith("Bearer"));
+		assertTrue(auth.startsWith("Bearer"), "Wrong header: " + auth);
 	}
 }

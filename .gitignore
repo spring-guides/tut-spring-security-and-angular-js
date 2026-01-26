@@ -33,3 +33,7 @@ node/
 node_modules/
 e2e/*.js
 e2e/*.map
+.angular/
+failed_builds.log
+# Angular build outputs in src/main/resources
+**/src/main/resources/static/

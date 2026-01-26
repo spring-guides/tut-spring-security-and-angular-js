@@ -6,6 +6,10 @@ import java.util.UUID;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,6 +23,15 @@ public class UiApplication {
 		model.put("id", UUID.randomUUID().toString());
 		model.put("content", "Hello World");
 		return model;
+	}
+
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http
+			.httpBasic(Customizer.withDefaults())
+			.authorizeHttpRequests(authorize -> authorize
+				.anyRequest().authenticated());
+		return http.build();
 	}
 
 	public static void main(String[] args) {

@@ -39,10 +39,10 @@ public class UiApplication {
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             http
-                .formLogin(form -> form.loginPage("/login").successForwardUrl("/user"))
+                .formLogin(form -> form.loginPage("/login").successForwardUrl("/user").permitAll())
                 .logout(Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> authorize
-                    .requestMatchers("/index.html", "/", "/home").permitAll()
+                    .requestMatchers("/index.html", "/", "/home", "/login", "/*.js", "/*.css", "/*.ico").permitAll()
                     .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf

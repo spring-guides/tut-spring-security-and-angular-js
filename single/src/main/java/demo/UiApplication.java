@@ -52,7 +52,7 @@ public class UiApplication {
             http
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> authorize
-                    .requestMatchers("/index.html", "/", "/home", "/login").permitAll()
+                    .requestMatchers("/index.html", "/", "/home", "/login", "/*.js", "/*.css", "/*.ico").permitAll()
                     .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf

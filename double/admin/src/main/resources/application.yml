@@ -1,13 +1,14 @@
 logging:
   level:
     org.springframework.security: DEBUG
-security:
-  user:
-    role: USER,ADMIN
-  ignored:
-  - "*.bundle.*"
 spring:
+  security:
+    user:
+      roles: USER,ADMIN
   session:
     store-type: redis
+  web:
+    resources:
+      static-locations: classpath:/static/browser/
 server:
   port: 8082

@@ -1,8 +1,10 @@
-security:
-  user:
-    password: password
-  ignored:
-  - "*.bundle.*"
+spring:
+  security:
+    user:
+      password: password
+  web:
+    resources:
+      static-locations: classpath:/static/browser/
 logging:
   level:
     org.springframework.security: DEBUG

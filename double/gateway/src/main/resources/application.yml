@@ -1,22 +1,25 @@
 logging:
   level:
     org.springframework.security: DEBUG
-security:
-  sessions: ALWAYS
-  ignored:
-  - "*.bundle.*"
-  - favicon.ico
 spring:
   session:
     store-type: redis
-zuul:
-  routes:
-    ui:
-      url: http://localhost:8081
-      sensitive-headers:
-    admin:
-      url: http://localhost:8082
-      sensitive-headers:
-    resource:
-      url: http://localhost:9000
-      sensitive-headers:
+  cloud:
+    gateway:
+      routes:
+        - id: ui
+          uri: http://localhost:8081
+          predicates:
+            - Path=/ui/**
+          filters:
+            - StripPrefix=1
+        - id: admin
+          uri: http://localhost:8082
+          predicates:
+            - Path=/admin/**
+          filters:
+            - StripPrefix=1
+        - id: resource
+          uri: http://localhost:9000
+          predicates:
+            - Path=/resource/**

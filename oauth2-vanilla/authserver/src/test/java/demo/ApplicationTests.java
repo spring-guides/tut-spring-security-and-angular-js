@@ -21,25 +21,29 @@ public class ApplicationTests {
 
 	@Test
 	public void homePageProtected() {
+		// Form login redirects to login page, TestRestTemplate follows redirect
 		ResponseEntity<String> response = template.getForEntity("http://localhost:"
 				+ port + "/", String.class);
-		assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertTrue(response.getBody().contains("login"), "Should show login page");
 	}
 
 	@Test
 	public void userEndpointProtected() {
+		// Form login redirects to login page, TestRestTemplate follows redirect
 		ResponseEntity<String> response = template.getForEntity("http://localhost:"
 				+ port + "/user", String.class);
-		assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertTrue(response.getBody().contains("login"), "Should show login page");
 	}
 
 	@Test
 	public void authorizationRedirects() {
+		// Authorization endpoint redirects to login, TestRestTemplate follows redirect
 		ResponseEntity<String> response = template.getForEntity("http://localhost:"
 				+ port + "/oauth2/authorize", String.class);
-		assertEquals(HttpStatus.FOUND, response.getStatusCode());
-		String location = response.getHeaders().getFirst("Location");
-		assertTrue(location.contains("/login"), "Wrong header: " + location);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertTrue(response.getBody().contains("login"), "Should show login page");
 	}
 
 }

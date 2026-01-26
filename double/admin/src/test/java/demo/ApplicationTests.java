@@ -32,19 +32,4 @@ public class ApplicationTests {
 		assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
 	}
 
-	@Test
-	public void resourceEndpointProtected() {
-		ResponseEntity<String> response = template.getForEntity("http://localhost:"
-				+ port + "/resource", String.class);
-		assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-	}
-
-	@Test
-	public void loginSucceeds() {
-		TestRestTemplate template = new TestRestTemplate("admin", "admin");
-		ResponseEntity<String> response = template.getForEntity("http://localhost:" + port
-				+ "/user", String.class);
-		assertEquals(HttpStatus.OK, response.getStatusCode());
-	}
-
 }

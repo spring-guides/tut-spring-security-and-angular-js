@@ -1,14 +1,16 @@
-security:
-  user:
-    password: password
-  ignored:
-  - "*.bundle.*"
 spring:
+  security:
+    user:
+      password: password
   session:
     store-type: redis
-zuul:
-  routes:
-    resource:
-      path: /resource/**
-      url: http://localhost:9000
-      sensitive-headers:
+  web:
+    resources:
+      static-locations: classpath:/static/browser/
+  cloud:
+    gateway:
+      routes:
+        - id: resource
+          uri: http://localhost:9000
+          predicates:
+            - Path=/resource/**

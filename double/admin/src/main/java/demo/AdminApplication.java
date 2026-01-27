@@ -46,7 +46,7 @@ public class AdminApplication {
       http
         .httpBasic(Customizer.withDefaults())
         .authorizeHttpRequests(authorize -> authorize
-          .requestMatchers("/index.html", "/").permitAll()
+          .requestMatchers("/index.html", "/", "/*.js", "/*.css", "/*.ico", "/*.txt", "/*.json").permitAll()
           .anyRequest().hasRole("ADMIN"))
         .csrf(csrf -> csrf.disable());
       return http.build();

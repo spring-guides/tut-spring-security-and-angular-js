@@ -42,7 +42,7 @@ public class UiApplication {
       http
         .httpBasic(Customizer.withDefaults())
         .authorizeHttpRequests(authorize -> authorize
-          .requestMatchers("/index.html", "/app.html", "/").permitAll()
+          .requestMatchers("/index.html", "/app.html", "/", "/*.js", "/*.css", "/*.ico", "/*.txt", "/*.json").permitAll()
           .anyRequest().hasRole("USER"));
       return http.build();
     }

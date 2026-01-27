@@ -63,7 +63,7 @@ public class GatewayApplication {
         .httpBasic(Customizer.withDefaults())
         .logout(Customizer.withDefaults())
         .authorizeHttpRequests(authorize -> authorize
-          .requestMatchers("/index.html", "/").permitAll()
+          .requestMatchers("/index.html", "/", "/*.js", "/*.css", "/*.ico", "/*.txt", "/*.json").permitAll()
           .anyRequest().authenticated())
         .csrf(csrf -> csrf
           .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));

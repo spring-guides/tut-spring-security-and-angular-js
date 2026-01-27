@@ -4,6 +4,9 @@ logging:
 spring:
   session:
     store-type: redis
+  web:
+    resources:
+      static-locations: classpath:/static/browser/
   cloud:
     gateway:
       routes:

@@ -24,6 +24,7 @@ import org.springframework.security.oauth2.server.authorization.client.InMemoryR
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
+import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
@@ -65,6 +66,8 @@ public class AuthserverApplication implements WebMvcConfigurer {
 		@Order(1)
 		public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
 			OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
+			http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+				.oidc(Customizer.withDefaults());
 			http.formLogin(Customizer.withDefaults());
 			return http.build();
 		}
@@ -74,7 +77,7 @@ public class AuthserverApplication implements WebMvcConfigurer {
 		public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
 			http
 				.authorizeHttpRequests(authorize -> authorize
-					.requestMatchers("/login").permitAll()
+					.requestMatchers("/login", "/webjars/**", "/favicon.ico").permitAll()
 					.anyRequest().authenticated()
 				)
 				.formLogin(form -> form.loginPage("/login").permitAll());

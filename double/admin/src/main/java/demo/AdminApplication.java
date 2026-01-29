@@ -8,8 +8,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.SecurityFilterChain;
@@ -44,7 +44,8 @@ public class AdminApplication {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
       http
-        .httpBasic(Customizer.withDefaults())
+        // No httpBasic - rely on shared session from Gateway
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.NEVER))
         .authorizeHttpRequests(authorize -> authorize
           .requestMatchers("/index.html", "/", "/*.js", "/*.css", "/*.ico", "/*.txt", "/*.json").permitAll()
           .anyRequest().hasRole("ADMIN"))

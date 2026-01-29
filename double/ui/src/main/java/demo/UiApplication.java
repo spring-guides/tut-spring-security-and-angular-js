@@ -8,9 +8,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,10 +39,14 @@ public class UiApplication {
 
   @Configuration
   protected static class SecurityConfiguration {
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
       http
-        .httpBasic(Customizer.withDefaults())
+        // No httpBasic - rely on shared session from Gateway
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.NEVER))
+        // Explicitly use HttpSession to restore SecurityContext from shared Redis session
+        .securityContext(context -> context.securityContextRepository(new HttpSessionSecurityContextRepository()))
         .authorizeHttpRequests(authorize -> authorize
           .requestMatchers("/index.html", "/app.html", "/", "/*.js", "/*.css", "/*.ico", "/*.txt", "/*.json").permitAll()
           .anyRequest().hasRole("USER"));

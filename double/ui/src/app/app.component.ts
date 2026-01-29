@@ -20,6 +20,7 @@ export class AppComponent {
       next: (data) => {
         if (data['name']) {
           this.authenticated = true;
+          this.user = data['name'];
           this.http.get<{ id?: string; content?: string }>('/resource').subscribe(response => this.greeting = response);
         } else {
           this.authenticated = false;

@@ -11,8 +11,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -53,11 +55,16 @@ public class ResourceApplication {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.httpBasic(httpBasic -> httpBasic.disable())
-			.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
-		http.authorizeHttpRequests(authorize -> authorize
-			.requestMatchers(HttpMethod.POST, "/**").hasRole("WRITER")
-			.anyRequest().authenticated());
+		http
+			// No httpBasic - rely on shared session from Gateway
+			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.NEVER))
+			.csrf(csrf -> csrf
+				.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+				.csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+			)
+			.authorizeHttpRequests(authorize -> authorize
+				.requestMatchers(HttpMethod.POST, "/**").hasRole("WRITER")
+				.anyRequest().authenticated());
 		return http.build();
 	}
 }

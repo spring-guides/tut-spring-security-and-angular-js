@@ -1,6 +1,6 @@
 logging:
   level:
-    org.springframework.security: DEBUG
+    org.springframework.security: TRACE
 spring:
   session:
     store-type: redis
@@ -9,20 +9,23 @@ spring:
       static-locations: classpath:/static/browser/
   cloud:
     gateway:
-      routes:
-        - id: ui
-          uri: http://localhost:8081
-          predicates:
-            - Path=/ui/**
-          filters:
-            - StripPrefix=1
-        - id: admin
-          uri: http://localhost:8082
-          predicates:
-            - Path=/admin/**
-          filters:
-            - StripPrefix=1
-        - id: resource
-          uri: http://localhost:9000
-          predicates:
-            - Path=/resource/**
+      mvc:
+        routes:
+          - id: ui
+            uri: http://localhost:8081
+            predicates:
+              - Path=/ui/**
+            filters:
+              - StripPrefix=1
+          - id: admin
+            uri: http://localhost:8082
+            predicates:
+              - Path=/admin/**
+            filters:
+              - StripPrefix=1
+          - id: resource
+            uri: http://localhost:9000
+            predicates:
+              - Path=/resource/**
+            filters:
+              - StripPrefix=1

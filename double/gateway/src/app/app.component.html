@@ -3,8 +3,8 @@
     <a class="brand" href='#/'>Home</a>
     <div class="navbar-right">
       <a class="btn btn-primary" href="#/login">login</a> <a
-        class="btn btn-primary" [hidden]="!authenticated" href=""
-        (click)="logout()">logout</a>
+        class="btn btn-primary" [hidden]="!authenticated"
+        (click)="logout(); $event.preventDefault()">logout</a>
       <p [hidden]="!authenticated">
         Signed in as <a href="#/" class="navbar-link">{{user}}</a>
       </p>

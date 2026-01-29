@@ -27,7 +27,7 @@ public class ApplicationTests {
 	@Test
 	public void userEndpointProtected() {
 		ResponseEntity<String> response = template.getForEntity("http://localhost:" + port + "/user", String.class);
-		assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+		assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
 	}
 
 }

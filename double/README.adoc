@@ -150,14 +150,13 @@ The UI backend does NOT authenticate users itself. Instead, it reads the authent
 .ui/src/main/java/demo/UiApplication.java
 [source,java]
 ----
-include::ui/src/main/java/demo/UiApplication.java[lines=40..55,indent=0]
+include::ui/src/main/java/demo/UiApplication.java[lines=39..49,indent=0]
 ----
 
 Key points:
 
 1. **No `httpBasic()`**: The UI doesn't authenticate - it relies on the Gateway.
 2. **`SessionCreationPolicy.NEVER`**: The UI never creates sessions; it only reads existing ones from Redis.
-3. **`HttpSessionSecurityContextRepository`**: Explicitly reads the `SecurityContext` from the shared session.
 
 === Application Configuration
 
@@ -242,7 +241,7 @@ The Admin application requires the "ADMIN" role in the following way:
 .admin/src/main/java/demo/AdminApplication.java
 [source,java]
 ----
-include::admin/src/main/java/demo/AdminApplication.java[lines=42..55,indent=0]
+include::admin/src/main/java/demo/AdminApplication.java[lines=42..52,indent=0]
 ----
 
 === The /user Endpoint with Roles

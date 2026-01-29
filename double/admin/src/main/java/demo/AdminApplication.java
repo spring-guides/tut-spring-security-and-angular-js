@@ -44,11 +44,8 @@ public class AdminApplication {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
       http
-        // No httpBasic - rely on shared session from Gateway
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.NEVER))
-        .authorizeHttpRequests(authorize -> authorize
-          .requestMatchers("/index.html", "/", "/*.js", "/*.css", "/*.ico", "/*.txt", "/*.json").permitAll()
-          .anyRequest().hasRole("ADMIN"))
+        .authorizeHttpRequests(authorize -> authorize.anyRequest().hasRole("ADMIN"))
         .csrf(csrf -> csrf.disable());
       return http.build();
     }

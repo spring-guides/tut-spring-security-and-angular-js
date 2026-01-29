@@ -12,7 +12,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,13 +42,8 @@ public class UiApplication {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
       http
-        // No httpBasic - rely on shared session from Gateway
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.NEVER))
-        // Explicitly use HttpSession to restore SecurityContext from shared Redis session
-        .securityContext(context -> context.securityContextRepository(new HttpSessionSecurityContextRepository()))
-        .authorizeHttpRequests(authorize -> authorize
-          .requestMatchers("/index.html", "/app.html", "/", "/*.js", "/*.css", "/*.ico", "/*.txt", "/*.json").permitAll()
-          .anyRequest().hasRole("USER"));
+        .authorizeHttpRequests(authorize -> authorize.anyRequest().hasRole("USER"));
       return http.build();
     }
   }

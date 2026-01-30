@@ -22,16 +22,23 @@ spring:
             user-info-uri: http://localhost:9999/userinfo
   cloud:
     gateway:
-      routes:
-        - id: resource
-          uri: http://localhost:9000
-          predicates:
-            - Path=/resource/**
-        - id: user
-          uri: http://localhost:9999
-          predicates:
-            - Path=/user/**
+      mvc:
+        routes:
+          - id: resource
+            uri: http://localhost:9000
+            predicates:
+              - Path=/resource/**
+            filters:
+              - StripPrefix=1
+              - TokenRelay
+          - id: user
+            uri: http://localhost:9999
+            predicates:
+              - Path=/user/**
+            filters:
+              - TokenRelay
 
 logging:
   level:
     org.springframework.security: DEBUG
+    org.springframework.web: DEBUG

@@ -24,14 +24,12 @@ import org.springframework.security.oauth2.server.authorization.client.InMemoryR
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
+import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -40,18 +38,12 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 
 @SpringBootApplication
-@Controller
-public class AuthserverApplication implements WebMvcConfigurer {
+@RestController
+public class AuthserverApplication {
 
 	@RequestMapping("/user")
-	@ResponseBody
 	public Principal user(Principal user) {
 		return user;
-	}
-
-	@Override
-	public void addViewControllers(ViewControllerRegistry registry) {
-		registry.addViewController("/login").setViewName("login");
 	}
 
 	public static void main(String[] args) {
@@ -65,6 +57,8 @@ public class AuthserverApplication implements WebMvcConfigurer {
 		@Order(1)
 		public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
 			OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
+			http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+				.oidc(Customizer.withDefaults());
 			http.formLogin(Customizer.withDefaults());
 			return http.build();
 		}
@@ -73,12 +67,8 @@ public class AuthserverApplication implements WebMvcConfigurer {
 		@Order(2)
 		public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
 			http
-				.authorizeHttpRequests(authorize -> authorize
-					.requestMatchers("/login").permitAll()
-					.anyRequest().authenticated()
-				)
-				.formLogin(form -> form.loginPage("/login").permitAll())
-				.logout(logout -> logout.invalidateHttpSession(true));
+				.authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
+				.formLogin(Customizer.withDefaults());
 			return http.build();
 		}
 

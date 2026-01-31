@@ -9,8 +9,11 @@ spring:
       static-locations: classpath:/static/browser/
   cloud:
     gateway:
-      routes:
-        - id: resource
-          uri: http://localhost:9000
-          predicates:
-            - Path=/resource/**
+      mvc:
+        routes:
+          - id: resource
+            uri: http://localhost:9000
+            predicates:
+              - Path=/resource/**
+            filters:
+              - StripPrefix=1

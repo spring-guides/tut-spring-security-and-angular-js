@@ -18,7 +18,7 @@ We are going to step through creating this application in some detail, so that a
 * link:#using-the-initializr-website[Using the Spring Initializr website]
 * link:#using-spring-tool-suite[Using Spring Tool Suite]
 
-The source code for the complete project we are going to build is in https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/basic[Github here], so you can just clone the project and work directly from there if you want. Then jump to the link:#add-a-home-page[next section].
+The source code for the complete project we are going to build is in https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/main/basic[Github here], so you can just clone the project and work directly from there if you want. Then jump to the link:#add-a-home-page[next section].
 
 [[using-curl]]
 === Using Curl
@@ -71,7 +71,7 @@ $ mvn spring-boot:run
 
 and go to a browser at http://localhost:8080[http://localhost:8080]. When you load the home page you should get a browser dialog asking for username and password (the username is "user" and the password is printed in the console logs on startup). There's actually no content yet (or maybe the default "hero" tutorial content from the `ng` CLI), so you should get essentially a blank page.
 
-TIP: If you don't like scraping the console log for the password just add this to the "application.properties" (in "src/main/resources"): `security.user.password=password` (and choose your own password). We did this in the sample code using "application.yml".
+TIP: If you don't like scraping the console log for the password just add this to the "application.properties" (in "src/main/resources"): `spring.security.user.password=password` (and choose your own password). We did this in the sample code using "application.yml".
 
 In an IDE, just run the `main()` method in the application class (there is only one class, and it is called `UiApplication` if you used the "curl" command above).
 
@@ -96,6 +96,7 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-root',
+  standalone: true,
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
@@ -110,15 +111,7 @@ Most of the code in this TypeScript is boiler plate. The interesting stuff is al
 .app.component.html
 [source,html]
 ----
-<div style="text-align:center"class="container">
-  <h1>
-    Welcome {{title}}!
-  </h1>
-  <div class="container">
-    <p>Id: <span>{{greeting.id}}</span></p>
-    <p>Message: <span>{{greeting.content}}!</span></p>
-  </div>
-</div>
+include::src/app/app.component.html[indent=0]
 ----
 
 If you added those files under "src/app" and rebuilt your app it should now be secure and functional, and it will say "Hello World!". The `greeting` is rendered by Angular in the HTML using the handlebar placeholders, `{{greeting.id}}` and `{{greeting.content}}`.
@@ -126,28 +119,12 @@ If you added those files under "src/app" and rebuilt your app it should now be s
 [[dynamic-content]]
 == Adding Dynamic Content
 
-So far we have an application with a greeting that is hard coded. That's useful for learning how things fit together, but really we expect content to come from a backend server, so let's create an HTTP endpoint that we can use to grab a greeting. In your https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/basic/src/main/java/demo/UiApplication.java[application class] (in "src/main/java/demo"), add the `@RestController` annotation and define a new `@RequestMapping`:
+So far we have an application with a greeting that is hard coded. That's useful for learning how things fit together, but really we expect content to come from a backend server, so let's create an HTTP endpoint that we can use to grab a greeting. In your https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/main/basic/src/main/java/demo/UiApplication.java[application class] (in "src/main/java/demo"), add the `@RestController` annotation and define a new `@RequestMapping`:
 
 .UiApplication.java
 [source,java]
 ----
-@SpringBootApplication
-@RestController
-public class UiApplication {
-
-  @RequestMapping("/resource")
-  public Map<String,Object> home() {
-    Map<String,Object> model = new HashMap<String,Object>();
-    model.put("id", UUID.randomUUID().toString());
-    model.put("content", "Hello World");
-    return model;
-  }
-
-  public static void main(String[] args) {
-    SpringApplication.run(UiApplication.class, args);
-  }
-
-}
+include::src/main/java/demo/UiApplication.java[lines=17..27,indent=0]
 ----
 
 NOTE: Depending on the way you created your new project it might not be called `UiApplication`.
@@ -167,48 +144,17 @@ So let's grab that message in the browser. Modify the `AppComponent` to load the
 .app.component.ts
 [source,javascript]
 ----
-import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-
-@Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
-})
-export class AppComponent {
-  title = 'Demo';
-  greeting = {};
-  constructor(private http: HttpClient) {
-    http.get('resource').subscribe(data => this.greeting = data);
-  }
-}
+include::src/app/app.component.ts[indent=0]
 ----
 
-We injected an https://angular.io/guide/http[`http` service], which is provided by Angular through the `http` module, and used it to GET our resource. Angular passes us the response and we pull out JSON and assign it to the greeting.
+We use Angular's `inject()` function to get an https://angular.io/guide/http[`HttpClient`] service, and use it to GET our resource. Angular passes us the response and we pull out JSON and assign it to the greeting.
 
-To enable the dependency injection of the `http` service into our custom component, we need to declare it in the `AppModule` that includes the component (it's just one more line in the `imports` compared to the initial draft):
+To enable the `HttpClient` service in our application, we need to provide it in the application bootstrap:
 
-.app.module.ts
+.main.ts
 [source,javascript]
 ----
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-
-import { AppComponent } from './app.component';
-import { HttpClientModule } from '@angular/common/http';
-
-@NgModule({
-  declarations: [
-    AppComponent
-  ],
-  imports: [
-    BrowserModule,
-    HttpClientModule
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
-})
-export class AppModule { }
+include::src/main.ts[indent=0]
 ----
 
 Run the application again (or just reload the home page in the browser), and you will see the dynamic message with its unique ID. So, even though the resource is protected and you can't curl it directly, the browser was able to access the content. We have a secure single page application in less than a hundred lines of code!

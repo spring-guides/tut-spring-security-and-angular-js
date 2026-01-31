@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,7 +29,9 @@ public class UiApplication {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-			.httpBasic(Customizer.withDefaults())
+			.httpBasic(basic -> basic
+        .securityContextRepository(new HttpSessionSecurityContextRepository())
+      )
 			.authorizeHttpRequests(authorize -> authorize
 				.anyRequest().authenticated());
 		return http.build();

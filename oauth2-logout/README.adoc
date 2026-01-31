@@ -1,11 +1,11 @@
 [[_oauth2_logout_angular_js_and_spring_security_part_ix]]
 = Logout from an OAuth2 Client Application
 
-In this section we continue <<_testing_angular_js_and_spring_security_part_viii,our discussion>> of how to use http://projects.spring.io/spring-security[Spring Security] with http://angular.io[Angular] in a "single page application". Here we show how to take the OAuth2 samples and add a different logout experience. Many people who implement OAuth2 single sign on find that they have a puzzle to solve of how to logout "cleanly"? The reason it's a puzzle is that there isn't a single correct way to do it, and the solution you choose will be determined by the user experience you are looking for, and also the amount of complexity you are willing to take on. The reasons for the complexity stem from the fact that there are potentially multiple browser sessions in the system, all with different backend servers, so when a user logs out from one of them, what should happen to the others? This is the ninth section of a tutorial, and you can catch up on the basic building blocks of the application or build it from scratch by reading the <<_spring_and_angular_js_a_secure_single_page_application,first section>>, or you can just go straight to the https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/oauth2-logout[source code in Github]. 
+In this section we continue <<_testing_angular_js_and_spring_security_part_viii,our discussion>> of how to use http://projects.spring.io/spring-security[Spring Security] with http://angular.io[Angular] in a "single page application". Here we show how to take the OAuth2 samples and add a different logout experience. Many people who implement OAuth2 single sign on find that they have a puzzle to solve of how to logout "cleanly"? The reason it's a puzzle is that there isn't a single correct way to do it, and the solution you choose will be determined by the user experience you are looking for, and also the amount of complexity you are willing to take on. The reasons for the complexity stem from the fact that there are potentially multiple browser sessions in the system, all with different backend servers, so when a user logs out from one of them, what should happen to the others? This is the ninth section of a tutorial, and you can catch up on the basic building blocks of the application or build it from scratch by reading the <<_spring_and_angular_js_a_secure_single_page_application,first section>>, or you can just go straight to the https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/oauth2-logout[source code in Github].
 
 == Logout Patterns
 
-The user experience with logout of the `oauth2` sample in this tutorial is that you logout of the UI app, but not from the authserver, so when you log back into the UI app the autheserver does not challenge again for credentials. This is completely expected, normal, and desirable when the autheserver is external - Google and other external authserver providers neither want nor allow you to logout from their servers from an untrusted application - but it isn't the best user experience if the authserver is really part of the same system as the UI.
+The user experience with logout of the `oauth2` sample in this tutorial is that you logout of the UI app, but not from the authserver, so when you log back into the UI app the authserver does not challenge again for credentials. This is completely expected, normal, and desirable when the authserver is external - Google and other external authserver providers neither want nor allow you to logout from their servers from an untrusted application - but it isn't the best user experience if the authserver is really part of the same system as the UI.
 
 There are, broadly speaking, three patterns for logout from a UI app that is authenticated as an OAuth2 client:
 
@@ -19,9 +19,9 @@ Sometimes, even if you have an external authserver, you want to control the auth
 
 Here are some options if you don't want EA:
 
-* Log out from authserver as well as UI app in browser client. Simple approach and works with some careful CRSF and CORS configuration. No SL.
+* Log out from authserver as well as UI app in browser client. Simple approach and works with some careful CSRF and CORS configuration. No SL.
 
-* Logout from authserver as soon as a token is available. Hard to implement in the UI, where the token is acquired, because you don't have the session cookie for the authserver there. There is a https://github.com/spring-projects/spring-security-oauth/issues/140[feature request in Spring OAuth] which shows an interesting approach: invalidate the session in the authserver as soon as an auth code is generated. The Github issue contains an aspect that implements the session invalidation, but it's easier to do as a `HandlerInterceptor`. No SL.
+* Logout from authserver as soon as a token is available. Hard to implement in the UI, where the token is acquired, because you don't have the session cookie for the authserver there. An interesting approach is to invalidate the session in the authserver as soon as an auth code is generated. No SL.
 
 * Proxy authserver through the same gateway as UI and hope that one cookie is enough to manage the state for the whole system. Doesn't work because unless there is a shared session, which defeats the object to some extent (otherwise there is no session storage for the authserver). SL only if the session is shared between all apps.
 
@@ -29,7 +29,7 @@ Here are some options if you don't want EA:
 
 * Use the token as global authentication and invalidate it when user logs out of the UI app. Downside: requires tokens to be invalidated by client apps, which isn't really what they were designed to do. SL possible, but usual constraints apply.
 
-* Create and manage a global session token (in addition to the user token) in the authserver. This is the approach taken by http://openid.net[OpenId Connect], and it does provide some options for SL, at the cost of some extra machinery. None of the options is immune from the usual distributed system limitations: if networks and application nodes are not stable there are no guarantees that a logout signal is shared among all participants when needed. All of the logout specs are still in draft form, and here are some links to the specs: http://openid.net/specs/openid-connect-session-1_0.html[Session Management], 
+* Create and manage a global session token (in addition to the user token) in the authserver. This is the approach taken by http://openid.net[OpenId Connect], and it does provide some options for SL, at the cost of some extra machinery. None of the options is immune from the usual distributed system limitations: if networks and application nodes are not stable there are no guarantees that a logout signal is shared among all participants when needed. All of the logout specs are still in draft form, and here are some links to the specs: http://openid.net/specs/openid-connect-session-1_0.html[Session Management],
 http://openid.net/specs/openid-connect-frontchannel-1_0.html[Front Channel Logout], and
 http://openid.net/specs/openid-connect-backchannel-1_0.html[Back Channel Logout].
 
@@ -39,111 +39,63 @@ The easiest two options, which apply nicely in the GIA pattern can be implemente
 
 == Logout of Both Servers from Browser
 
-It's quite easy to add a couple of lines of code to the browser client that logout from the authserver as soon as the UI app is logged out. E.g.
+It's quite easy to add a couple of lines of code to the browser client that logout from the authserver as soon as the UI app is logged out:
 
-```javascript
-logout() {
-    this.http.post('logout', {}).finally(() => {
-        self.authenticated = false;
-        this.http.post('http://localhost:9999/uaa/logout', {}, {withCredentials:true})
-            .subscribe(() => {
-                console.log('Logged out');
-        });
-    }).subscribe();
-};
-```
+.ui/src/app/app.component.ts
+[source,typescript]
+----
+include::ui/src/app/app.component.ts[indent=0]
+----
 
-In this sample we hardcoded the authserver logout endpoint URL into the JavaScript, but it would be easy to externalize that if you needed to. It has to be a POST directly to the authserver because we want the session cookie to go along too. The XHR request will only go out from the browser with a cookie attached if we specifically ask for `withCredentials:true`.
+In this sample we hardcoded the authserver logout endpoint URL into the TypeScript, but it would be easy to externalize that if you needed to. It has to be a POST directly to the authserver because we want the session cookie to go along too. The XHR request will only go out from the browser with a cookie attached if we specifically ask for `withCredentials:true`.
 
-Conversely, on the server we need some CORS configuration because the request is coming from a different domain. E.g. in the `WebSecurityConfigurerAdapter`
+Conversely, on the server we need some CORS configuration because the request is coming from a different domain. In the `SecurityFilterChain`:
 
-```java
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-  http
-	.requestMatchers().antMatchers("/login", "/logout", "/oauth/authorize", "/oauth/confirm_access")
-  .and()
-    .cors().configurationSource(configurationSource())
-    ...
-}
+.authserver/src/main/java/demo/AuthserverApplication.java (Security Configuration)
+[source,java]
+----
+include::authserver/src/main/java/demo/AuthserverApplication.java[lines=80..101,indent=0]
+----
 
-private CorsConfigurationSource configurationSource() {
-  UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-  CorsConfiguration config = new CorsConfiguration();
-  config.addAllowedOrigin("*");
-  config.setAllowCredentials(true);
-  config.addAllowedHeader("X-Requested-With");
-  config.addAllowedHeader("Content-Type");
-  config.addAllowedMethod(HttpMethod.POST);
-  source.registerCorsConfiguration("/logout", config);
-  return source;
-}
-```
+The "/logout" endpoint has been given some special treatment. It is allowed to be called from any origin, and explicitly allows credentials (e.g. cookies) to be sent. The allowed headers are just the ones that Angular sends in the sample app.
 
-The "/logout" endpoint has been given some special treatment. It is allowed to be called from any origin, and explicitly allows credentials (e.g. cookies) to be sent. The allowed headers are just the ones that Angular sends in teh sample app.
-
-In addition to the CORS configuration we also need to disable CSRF for the logout endpoint, because Angular will not send the `X-XSRF-TOKEN` header in a cross-domain request. The authserver didn't require any CSRF configuration before now, but it's easy to add an ignore for the logout endpoint:
-
-```java
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-  http
-    .csrf()
-      .ignoringAntMatchers("/logout/**")
-    ...
-}
-
-```
+In addition to the CORS configuration we also need to disable CSRF for the logout endpoint, because Angular will not send the `X-XSRF-TOKEN` header in a cross-domain request. This is done with `.csrf((csrf) -> csrf.ignoringRequestMatchers("/logout/**"))` in the security filter chain configuration shown above.
 
 WARNING: Dropping CSRF protection is not really advisable, but you might be prepared to tolerate it for this restricted use case.
 
 With those two simple changes, one in the UI app client, and one in the authserver, you will find that once you logout of the UI app, when you log back in, you will always be prompted for a password.
 
-Another useful change is to set the OAuth2 client to autoapprove, so that the user doesn't have to approve the token grant. This is common in a internal authserver, where the user doesn't perceive it as a separate system. In the `AuthorizationServerConfigurerAdapter` you just need a flag when the client is initialized:
+Another useful change is to set the OAuth2 client to autoapprove, so that the user doesn't have to approve the token grant. This is common in an internal authserver, where the user doesn't perceive it as a separate system. In the `RegisteredClientRepository` you just need a flag when the client is initialized:
 
-```java
-@Override
-public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-  clients.inMemory().withClient("acme")
+[source,java]
+----
+RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
+    .clientId("acme")
     ...
-  .autoApprove(true);
-}
-```
+    .clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
+    .build();
+----
 
 == Invalidate Session in Authserver
 
-If you don't like to give up the CSRF protection on the logout endpoint, you can try the other easy approach, which is to invalidate the user session in the authserver as soon as a token is granted (actually as soon as an auth code is generated). This is also super easy to implement: starting from the `oauth2` sample, just add a `HandlerInterceptor` to the OAuth2 endpoints.
+If you don't like to give up the CSRF protection on the logout endpoint, you can try the other easy approach, which is to invalidate the user session in the authserver as soon as a token is granted (actually as soon as an auth code is generated). This is also relatively easy to implement using Spring Authorization Server: customize the authorization endpoint's success handler. The sample code includes this implementation as comments that you can uncomment to enable this behavior:
 
-```java
-@Override
-public void configure(AuthorizationServerEndpointsConfigurer endpoints)
-    throws Exception {
-  ...
-  endpoints.addInterceptor(new HandlerInterceptorAdapter() {
-    @Override
-    public void postHandle(HttpServletRequest request,
-        HttpServletResponse response, Object handler,
-        ModelAndView modelAndView) throws Exception {
-      if (modelAndView != null
-          && modelAndView.getView() instanceof RedirectView) {
-        RedirectView redirect = (RedirectView) modelAndView.getView();
-        String url = redirect.getUrl();
-        if (url.contains("code=") || url.contains("error=")) {
-          HttpSession session = request.getSession(false);
-          if (session != null) {
-            session.invalidate();
-          }
-        }
-      }
-    }
-  });
-}
-```
+.authserver/src/main/java/demo/AuthserverApplication.java (Authorization Endpoint Configuration)
+[source,java]
+----
+include::authserver/src/main/java/demo/AuthserverApplication.java[lines=76..81,indent=0]
+----
 
-This interceptor looks for a `RedirectView`, which is a signal that the user is being redirected back to the client app, and checks if the location contains an auth code or an error. You could add "token=" if you were using implicit grants as well.
+.authserver/src/main/java/demo/AuthserverApplication.java (Session Invalidating Success Handler)
+[source,java]
+----
+include::authserver/src/main/java/demo/AuthserverApplication.java[lines=164..192,indent=0]
+----
 
-With this simple change, as soon as you authenticate, the session in the authserver is already dead, so there's no need to try and manage it from the client. When you log out of the UI app, and then log back in, the authserver doesn't recognize you and prompts for credentials. This pattern is the one implemented by the `oauth2-logout` sample in the https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/oauth2-logout[source code] for this tutorial. The downside of this approach is that you don't really have true single sign on any more - any other apps that are part of your system will find that the authserver session is dead and they have to prompt for authentication again - it isn't a great user experience if there are multiple apps.
+This success handler fires when an authorization code is issued and the user is being redirected back to the client. It builds the redirect URI, sends the response, and then invalidates the session.
+
+With this approach, as soon as you authenticate, the session in the authserver is already dead, so there's no need to try and manage it from the client. When you log out of the UI app, and then log back in, the authserver doesn't recognize you and prompts for credentials. The downside of this approach is that you don't really have true single sign on any more - any other apps that are part of your system will find that the authserver session is dead and they have to prompt for authentication again - it isn't a great user experience if there are multiple apps.
 
 == Conclusion
 
-In this section we have seen how to implement a couple of different patterns for logout from an OAuth2 client application (taking as a starting point the application from <<_sso_with_oauth2_angular_js_and_spring_security_part_v,section five>> of the tutorial), and some options for other patterns were discussed. These options are not exhaustive, but should give you a good idea of the trade offs involved, and some tools for thinking about the best solution for your use case. There were only couple of lines of JavaScript in this section, and that wasn't really specific to Angular (it adds a flag to XHR requests), so all the lessons and patterns are applicable beyond the narrow scope of the sample apps in this guide. A recurring theme is that all approaches to single logout (SL) where there are multiple UI apps and a single authserver tend to be flawed in some way: the best you can do is choose the approach that makes your users the least uncomfortable. If you have an internal authserver and a system that is composed of many components, then possibly the only architecture that feels to the user like a single system is a gateway for all user interactions.
+In this section we have seen how to implement a couple of different patterns for logout from an OAuth2 client application (taking as a starting point the application from <<_sso_with_oauth2_angular_js_and_spring_security_part_v,section five>> of the tutorial), and some options for other patterns were discussed. These options are not exhaustive, but should give you a good idea of the trade offs involved, and some tools for thinking about the best solution for your use case. There were only couple of lines of TypeScript in this section, and that wasn't really specific to Angular (it adds a flag to XHR requests), so all the lessons and patterns are applicable beyond the narrow scope of the sample apps in this guide. A recurring theme is that all approaches to single logout (SL) where there are multiple UI apps and a single authserver tend to be flawed in some way: the best you can do is choose the approach that makes your users the least uncomfortable. If you have an internal authserver and a system that is composed of many components, then possibly the only architecture that feels to the user like a single system is a gateway for all user interactions.

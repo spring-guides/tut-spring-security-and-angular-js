@@ -39,6 +39,10 @@ export class AppComponent {
     this.http.post('logout', {}).pipe(
       finalize(() => {
         this.authenticated = false;
+        this.http.post('http://localhost:9999/logout', {}, {})
+            .subscribe(() => {
+                console.log('Logged out');
+        });
       })
     ).subscribe();
   }

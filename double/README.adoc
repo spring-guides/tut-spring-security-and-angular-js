@@ -150,7 +150,7 @@ The UI backend does NOT authenticate users itself. Instead, it reads the authent
 .ui/src/main/java/demo/UiApplication.java
 [source,java]
 ----
-include::ui/src/main/java/demo/UiApplication.java[lines=39..49,indent=0]
+include::ui/src/main/java/demo/UiApplication.java[lines=39..52,indent=0]
 ----
 
 Key points:
@@ -241,7 +241,7 @@ The Admin application requires the "ADMIN" role in the following way:
 .admin/src/main/java/demo/AdminApplication.java
 [source,java]
 ----
-include::admin/src/main/java/demo/AdminApplication.java[lines=42..52,indent=0]
+include::admin/src/main/java/demo/AdminApplication.java[lines=42..55,indent=0]
 ----
 
 === The /user Endpoint with Roles

@@ -45,7 +45,10 @@ public class AdminApplication {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
       http
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.NEVER))
-        .authorizeHttpRequests(authorize -> authorize.anyRequest().hasRole("ADMIN"))
+        .authorizeHttpRequests(authorize -> authorize
+          .requestMatchers("/", "/index.html").permitAll()
+          .anyRequest().hasRole("ADMIN")
+        )
         .csrf(csrf -> csrf.disable());
       return http.build();
     }

@@ -43,7 +43,10 @@ public class UiApplication {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
       http
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.NEVER))
-        .authorizeHttpRequests(authorize -> authorize.anyRequest().hasRole("USER"));
+        .authorizeHttpRequests(authorize -> authorize
+          .requestMatchers("/", "/index.html").permitAll()
+          .anyRequest().hasRole("USER")
+        );
       return http.build();
     }
   }

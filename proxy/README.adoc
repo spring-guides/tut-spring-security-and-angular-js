@@ -15,36 +15,7 @@ If you were following along in the code, you will know that the application impl
 
 === Declarative Reverse Proxy in One Line
 
-To turn it into an API Gateway, the UI server needs one small tweak. Somewhere in the Spring configuration we need to add an `@EnableZuulProxy` annotation, e.g. in the main (only) https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/proxy/ui/src/main/java/demo/UiApplication.java[application class]:
-
-.UiApplication.java
-[source,java]
-----
-@SpringBootApplication
-@RestController
-@EnableZuulProxy
-public class UiApplication {
-  ...
-}
-----
-
-and in an external configuration file we need to map a local resource in the UI server to a remote one in the https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/proxy/ui/src/main/resources/application.yml[external configuration] ("application.yml"):
-
-.application.yml
-[source,yaml]
-----
-security:
-  ...
-zuul:
-  routes:
-    resource:
-      path: /resource/**
-      url: http://localhost:9000
-----
-
-This says "map paths with the pattern /resource/** in this server to the same paths in the remote server at localhost:9000". Simple and yet effective (OK so it's 6 lines including the YAML, but you don't always need that)!
-
-All we need to make this work is the right stuff on the classpath. For that purpose we have a few new lines in our Maven POM:
+To turn it into an API Gateway, the UI server needs one small tweak. We need to add Spring Cloud Gateway to the classpath and configure a route. First, we add the dependency to our https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/proxy/ui/pom.xml[Maven POM]:
 
 .pom.xml
 [source,xml]
@@ -54,7 +25,7 @@ All we need to make this work is the right stuff on the classpath. For that purp
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-dependencies</artifactId>
-      <version>Dalston.SR4</version>
+      <version>2025.0.0</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>
@@ -64,13 +35,23 @@ All we need to make this work is the right stuff on the classpath. For that purp
 <dependencies>
   <dependency>
     <groupId>org.springframework.cloud</groupId>
-    <artifactId>spring-cloud-starter-zuul</artifactId>
+    <artifactId>spring-cloud-starter-gateway-server-webmvc</artifactId>
   </dependency>
   ...
 </dependencies>
 ----
 
-Note the use of the "spring-cloud-starter-zuul" - it's a starter POM just like the Spring Boot ones, but it governs the dependencies we need for this Zuul proxy. We are also using `&lt;dependencyManagement&gt;` because we want to be able to depend on all the versions of transitive dependencies being correct.
+Note the use of the "spring-cloud-starter-gateway-server-webmvc" - it's a starter POM just like the Spring Boot ones, but it governs the dependencies we need for the Spring Cloud Gateway MVC proxy. We are also using `&lt;dependencyManagement&gt;` because we want to be able to depend on all the versions of transitive dependencies being correct.
+
+Then in an external configuration file we need to map a local resource in the UI server to a remote one in the https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/proxy/ui/src/main/resources/application.yml[external configuration] ("application.yml"):
+
+.application.yml
+[source,yaml]
+----
+include::ui/src/main/resources/application.yml[indent=0]
+----
+
+This says "map paths with the pattern /resource/** in this server to the same paths in the remote server at localhost:9000". The `StripPrefix=1` filter removes the `/resource` prefix before forwarding the request, so a request to `/resource/` becomes a request to `/` on the backend. Simple and yet effective!
 
 === Consuming the Proxy in the Client
 
@@ -130,57 +111,37 @@ We can use the same mechanism to share authentication (and CSRF) state as we did
 ----
 <dependency>
   <groupId>org.springframework.session</groupId>
-  <artifactId>spring-session</artifactId>
+  <artifactId>spring-session-data-redis</artifactId>
 </dependency>
 <dependency>
   <groupId>org.springframework.boot</groupId>
-  <artifactId>spring-boot-starter-redis</artifactId>
+  <artifactId>spring-boot-starter-data-redis</artifactId>
 </dependency>
 ----
 
-but this time the configuration is much simpler because we can just add the same `Filter` declaration to both. First the UI server, declaring explicitly that we want all headers to be forwarded (i.e. none are "sensitive"):
+but this time the configuration is much simpler because Spring Cloud Gateway forwards all headers by default.
 
-.application.yml
-[source,properties]
-----
-zuul:
-  routes:
-    resource:
-      sensitive-headers:
-----
-
-Then we can move on to the resource server. There are two small changes to make: one is to explicitly disable HTTP Basic in the resource server (to prevent the browser from popping up authentication dialogs):
+Then we can move on to the resource server. There are two small changes to make: one is to explicitly disable HTTP Basic in the resource server (to prevent the browser from popping up authentication dialogs), and the other is to set the session creation policy to `NEVER` so the resource server won't create sessions but will use existing ones:
 
 .ResourceApplication.java
 [source,java]
 ----
-@SpringBootApplication
-@RestController
-class ResourceApplication extends WebSecurityConfigurerAdapter {
-
-  ...
-
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http.httpBasic().disable();
-    http.authorizeRequests().anyRequest().authenticated();
-  }
-
-}
-
+include::resource/src/main/java/demo/ResourceApplication.java[indent=0]
 ----
 
 ____
 Aside: an alternative, which would also prevent the authentication dialog, would be to keep HTTP Basic but change the 401 challenge to something other than "Basic". You can do that with a one-line implementation of `AuthenticationEntryPoint` in the `HttpSecurity` configuration callback.
 ____
 
-and the other is to explicitly ask for a non-stateless session creation policy in `application.properties`:
+The UI server also needs to be configured to use session-based security context storage with HTTP Basic authentication:
 
-.application.properties
-[source,properties]
+.UiApplication.java
+[source,java]
 ----
-security.sessions: NEVER
+include::ui/src/main/java/demo/UiApplication.java[indent=0]
 ----
+
+The key configuration here is the `httpBasic` customizer that sets the `securityContextRepository` to `HttpSessionSecurityContextRepository`. This ensures that authentication state is properly stored in the session and shared via Redis with the resource server.
 
 As long as redis is still running in the background (use the https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/master/proxy/docker-compose.yml[`docker-compose.yml`] if you like to start it) then the system will work. Load the homepage for the UI at http://localhost:8080[http://localhost:8080] and login and you will see the message from the backend rendered on the homepage.
 
@@ -192,7 +153,7 @@ What is going on behind the scenes now? First we can look at the HTTP requests i
 |Verb |Path |Status |Response
 
 |GET |/ |200 |index.html
-|GET |/*.js |200 |Assets form angular
+|GET |/*.js |200 |Assets from angular
 |GET |/user |401 |Unauthorized (ignored)
 |GET |/resource |401 |Unauthenticated access to resource
 |GET |/user |200 |JSON authenticated user
@@ -201,59 +162,66 @@ What is going on behind the scenes now? First we can look at the HTTP requests i
 
 That's identical to the sequence at the end of <<_the_login_page_angular_js_and_spring_security_part_ii,Part II>> except for the fact that the cookie names are slightly different ("SESSION" instead of "JSESSIONID") because we are using Spring Session. But the architecture is different and that last request to "/resource" is special because it was proxied to the resource server.
 
-We can see the reverse proxy in action by looking at the "/trace" endpoint in the UI server (from Spring Boot Actuator, which we added with the Spring Cloud dependencies). Go to http://localhost:8080/trace[http://localhost:8080/trace] in a new browser (if you don't have one already get a JSON plugin for your browser to make it nice and readable). You will need to authenticate with HTTP Basic (browser popup), but the same credentials are valid as for your login form. At or near the start you should see a pair of requests something like this:
+We can see the reverse proxy in action by enabling debug logging for Spring Cloud Gateway. Add the following to your `application.yml`:
 
-NOTE: Try to use a different browser so that there is no chance of authentication crossover (e.g. use Firefox if yoused Chrome for testing the UI) - it won't stop the app from working, but it will make the traces harder to read if they contain a mixture of authentication from the same browser.
-
-./trace
-[source,javascript]
+.application.yml
+[source,yaml]
 ----
-{
-  "timestamp": 1420558194546,
-  "info": {
-    "method": "GET",
-    "path": "/",
-    "query": ""
-    "remote": true,
-    "proxy": "resource",
-    "headers": {
-      "request": {
-        "accept": "application/json, text/plain, */*",
-        "x-xsrf-token": "542c7005-309c-4f50-8a1d-d6c74afe8260",
-        "cookie": "SESSION=c18846b5-f805-4679-9820-cd13bd83be67; XSRF-TOKEN=542c7005-309c-4f50-8a1d-d6c74afe8260",
-        "x-forwarded-prefix": "/resource",
-        "x-forwarded-host": "localhost:8080"
-      },
-      "response": {
-        "Content-Type": "application/json;charset=UTF-8",
-        "status": "200"
-      }
-    },
-  }
-},
-{
-  "timestamp": 1420558200232,
-  "info": {
-    "method": "GET",
-    "path": "/resource/",
-    "headers": {
-      "request": {
-        "host": "localhost:8080",
-        "accept": "application/json, text/plain, */*",
-        "x-xsrf-token": "542c7005-309c-4f50-8a1d-d6c74afe8260",
-        "cookie": "SESSION=c18846b5-f805-4679-9820-cd13bd83be67; XSRF-TOKEN=542c7005-309c-4f50-8a1d-d6c74afe8260"
-      },
-      "response": {
-        "Content-Type": "application/json;charset=UTF-8",
-        "status": "200"
-      }
-    }
-  }
-},
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
 ----
 
-The second entry there is the request from the client to the gateway on "/resource" and you can see the cookies (added by the browser) and the CSRF header (added by Angular as discussed in link:second[Part II]). The first entry has `remote: true` and that means it's tracing the call to the resource server. You can see it went out to a uri path "/" and you can see that (crucially) the cookies and CSRF headers have been sent too. Without Spring Session these headers would be meaningless to the resource server, but the way we have set it up it can now use those headers to re-constitute a session with authentication and CSRF token data. So the request is permitted and we are in business!
+NOTE: Try to use a different browser so that there is no chance of authentication crossover (e.g. use Firefox if you used Chrome for testing the UI) - it won't stop the app from working, but it will make the logs harder to read if they contain a mixture of authentication from the same browser.
+
+When you make a request to `/resource`, you can observe both the incoming request and the proxied request. Using your browser's developer tools (Network tab), you'll see the client's request:
+
+.Client Request to Gateway
+[source]
+----
+GET /resource/ HTTP/1.1
+Host: localhost:8080
+Accept: application/json, text/plain, */*
+X-Requested-With: XMLHttpRequest
+X-XSRF-TOKEN: 542c7005-309c-4f50-8a1d-d6c74afe8260
+Cookie: SESSION=c18846b5-f805-4679-9820-cd13bd83be67; XSRF-TOKEN=542c7005-309c-4f50-8a1d-d6c74afe8260
+
+Response:
+Content-Type: application/json;charset=UTF-8
+Status: 200
+----
+
+The gateway then proxies this request to the resource server. In the debug logs, you'll see the routing decision and the forwarded request:
+
+.Gateway Proxy to Resource Server
+[source]
+----
+DEBUG o.s.c.g.s.m.HandlerFunctions : Matched route: resource
+DEBUG o.s.c.g.s.m.HandlerFunctions : Mapping [/resource/] to http://localhost:9000
+
+Forwarded Request:
+  method: GET
+  path: /
+  headers:
+    accept: application/json, text/plain, */*
+    x-xsrf-token: 542c7005-309c-4f50-8a1d-d6c74afe8260
+    cookie: SESSION=c18846b5-f805-4679-9820-cd13bd83be67; XSRF-TOKEN=542c7005-309c-4f50-8a1d-d6c74afe8260
+    x-forwarded-prefix: /resource
+    x-forwarded-host: localhost:8080
+
+Response:
+  Content-Type: application/json;charset=UTF-8
+  Status: 200
+----
+
+Notice a few important things in the proxied request:
+
+* The path changed from `/resource/` to `/` (the `StripPrefix=1` filter removed the prefix)
+* The `x-forwarded-prefix` and `x-forwarded-host` headers were added so the backend knows the original request context
+* The cookies (`SESSION`, `XSRF-TOKEN`) and the CSRF header (`x-xsrf-token`) were all forwarded
+
+Without Spring Session these cookies would be meaningless to the resource server, but the way we have set it up it can now use those headers to re-constitute a session with authentication and CSRF token data. The resource server looks up the session in Redis using the `SESSION` cookie value, finds the authenticated principal, and permits the request. So the request is allowed and we are in business!
 
 == Conclusion
 
-We covered quite a lot in this section but we got to a really nice place where there is a minimal amount of boilerplate code in our two servers, they are both nicely secure and the user experience isn't compromised. That alone would be a reason to use the API Gateway pattern, but really we have only scratched the surface of what that might be used for (Netflix uses it for https://github.com/Netflix/zuul/wiki/How-We-Use-Zuul-At-Netflix[a lot of things]). Read up on http://projects.spring.io/spring-cloud/[Spring Cloud] to find out more on how to make it easy to add more features to the gateway. The <<_sso_with_oauth2_angular_js_and_spring_security_part_v,next section>> in this series will extend the application architecture a bit by extracting the authentication responsibilities to a separate server (the Single Sign On pattern).
+We covered quite a lot in this section but we got to a really nice place where there is a minimal amount of boilerplate code in our two servers, they are both nicely secure and the user experience isn't compromised. That alone would be a reason to use the API Gateway pattern, but really we have only scratched the surface of what that might be used for. Read up on http://projects.spring.io/spring-cloud/[Spring Cloud] to find out more on how to make it easy to add more features to the gateway. The <<_sso_with_oauth2_angular_js_and_spring_security_part_v,next section>> in this series will extend the application architecture a bit by extracting the authentication responsibilities to a separate server (the Single Sign On pattern).

@@ -1,7 +1,7 @@
 [[_the_resource_server_angular_js_and_spring_security_part_iii]]
 = The Resource Server
 
-In this section we continue <<_the_login_page_angular_js_and_spring_security_part_ii,our discussion>> of how to use http://projects.spring.io/spring-security[Spring Security] with http://angular.io[Angular] in a "single page application". Here we start by breaking out the "greeting" resource that we are using as the dynamic content in our application into a separate server, first as an unprotected resource, and then protected by an opaque token. This is the third in a series of sections, and you can catch up on the basic building blocks of the application or build it from scratch by reading the <<_spring_and_angular_js_a_secure_single_page_application,first section>>, or you can just go straight to the source code in Github, which is in two parts: one where the https://github.com/dsyer/spring-security-angular/tree/master/vanilla[resource is unprotected], and one where it is https://github.com/dsyer/spring-security-angular/tree/master/spring-session[protected by a token].
+In this section we continue <<_the_login_page_angular_js_and_spring_security_part_ii,our discussion>> of how to use http://projects.spring.io/spring-security[Spring Security] with http://angular.io[Angular] in a "single page application". Here we start by breaking out the "greeting" resource that we are using as the dynamic content in our application into a separate server, first as an unprotected resource, and then protected by an opaque token. This is the third in a series of sections, and you can catch up on the basic building blocks of the application or build it from scratch by reading the <<_spring_and_angular_js_a_secure_single_page_application,first section>>, or you can just go straight to the source code in Github, which is in two parts: one where the https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/main/vanilla[resource is unprotected], and one where it is https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/main/spring-session[protected by a token].
 
 TIP: if you are working through this section with the sample application, be sure to clear your browser cache of cookies and HTTP Basic credentials. In Chrome the best way to do that for a single server is to open a new incognito window.
 
@@ -9,26 +9,12 @@ TIP: if you are working through this section with the sample application, be sur
 
 === Client Side Changes
 
-On the client side there isn't very much to do to move the resource to a different backend. Here's the "home" component in the https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/single/src/app/home/component.ts[last section]:
+On the client side there isn't very much to do to move the resource to a different backend. Here's the "home" component in the https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/main/single/src/app/home.component.ts[last section]:
 
 .home.component.ts
 [source,javascript]
 ----
-@Component({
-  templateUrl: './home.component.html'
-})
-export class HomeComponent {
-
-  title = 'Demo';
-  greeting = {};
-
-  constructor(private app: AppService, private http: HttpClient) {
-    http.get('resource').subscribe(data => this.greeting = data);
-  }
-
-  authenticated() { return this.app.authenticated; }
-
-}
+include::../single/src/app/home.component.ts[indent=0]
 ----
 
 All we need to do to this is change the URL. For example, if we are going to run the new resource on localhost, it could look like this:
@@ -36,12 +22,12 @@ All we need to do to this is change the URL. For example, if we are going to run
 .home.component.ts
 [source,javascript]
 ----
-        http.get('http://localhost:9000').subscribe(data => this.greeting = data);
+include::ui/src/app/home.component.ts[indent=0]
 ----
 
 === Server Side Changes
 
-The https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/vanilla/ui/src/main/java/demo/UiApplication.java[UI server]
+The https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/main/vanilla/ui/src/main/java/demo/UiApplication.java[UI server]
 is trivial to change: we just need to remove the `@RequestMapping` for the
 greeting resource (it was "/resource").
 Then we need to create a new resource server, which we can do like we did in
@@ -57,34 +43,12 @@ $ curl https://start.spring.io/starter.tgz -d dependencies=web -d name=resource 
 
 You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line.
 
-Just add a `@RequestMapping` to the https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/master/vanilla/resource/src/main/java/demo/ResourceApplication.java[main application class], copying the implementation from the https://github.com/dsyer/spring-security-angular/blob/master/single/src/main/java/demo/UiApplication.java[old UI]:
+Just add a `@RequestMapping` to the https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/main/vanilla/resource/src/main/java/demo/ResourceApplication.java[main application class], copying the implementation from the https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/main/single/src/main/java/demo/UiApplication.java[old UI]:
 
 .ResourceApplication.java
 [source,java]
 ----
-@SpringBootApplication
-@RestController
-class ResourceApplication {
-
-  @RequestMapping("/")
-  public Message home() {
-    return new Message("Hello World");
-  }
-
-  public static void main(String[] args) {
-    SpringApplication.run(ResourceApplication.class, args);
-  }
-
-}
-
-class Message {
-  private String id = UUID.randomUUID().toString();
-  private String content;
-  public Message(String content) {
-    this.content = content;
-  }
-  // ... getters and setters and default constructor
-}
+include::resource/src/main/java/demo/ResourceApplication.java[indent=0]
 ----
 
 Once that is done your application will be loadable in a browser. On the command line you can do this
@@ -99,7 +63,7 @@ and go to a browser at http://localhost:9000[http://localhost:9000] and you shou
 .application.properties
 [source,properties]
 ----
-server.port: 9000
+include::resource/src/main/resources/application.properties[indent=0]
 ----
 
 If you try loading that resource from the UI (on port 8080) in a browser, you will find that it doesn't work because the browser won't allow the XHR request.
@@ -115,16 +79,12 @@ work like this with all JavaScript in the browser.
 The two servers do not declare that they have a common origin, so the browser
 declines to send the request and the UI is broken.
 
-To fix that we need to support the CORS protocol which involves a "pre-flight" OPTIONS request and some headers to list the allowed behaviour of the caller. Spring 4.2 has some nice https://jira.spring.io/browse/SPR-9278[fine-grained CORS support], so we can just add an annotation to our controller mapping, for example:
+To fix that we need to support the CORS protocol which involves a "pre-flight" OPTIONS request and some headers to list the allowed behaviour of the caller. Spring has https://docs.spring.io/spring-framework/reference/web/webmvc-cors.html[fine-grained CORS support], so we can just add an annotation to our controller mapping, for example:
 
 .ResourceApplication.java
 [source,java]
 ----
-@RequestMapping("/")
-@CrossOrigin(origins="*", maxAge=3600)
-public Message home() {
-  return new Message("Hello World");
-}
+include::resource/src/main/java/demo/ResourceApplication.java[lines=15..19,indent=0]
 ----
 
 NOTE: Blithely using `origins=*` is quick and dirty, and it works, but
@@ -174,22 +134,22 @@ So all we need to do is teach the client to send credentials with every request.
 
 == Token Authentication
 
-The internet, and people's Spring backend projects, are littered with custom token-based authentication solutions. Spring Security provides a barebones `Filter` implementation to get you started on your own (see for example https://github.com/spring-projects/spring-security/blob/master/web/src/main/java/org/springframework/security/web/authentication/preauth/AbstractPreAuthenticatedProcessingFilter.java[`AbstractPreAuthenticatedProcessingFilter`] and https://github.com/spring-projects/spring-security/blob/master/core/src/main/java/org/springframework/security/core/token/TokenService.java[`TokenService`]). There is no canonical implementation in Spring Security though, and one of the reasons why is probably that there's an easier way.
+The internet, and people's Spring backend projects, are littered with custom token-based authentication solutions. Spring Security provides a barebones `Filter` implementation to get you started on your own (see for example https://github.com/spring-projects/spring-security/blob/main/web/src/main/java/org/springframework/security/web/authentication/preauth/AbstractPreAuthenticatedProcessingFilter.java[`AbstractPreAuthenticatedProcessingFilter`] and https://github.com/spring-projects/spring-security/blob/main/core/src/main/java/org/springframework/security/core/token/TokenService.java[`TokenService`]). There is no canonical implementation in Spring Security though, and one of the reasons why is probably that there's an easier way.
 
-Remember from <<_the_login_page_angular_js_and_spring_security_part_ii,Part II>> of this series that Spring Security uses the `HttpSession` to store authentication data by default. It doesn't interact directly with the session though: there's an abstraction layer (https://github.com/spring-projects/spring-security/blob/master/web/src/main/java/org/springframework/security/web/context/SecurityContextRepository.java[`SecurityContextRepository`]) in between that you can use to change the storage backend. If we can point that repository, in our resource server, to a store with an authentication verified by our UI, then we have a way to share authentication between the two servers. The UI server already has such a store (the `HttpSession`), so if we can distribute that store and open it up to the resource server, we have most of a solution.
+Remember from <<_the_login_page_angular_js_and_spring_security_part_ii,Part II>> of this series that Spring Security uses the `HttpSession` to store authentication data by default. It doesn't interact directly with the session though: there's an abstraction layer (https://github.com/spring-projects/spring-security/blob/main/web/src/main/java/org/springframework/security/web/context/SecurityContextRepository.java[`SecurityContextRepository`]) in between that you can use to change the storage backend. If we can point that repository, in our resource server, to a store with an authentication verified by our UI, then we have a way to share authentication between the two servers. The UI server already has such a store (the `HttpSession`), so if we can distribute that store and open it up to the resource server, we have most of a solution.
 
 === Spring Session
 
 That part of the solution is pretty easy with https://github.com/spring-projects/spring-session/[Spring Session]. All we need is a shared data store (Redis and JDBC are supported out of the box), and a few lines of configuration in the servers to set up a `Filter`.
 
-In the UI application we need to add some dependencies to our https://github.com/dsyer/spring-security-angular/blob/master/spring-session/ui/pom.xml[POM]:
+In the UI application we need to add some dependencies to our https://github.com/spring-guides/tut-spring-security-and-angular-js/blob/main/spring-session/ui/pom.xml[POM]:
 
 .pom.xml
 [source,xml]
 ----
 <dependency>
   <groupId>org.springframework.session</groupId>
-  <artifactId>spring-session</artifactId>
+  <artifactId>spring-session-data-redis</artifactId>
 </dependency>
 <dependency>
   <groupId>org.springframework.boot</groupId>
@@ -199,9 +159,9 @@ In the UI application we need to add some dependencies to our https://github.com
 
 Spring Boot and Spring Session work together to connect to Redis and store session data centrally.
 
-With that 1 line of code in place and a Redis server running on localhost you can run the UI application, login with some valid user credentials, and the session data (the authentication) will be stored in redis.
+With that configuration in place and a Redis server running on localhost you can run the UI application, login with some valid user credentials, and the session data (the authentication) will be stored in redis.
 
-TIP: if you don't have a redis server running locally you can easily spin one up with https://www.docker.com/[Docker] (on Windows or MacOS this requires a VM). There is a http://docs.docker.com/compose/[`docker-compose.yml`] file in the https://github.com/dsyer/spring-security-angular/tree/master/spring-session/docker-compose.yml[source code in Github] which you can run really easily on the command line with `docker-compose up`. If you do this in a VM the Redis server will be running on a different host than localhost, so you either need to tunnel it onto localhost, or configure the app to point at the correct `spring.redis.host` in your `application.properties`.
+TIP: if you don't have a redis server running locally you can easily spin one up with https://www.docker.com/[Docker] (on Windows or MacOS this requires a VM). There is a http://docs.docker.com/compose/[`docker-compose.yml`] file in the https://github.com/spring-guides/tut-spring-security-and-angular-js/tree/main/spring-session/docker-compose.yml[source code in Github] which you can run really easily on the command line with `docker-compose up`. If you do this in a VM the Redis server will be running on a different host than localhost, so you either need to tunnel it onto localhost, or configure the app to point at the correct `spring.redis.host` in your `application.properties`.
 
 == Sending a Custom Token from the UI
 
@@ -210,38 +170,17 @@ The only missing piece is the transport mechanism for the key to the data in the
 .home.component.ts
 [source,javascript]
 ----
-  constructor(private app: AppService, private http: HttpClient) {
-    http.get('token').subscribe(data => {
-      const token = data['token'];
-      http.get('http://localhost:9000', {headers : new HttpHeaders().set('X-Auth-Token', token)})
-        .subscribe(response => this.greeting = response);
-    }, () => {});
-  }
+include::../spring-session/ui/src/app/home.component.ts[indent=0]
 ----
 
-(A more elegant solution might be to grab the token as needed, and use our `RequestOptionsService` to add the header to every request to the resource server.)
+(A more elegant solution might be to grab the token as needed, and use an HTTP interceptor to add the header to every request to the resource server.)
 
 Instead of going directly to "http://localhost:9000[http://localhost:9000]" we have wrapped that call in the success callback of a call to a new custom endpoint on the UI server at "/token". The implementation of that is trivial:
 
 .UiApplication.java
 [source,java]
 ----
-@SpringBootApplication
-@RestController
-public class UiApplication {
-
-  public static void main(String[] args) {
-    SpringApplication.run(UiApplication.class, args);
-  }
-
-  ...
-
-  @RequestMapping("/token")
-  public Map<String,String> token(HttpSession session) {
-    return Collections.singletonMap("token", session.getId());
-  }
-
-}
+include::../spring-session/ui/src/main/java/demo/UiApplication.java[lines=60..64,indent=0]
 ----
 
 So the UI application is ready and will include the session ID in a header called "X-Auth-Token" for all calls to the backend.
@@ -253,12 +192,7 @@ There is one tiny change to the resource server for it to be able to accept the 
 .ResourceApplication.java
 [source,java]
 ----
-@RequestMapping("/")
-@CrossOrigin(origins = "*", maxAge = 3600,
-    allowedHeaders={"x-auth-token", "x-requested-with", "x-xsrf-token"})
-public Message home() {
-  return new Message("Hello World");
-}
+include::../spring-session/resource/src/main/java/demo/ResourceApplication.java[lines=28..32,indent=0]
 ----
 
 The pre-flight check from the browser will now be handled by Spring MVC, but we need to tell Spring Security that it is allowed to let it through:
@@ -266,50 +200,20 @@ The pre-flight check from the browser will now be handled by Spring MVC, but we 
 .ResourceApplication.java
 [source,java]
 ----
-public class ResourceApplication extends WebSecurityConfigurerAdapter {
-
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http.cors().and().authorizeRequests()
-      .anyRequest().authenticated();
-  }
-
-  ...
+include::../spring-session/resource/src/main/java/demo/ResourceApplication.java[lines=21..26,indent=0]
 ----
 
 NOTE: There is no need to `permitAll()` access to all resources, and there might be a handler that inadvertently sends sensitive data because it is not aware that the request is pre-flight. The `cors()` configuration utility mitigates this by handling all pre-flight requests in the filter layer.
 
-All that remains is to pick up the custom token in the resource server and use it to authenticate our user. This turns out to be pretty straightforward because all we need to do is tell Spring Security where the session repository is, and where to look for the token (session ID) in an incoming request. First we need to add the Spring Session and Redis dependencies, and then we can set up the `Filter`:
+All that remains is to pick up the custom token in the resource server and use it to authenticate our user. This turns out to be pretty straightforward because all we need to do is tell Spring Security where the session repository is, and where to look for the token (session ID) in an incoming request. First we need to add the Spring Session and Redis dependencies, and then we can set up the `HttpSessionIdResolver`:
 
 .ResourceApplication.java
 [source,java]
 ----
-@SpringBootApplication
-@RestController
-class ResourceApplication {
-
-  ...
-
-  @Bean
-  HeaderHttpSessionStrategy sessionStrategy() {
-    return new HeaderHttpSessionStrategy();
-  }
-
-}
+include::../spring-session/resource/src/main/java/demo/ResourceApplication.java[lines=34..37,indent=0]
 ----
 
-This `Filter` created is the mirror image of the one in the UI server, so it establishes Redis as the session store. The only difference is that it uses a custom `HttpSessionStrategy` that looks in the header ("X-Auth-Token" by default) instead of the default (cookie named "JSESSIONID"). We also need to prevent the browser from popping up a dialog in an unauthenticated client - the app is secure but sends a 401 with `WWW-Authenticate: Basic` by default, so the browser responds with a dialog for username and password. There is more than one way to achieve this, but we already made Angular send an "X-Requested-With" header, so Spring Security handles it for us by default.
-
-There is one final change to the resource server to make it work with our new authentication scheme. Spring Boot default security is stateless, and we want this to store authentication in the session, so we need to be explicit in `application.yml` (or `application.properties`):
-
-.application.yml
-[source,yaml]
-----
-security:
-  sessions: NEVER
-----
-
-This says to Spring Security "never create a session, but use one if it is there" (it will already be there because of the authentication in the UI).
+This resolver is the mirror image of the one in the UI server, so it establishes Redis as the session store. The only difference is that it uses a custom `HttpSessionIdResolver` that looks in the header ("X-Auth-Token" by default) instead of the default (cookie named "SESSION"). We also need to prevent the browser from popping up a dialog in an unauthenticated client - the app is secure but sends a 401 with `WWW-Authenticate: Basic` by default, so the browser responds with a dialog for username and password. There is more than one way to achieve this, but we already made Angular send an "X-Requested-With" header, so Spring Security handles it for us by default.
 
 Re-launch the resource server and open the UI up in a new browser window.
 
@@ -317,7 +221,7 @@ Re-launch the resource server and open the UI up in a new browser window.
 
 We had to use a custom header and write code in the client to populate the header, which isn't terribly complicated, but it seems to contradict the advice in <<_the_login_page_angular_js_and_spring_security_part_ii,Part II>> to use cookies and sessions wherever possible. The argument there was that not to do so introduces additional unecessary complexity, and for sure the implementation we have now is the most complex we have seen so far: the technical part of the solution far outweighs the business logic (which is admittedly tiny). This is definitely a fair criticism (and one we plan to address in the next section in this series), but let's just briefly look at why it's not as simple as just using cookies and sessions for everything.
 
-At least we are still using the session, which makes sense because Spring Security and the Servlet container know how to do that with no effort on our part. But couldn't we have continued to use cookies to transport the authentication token? It would have been nice, but there is a reason it wouldn't work, and that is that the browser wouldn't let us. You can just go poking around in the browser's cookie store from a JavaScript client, but there are some restrictions, and for good reason. In particular you don't have access to the cookies that were sent by the server as "HttpOnly" (which you will see is the case by default for session cookies). You also can't set cookies in outgoing requests, so we couldn't set a "SESSION" cookie (which is the Spring Session default cookie name), we had to use a custom "X-Session" header. Both these restrictions are for your own protection so malicious scripts cannot access your resources without proper authorization.
+At least we are still using the session, which makes sense because Spring Security and the Servlet container know how to do that with no effort on our part. But couldn't we have continued to use cookies to transport the authentication token? It would have been nice, but there is a reason it wouldn't work, and that is that the browser wouldn't let us. You can just go poking around in the browser's cookie store from a JavaScript client, but there are some restrictions, and for good reason. In particular you don't have access to the cookies that were sent by the server as "HttpOnly" (which you will see is the case by default for session cookies). You also can't set cookies in outgoing requests, so we couldn't set a "SESSION" cookie (which is the Spring Session default cookie name), we had to use a custom "X-Auth-Token" header. Both these restrictions are for your own protection so malicious scripts cannot access your resources without proper authorization.
 
 TL;DR the UI and resource servers do not have a common origin, so they cannot share cookies (even though we can use Spring Session to force them to share sessions).
 

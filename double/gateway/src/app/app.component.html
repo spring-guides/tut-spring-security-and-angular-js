@@ -1,13 +1,13 @@
-<nav class="navbar navbar-default">
+<nav class="navbar navbar-light bg-light">
   <div class="container">
-    <a class="brand" href='#/'>Home</a>
-    <div class="navbar-right">
+    <a class="navbar-brand" href='#/'>Home</a>
+    <div class="ml-auto">
       <a class="btn btn-primary" href="#/login">login</a> <a
         class="btn btn-primary" [hidden]="!authenticated"
         (click)="logout(); $event.preventDefault()">logout</a>
-      <p [hidden]="!authenticated">
-        Signed in as <a href="#/" class="navbar-link">{{user}}</a>
-      </p>
+      <span [hidden]="!authenticated">
+        Signed in as <a href="#/">{{user}}</a>
+      </span>
     </div>
   </div>
 </nav>

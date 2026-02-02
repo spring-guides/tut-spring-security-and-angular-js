@@ -3,6 +3,7 @@
 <link rel="stylesheet" type="text/css"
   href="../webjars/bootstrap/css/bootstrap.min.css" />
 <script type="text/javascript" src="../webjars/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="../webjars/popper.js/umd/popper.min.js"></script>
 <script type="text/javascript"
   src="../webjars/bootstrap/js/bootstrap.min.js"></script>
 </head>

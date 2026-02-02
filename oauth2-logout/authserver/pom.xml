@@ -52,6 +52,11 @@
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
+            <artifactId>popper.js</artifactId>
+            <version>${popper.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
             <artifactId>webjars-locator-core</artifactId>
         </dependency>
         <dependency>
@@ -70,8 +75,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <start-class>demo.AuthserverApplication</start-class>
         <java.version>17</java.version>
-        <bootstrap.version>3.4.1</bootstrap.version>
-        <jquery.version>2.2.4</jquery.version>
+        <bootstrap.version>4.6.2</bootstrap.version>
+        <jquery.version>3.7.1</jquery.version>
+        <popper.version>1.16.1</popper.version>
     </properties>
 
     <build>

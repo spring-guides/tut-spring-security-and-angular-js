@@ -1,8 +1,8 @@
-<nav class="navbar navbar-default">
-  <p class="navbar-text"><a href="/">Home</a></p>
-  <p class="navbar-text navbar-right" [hidden]="!authenticated">
+<nav class="navbar navbar-light bg-light">
+  <span class="navbar-text"><a href="/">Home</a></span>
+  <span class="navbar-text ml-auto" [hidden]="!authenticated">
     Signed in: {{user}}
-  </p>
+  </span>
 </nav>
 <h1>Greeting</h1>
 <div [hidden]="!authenticated">

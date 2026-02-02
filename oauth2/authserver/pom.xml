@@ -69,7 +69,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>17</java.version>
-		<bootstrap.version>3.3.7-1</bootstrap.version>
+		<bootstrap.version>3.4.1</bootstrap.version>
 		<jquery.version>2.2.4</jquery.version>
 	</properties>
 

@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.8</version>
+		<version>3.5.10</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 
@@ -30,7 +30,7 @@
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
-				<version>2025.0.0</version>
+				<version>2025.0.1</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -85,7 +85,7 @@
 			<plugin>
 				<groupId>com.github.eirslett</groupId>
 				<artifactId>frontend-maven-plugin</artifactId>
-				<version>1.15.1</version>
+				<version>1.15.4</version>
 				<configuration>
 						<nodeVersion>v20.18.0</nodeVersion>
 				</configuration>

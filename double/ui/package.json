@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.2.0",
-    "@angular/cli": "^19.2.0",
+    "@angular/cli": "^21.1.4",
     "@angular/compiler-cli": "^19.2.0",
     "@playwright/test": "^1.52.0",
     "@types/jasmine": "~5.1.0",

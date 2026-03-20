@@ -5,7 +5,12 @@ import java.security.KeyPairGenerator;
 import java.security.Principal;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Set;
 import java.util.UUID;
+
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -26,6 +31,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
+import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.stereotype.Controller;
@@ -50,6 +56,20 @@ public class AuthserverApplication implements WebMvcConfigurer {
 		return user;
 	}
 
+	@GetMapping("/oauth2/consent")
+	public String consent(
+			Principal principal,
+			Model model,
+			@RequestParam String client_id,
+			@RequestParam String scope,
+			@RequestParam String state) {
+		model.addAttribute("clientId", client_id);
+		model.addAttribute("principalName", principal.getName());
+		model.addAttribute("scopes", Set.of(scope.split(" ")));
+		model.addAttribute("state", state);
+		return "authorize";
+	}
+
 	@Override
 	public void addViewControllers(ViewControllerRegistry registry) {
 		registry.addViewController("/login").setViewName("login");
@@ -67,6 +87,7 @@ public class AuthserverApplication implements WebMvcConfigurer {
 		public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
 			OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
 			http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+				.authorizationEndpoint(authorization -> authorization.consentPage("/oauth2/consent"))
 				.oidc(Customizer.withDefaults());
 			http.formLogin(Customizer.withDefaults());
 			return http.build();
@@ -106,6 +127,7 @@ public class AuthserverApplication implements WebMvcConfigurer {
 				.authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
 				.redirectUri("http://localhost:8080/login/oauth2/code/acme")
 				.scope("openid")
+				.clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
 				.build();
 			return new InMemoryRegisteredClientRepository(client);
 		}

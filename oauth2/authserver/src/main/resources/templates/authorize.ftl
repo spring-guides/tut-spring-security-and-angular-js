@@ -12,20 +12,25 @@
 		<h2>Please Confirm</h2>
 
 		<p>
-			Do you authorize "${authorizationRequest.clientId}" at "${authorizationRequest.redirectUri}" to access your protected resources
-			with scope ${authorizationRequest.scope?join(", ")}.
+			<strong>${principalName}</strong>, do you authorize "<strong>${clientId}</strong>" to access your protected resources
+			with scope <strong><#list scopes as scope>${scope}<#if scope_has_next>, </#if></#list></strong>?
 		</p>
 		<form id="confirmationForm" name="confirmationForm"
-			action="../oauth/authorize" method="post">
-			<input name="user_oauth_approval" value="true" type="hidden" />
+			action="/oauth2/authorize" method="post">
+			<input type="hidden" name="client_id" value="${clientId}"/>
+			<input type="hidden" name="state" value="${state}"/>
+			<#list scopes as scope>
+			<input type="hidden" name="scope" value="${scope}"/>
+			</#list>
 			<input type="hidden" id="csrf_token" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 			<button class="btn btn-primary" type="submit">Approve</button>
 		</form>
-		<form id="denyForm" name="confirmationForm"
-			action="../oauth/authorize" method="post">
-			<input name="user_oauth_approval" value="false" type="hidden" />
+		<form id="denyForm" name="denyForm"
+			action="/oauth2/authorize" method="post">
+			<input type="hidden" name="client_id" value="${clientId}"/>
+			<input type="hidden" name="state" value="${state}"/>
 			<input type="hidden" id="csrf_token" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-			<button class="btn btn-primary" type="submit">Deny</button>
+			<button class="btn btn-secondary" type="submit">Deny</button>
 		</form>
 	</div>
 </body>

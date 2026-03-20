@@ -23,7 +23,7 @@ build/
 nbbuild/
 dist/
 nbdist/
-.nb-gradle/# See http://help.github.com/ignore-files/ for more about ignoring files.
+.nb-gradle/# See https://help.github.com/ignore-files/ for more about ignoring files.
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json

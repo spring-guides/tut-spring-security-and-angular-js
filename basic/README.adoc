@@ -7,7 +7,7 @@ In this section we show some nice features of Spring Security, Spring Boot and A
 
 HTML5, rich browser-based features, and the "single page application" are extremely valuable tools for modern developers, but any meaningful interactions will involve a backend server, so as well as static content (HTML, CSS and JavaScript) we are going to need a backend server. The backend server can play any or all of a number of roles: serving static content, sometimes (but not so often these days) rendering dynamic HTML, authenticating users, securing access to protected resources, and (last but not least) interacting with JavaScript in the browser through HTTP and JSON (sometimes referred to as a REST API).
 
-Spring has always been a popular technology for building the backend features (especially in the enterprise), and with the advent of http://projects.spring.io/spring-boot[Spring Boot] things have never been easier. Let's have a look at how to build a new single page application from nothing using Spring Boot, Angular JS and Twitter Bootstrap. There's no particular reason to choose that specific stack, but it is quite popular, especially with the core Spring constituency in enterprise Java shops, so it's a worthwhile starting point.
+Spring has always been a popular technology for building the backend features (especially in the enterprise), and with the advent of https://projects.spring.io/spring-boot[Spring Boot] things have never been easier. Let's have a look at how to build a new single page application from nothing using Spring Boot, Angular JS and Twitter Bootstrap. There's no particular reason to choose that specific stack, but it is quite popular, especially with the core Spring constituency in enterprise Java shops, so it's a worthwhile starting point.
 
 == Create a New Project
 
@@ -37,7 +37,7 @@ You can then import that project (it's a normal Maven Java project by default) i
 [[using-spring-boot-cli]]
 === Using Spring Boot CLI
 
-You can create the same project using the http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#getting-started-installing-the-cli[Spring Boot CLI], like this:
+You can create the same project using the https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#getting-started-installing-the-cli[Spring Boot CLI], like this:
 
 [source]
 ----
@@ -54,7 +54,7 @@ If you prefer you can also get the same code directly as a .zip file from the ht
 [[using-spring-tool-suite]]
 === Using Spring Tool Suite
 
-In http://spring.io/tools/sts[Spring Tool Suite] (a set of Eclipse plugins) you can also create and import a project using a wizard at `File-&gt;New-&gt;Spring Starter Project`. Then jump to the link:#add-a-home-page[next section].
+In https://spring.io/tools/sts[Spring Tool Suite] (a set of Eclipse plugins) you can also create and import a project using a wizard at `File-&gt;New-&gt;Spring Starter Project`. Then jump to the link:#add-a-home-page[next section].
 
 [[add-a-home-page]]
 == Add a Home Page
@@ -102,7 +102,7 @@ Salient features include:
 
 * The `&lt;body&gt;` is marked as `ng-app=&quot;hello&quot;` which means we need to define a JavaScript module that Angular will recognise as an application called "hello".
 
-* All the CSS classes (apart from "ng-cloak") are from http://getbootstrap.com/[Twitter Bootstrap]. They will make things look pretty once we get the right stylesheets set up.
+* All the CSS classes (apart from "ng-cloak") are from https://getbootstrap.com/[Twitter Bootstrap]. They will make things look pretty once we get the right stylesheets set up.
 
 * The content in the greeting is marked up using handlebars, e.g. `{{greeting.content}}` and this will be filled in later by Angular (using a "controller" called "home" according to the `ng-controller` directive on the surrounding `&lt;div&gt;`).
 
@@ -137,12 +137,12 @@ $ java -jar target/*.jar
 
 == Front End Assets
 
-Entry-level tutorials on Angular and other front end technologies often just include the library assets directly from the internet (e.g. https://docs.angularjs.org/misc/downloading[the Angular JS website] itself recommends downloading from https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.min.js[Google CDN]). Instead of doing that we are going to generate the "angular-bootstrap.js" asset by concatenating several files from such libraries. This is not strictly necessary to get the application working, but it _is_ best practice for a production application to consolidate scripts to avoid chatter between the browser and the server (or content delivery network). Since we aren't modifying or customizing the CSS stylesheets it is also unecessary to generate the "angular-bootstrap.css", and we could just use static assets from Google CDN for that as well. However, in a real application we almost certainly would want to modify the stylesheets and we wouldn't want to edit the CSS sources by hand, so we would use a higher level tool (e.g. http://lesscss.org/[Less] or http://sass-lang.com/[Sass]), so we are going to use one too.
+Entry-level tutorials on Angular and other front end technologies often just include the library assets directly from the internet (e.g. https://docs.angularjs.org/misc/downloading[the Angular JS website] itself recommends downloading from https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.min.js[Google CDN]). Instead of doing that we are going to generate the "angular-bootstrap.js" asset by concatenating several files from such libraries. This is not strictly necessary to get the application working, but it _is_ best practice for a production application to consolidate scripts to avoid chatter between the browser and the server (or content delivery network). Since we aren't modifying or customizing the CSS stylesheets it is also unecessary to generate the "angular-bootstrap.css", and we could just use static assets from Google CDN for that as well. However, in a real application we almost certainly would want to modify the stylesheets and we wouldn't want to edit the CSS sources by hand, so we would use a higher level tool (e.g. http://lesscss.org/[Less] or https://sass-lang.com/[Sass]), so we are going to use one too.
 
-There are many different ways of doing this, but for the purposes of this section, we are going to use http://alexo.github.io/wro4j/[wro4j], which is a Java-based toolchain for preprocessing and packaging front end assets. It can be used as a JIT (Just in Time) `Filter` in any Servlet application, but it also has good support for build tools like Maven and Eclipse, and that is how we are going to use it. So we are going to build static resource files and bundle them in our application JAR.
+There are many different ways of doing this, but for the purposes of this section, we are going to use https://alexo.github.io/wro4j/[wro4j], which is a Java-based toolchain for preprocessing and packaging front end assets. It can be used as a JIT (Just in Time) `Filter` in any Servlet application, but it also has good support for build tools like Maven and Eclipse, and that is how we are going to use it. So we are going to build static resource files and bundle them in our application JAR.
 
 ____
-Aside: Wro4j is probably not the tool of choice for hard-core front end developers - they would probably be using a node-based toolchain, with http://bower.io/[bower] and/or http://gruntjs.com/[grunt]. These are definitely excellent tools, and covered in great detail all over the internet, so please feel free to use them if you prefer. If you just put the outputs from those toolchains in "src/main/resources/static" then it will all work. I find wro4j comfortable because I am not a hard-core front end developer and I know how to use Java-based tooling.
+Aside: Wro4j is probably not the tool of choice for hard-core front end developers - they would probably be using a node-based toolchain, with https://bower.io/[bower] and/or https://gruntjs.com/[grunt]. These are definitely excellent tools, and covered in great detail all over the internet, so please feel free to use them if you prefer. If you just put the outputs from those toolchains in "src/main/resources/static" then it will all work. I find wro4j comfortable because I am not a hard-core front end developer and I know how to use Java-based tooling.
 ____
 
 To create static resources at build time we add some magic to the Maven `pom.xml` (it's quite verbose, but boilerplate, so it could be extracted into a parent pom in Maven, or a shared task or plugin for Gradle):
@@ -413,7 +413,7 @@ The interactions between the browser and the backend can be seen in your browser
 |GET |/resource |200 |JSON greeting
 |===
 
-You might not see the 401 because the browser treats the home page load as a single interaction, and you might see 2 requests for "/resource" because there is a http://en.wikipedia.org/wiki/Cross-origin_resource_sharing[CORS] negotiation.
+You might not see the 401 because the browser treats the home page load as a single interaction, and you might see 2 requests for "/resource" because there is a https://en.wikipedia.org/wiki/Cross-origin_resource_sharing[CORS] negotiation.
 
 Look more closely at the requests and you will see that all of them have an "Authorization" header, something like this:
 
@@ -432,12 +432,12 @@ On the face of it, it seems like we did a pretty good job, it's concise, easy to
 
 * The authentication UI is ubiquitous but ugly (browser dialog).
 
-* There is no protection from http://en.wikipedia.org/wiki/Cross-site_request_forgery[Cross Site Request Forgery] (CSRF).
+* There is no protection from https://en.wikipedia.org/wiki/Cross-site_request_forgery[Cross Site Request Forgery] (CSRF).
 
 CSRF isn't really an issue with our application as it stands since it only needs to GET the backend resources (i.e. no state is changed in the server). As soon as you have a POST, PUT or DELETE in your application it simply isn't secure any more by any reasonable modern measure.
 
 In the <<_the_login_page_angular_js_and_spring_security_part_ii,next section in this series>> we will extend the application to use form-based authentication, which is a lot more flexible than HTTP Basic. Once we have a form we will need CSRF protection, and both Spring Security and Angular have some nice out-of-the box features to help with this. Spoiler: we are going to need to use the `HttpSession`.
 
 ****
-Thanks: I would like to thank everyone who helped me develop this series, and in particular http://spring.io/team/rwinch[Rob Winch] and https://twitter.com/thspaeth[Thorsten Spaeth] for their careful reviews of the text and source code, and for teaching me a few tricks I didn't know even about the parts I thought I was most familar with.
+Thanks: I would like to thank everyone who helped me develop this series, and in particular https://spring.io/team/rwinch[Rob Winch] and https://twitter.com/thspaeth[Thorsten Spaeth] for their careful reviews of the text and source code, and for teaching me a few tricks I didn't know even about the parts I thought I was most familar with.
 ****

@@ -82,7 +82,7 @@
 				<artifactId>frontend-maven-plugin</artifactId>
 				<version>1.15.4</version>
 				<configuration>
-						<nodeVersion>v20.18.0</nodeVersion>
+						<nodeVersion>v20.19.0</nodeVersion>
 				</configuration>
 				<executions>
 					<execution>

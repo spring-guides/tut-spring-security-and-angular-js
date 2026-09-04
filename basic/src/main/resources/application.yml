@@ -1,7 +1,0 @@
-spring:
-  security:
-    user:
-      password: password
-  web:
-    resources:
-      static-locations: classpath:/static/browser/

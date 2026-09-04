@@ -1,9 +1,0 @@
-spring:
-  security:
-    user:
-      password: password
-  session:
-    store-type: redis
-  web:
-    resources:
-      static-locations: classpath:/static/browser/

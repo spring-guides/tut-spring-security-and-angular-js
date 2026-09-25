@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: basic
   security:
     user:
       password: password

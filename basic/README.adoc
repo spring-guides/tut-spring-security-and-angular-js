@@ -28,10 +28,10 @@ The easiest way to create a new project to get started is via the https://start.
 [source]
 ----
 $ mkdir ui && cd ui
-$ curl https://start.spring.io/starter.tgz -d dependencies=web,security -d name=ui | tar -xzvf -
+$ curl https://start.spring.io/starter.tgz -d dependencies=web,security -d name=ui -d type=maven-project | tar -xzvf -
 ----
 
-You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvn" on the command line. Then jump to the link:#add-a-home-page[next section].
+You can then import that project (it's a normal Maven Java project by default) into your favourite IDE, or just work with the files and "mvnw" on the command line. Then jump to the link:#add-a-home-page[next section].
 
 [[using-spring-boot-cli]]
 === Using Spring Boot CLI
@@ -40,7 +40,7 @@ You can create the same project using the https://docs.spring.io/spring-boot/doc
 
 [source]
 ----
-$ spring init --dependencies web,security ui/ && cd ui
+$ spring init --dependencies web,security --type maven-project ui/ && cd ui
 ----
 
 Then jump to the link:#add-a-home-page[next section].
@@ -66,7 +66,7 @@ Once the Angular app is primed, your application will be loadable in a browser (
 
 [source]
 ----
-$ mvn spring-boot:run
+$ mvnw spring-boot:run
 ----
 
 and go to a browser at http://localhost:8080[http://localhost:8080]. When you load the home page you should get a browser dialog asking for username and password (the username is "user" and the password is printed in the console logs on startup). There's actually no content yet (or maybe the default "hero" tutorial content from the `ng` CLI), so you should get essentially a blank page.
@@ -79,7 +79,7 @@ To package and run as a standalone JAR, you can do this:
 
 [source]
 ----
-$ mvn package
+$ mvnw package
 $ java -jar target/*.jar
 ----
 
